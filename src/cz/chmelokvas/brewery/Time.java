@@ -1,13 +1,13 @@
-package Brewery;
+package cz.chmelokvas.brewery;
 
 public class Time {
 
 	/** Atribut konstanty den */
-	private int DATE;
+	private int day;
 	
 	/** Atribut konstanty hodina */
-	private int  HOUR;
+	private int  hour;
 	
 	/** Atribut konstanty minuta */
-	private int MINUTE;
+	private int minute;
 }
