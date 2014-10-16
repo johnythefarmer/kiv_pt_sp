@@ -1,5 +1,7 @@
 package cz.chmelokvas.util;
 
-public class Controller {
+import cz.chmelokvas.brewery.TransportNode;
 
+public class Controller {
+	public TransportNode[] nodes;
 }
