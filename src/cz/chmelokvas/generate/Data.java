@@ -2,7 +2,6 @@ package cz.chmelokvas.generate;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.util.Random;
 
@@ -11,8 +10,10 @@ import javax.swing.JFrame;
 public class Data extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	Point[] ps;
-	Point[] ph;
+	private final static int countPub = 10;
+	Node[] ps;
+	Node[] ph;
+	
 	
 	public Data(){
 		this.ps = generateS();
@@ -27,35 +28,41 @@ public class Data extends JFrame {
 		
 		g2.drawRect(0, 0, 500, 500);
 		
+		g2.drawLine(0, 500/3, 500, 500/3);
+		g2.drawLine(0, 500-500/3, 500, 500-500/3);
+		g2.drawLine(500/3, 0, 500/3, 500);
+		g2.drawLine(500-500/3, 0, 500-500/3, 500);
+		
 		for(int i = 0; i < ps.length; i++){
-			g2.fill(new Ellipse2D.Double(ps[i].x, ps[i].y, 5,5));
+			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 5,5));
 		}
 		
 		for(int j = 0; j < ph.length; j++){
-			g2.draw(new Ellipse2D.Double(ph[j].x, ph[j].y, 1,1));
+			g2.draw(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 2,2));
 		}
 	}
 	
-	private Point[] generateH(){
-		int hospod = 4000;
-		
-		Point [] p = new Point[hospod];
+	private Node[] generateH(){		
+		Node [] p = new Node[countPub];
+		Node tmp;
 		Random rd = new Random();
-		int x, y;
-		float vzdalenost;
+		float x, y;
+		float lng;
 		
 		for(int i = 0; i < p.length; i++){
 			x = rd.nextInt(500);
 			y = rd.nextInt(500);
+			tmp = new Node(x, y);
 			
-			if(i == 0){ p[i] = new Point(x, y); continue; }
+			if(i == 0){ p[i] = new Node(x, y); continue; }
 			
 			for(int j = 0; j < i; j++){
 				
-				vzdalenost = (float) Math.sqrt((x-p[j].x)*(x-p[j].x)+(y-p[j].y)*(y-p[j].y));
+		//		lng = (float) Math.sqrt((x-p[j].getX())*(x-p[j].getX())+(y-p[j].getY())*(y-p[j].getY()));
+				lng = lengthEdge(tmp, p[j]);
 				
-				if(vzdalenost >= 2.0){
-					p[i] = new Point(x, y);
+				if(lng >= 2.0 || ps[j%9].getX() != x && ps[j%9].getY() != getY()){
+					p[i] = new Node(x, y);
 					break;
 				}
 			}
@@ -63,14 +70,13 @@ public class Data extends JFrame {
 		return p;
 	}
 	
-	 
-	private Point[] generateS(){
-		Point [] p = new Point[9];
+	private Node[] generateS(){
+		Node [] p = new Node[9];
 		Random rd = new Random();
 		int xTmp = 0;
 		int yTmp = 0;
 		
-		double x, y;
+		float x, y;
 		int k = 0;
 		
 		/* Generuj XY 67 - 100 v kazdem sektoru */
@@ -78,7 +84,7 @@ public class Data extends JFrame {
 			for(int j = 0; j < 3; j++){
 				x = rd.nextInt(33)+xTmp+67;
 				y = rd.nextInt(33)+yTmp+67;
-				p[k++] = new Point((int)x, (int)y);
+				p[k++] = new Node(x, y);
 				xTmp += 166;
 			}
 			yTmp += 166;
@@ -88,8 +94,58 @@ public class Data extends JFrame {
 		return p;
 	}
 	
+	private float lengthEdge(Node a, Node b){
+		float p = (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
+				Math.pow(a.getY()-b.getY(), 2.0));
+		return p;
+	}
+	
+	private void pub2dock(){
+		float lng, lngMin = Float.MAX_VALUE;
+		int ind = 0;
+		
+		for(int i = 0; i < ph.length; i++){
+			for(int j = 0; j < ps.length; j++){		
+				
+				lng = lengthEdge(ph[i], ps[j]);
+				
+				if(lng < lngMin){
+					lngMin = lng;
+					ind = j;
+				}
+			}
+			ph[i].setDock(ps[ind]);
+		}
+	}
+	
+	private void checkPub(){
+		int ck[] = new int[9];
+		for(int i = 0; i < this.ph.length; i++){
+			
+			System.out.println(ph[i]+"      "+ph[i].getDock());
+			
+			if(this.ph[i].getDock().equals(this.ps[0])) ck[0]++;
+			if(this.ph[i].getDock().equals(this.ps[1])) ck[1]++;
+			if(this.ph[i].getDock().equals(this.ps[2])) ck[2]++;
+			if(this.ph[i].getDock().equals(this.ps[3])) ck[3]++;
+			if(this.ph[i].getDock().equals(this.ps[4])) ck[4]++;
+			if(this.ph[i].getDock().equals(this.ps[5])) ck[5]++;
+			if(this.ph[i].getDock().equals(this.ps[6])) ck[6]++;
+			if(this.ph[i].getDock().equals(this.ps[7])) ck[7]++;
+			if(this.ph[i].getDock().equals(this.ps[8])) ck[8]++;
+		}
+		int count = 0;
+		for(int j = 0; j < ck.length; j++){
+			System.out.println("Sklad_"+j+": "+ck[j]);
+			count += ck[j];
+		}
+		System.out.println("Celkem: "+count);
+	}
+	
 	public static void main(String [] arg){
 		Data d = new Data();
+		d.pub2dock();
+		d.checkPub();
 		
 	}
 }
