@@ -1,5 +1,6 @@
 package cz.chmelokvas.generate;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
@@ -10,14 +11,17 @@ import javax.swing.JFrame;
 public class Data extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	private final static int countPub = 10;
+	private final static int countPub = 4000;
 	Node[] ps;
 	Node[] ph;
 	
 	
 	public Data(){
+	//	long t = System.currentTimeMillis();
 		this.ps = generateS();
 		this.ph = generateH();
+		this.pub2dock();
+	//	System.out.println(System.currentTimeMillis()-t);
 
 		this.setSize(500, 500);
 		this.setVisible(true);
@@ -28,17 +32,19 @@ public class Data extends JFrame {
 		
 		g2.drawRect(0, 0, 500, 500);
 		
-		g2.drawLine(0, 500/3, 500, 500/3);
-		g2.drawLine(0, 500-500/3, 500, 500-500/3);
-		g2.drawLine(500/3, 0, 500/3, 500);
-		g2.drawLine(500-500/3, 0, 500-500/3, 500);
+//		g2.drawLine(0, 500/3, 500, 500/3);
+//		g2.drawLine(0, 500-500/3, 500, 500-500/3);
+//		g2.drawLine(500/3, 0, 500/3, 500);
+//		g2.drawLine(500-500/3, 0, 500-500/3, 500);
 		
 		for(int i = 0; i < ps.length; i++){
-			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 5,5));
+			g2.setColor(ps[i].getColor());
+			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 4,4));
 		}
 		
 		for(int j = 0; j < ph.length; j++){
-			g2.draw(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 2,2));
+			g2.setColor(ph[j].getDock().getColor());
+			g2.fill(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 2,2));
 		}
 	}
 	
@@ -71,8 +77,10 @@ public class Data extends JFrame {
 	}
 	
 	private Node[] generateS(){
-		Node [] p = new Node[9];
+		Node [] p = new Node[8];
 		Random rd = new Random();
+		Color[] cl = {Color.yellow, Color.black, Color.red, Color.green, Color.blue,
+					Color.orange, Color.magenta, Color.pink, Color.darkGray};
 		int xTmp = 0;
 		int yTmp = 0;
 		
@@ -82,9 +90,12 @@ public class Data extends JFrame {
 		/* Generuj XY 67 - 100 v kazdem sektoru */
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
+				if(i != 1 || j != 1){
 				x = rd.nextInt(33)+xTmp+67;
 				y = rd.nextInt(33)+yTmp+67;
-				p[k++] = new Node(x, y);
+				p[k] = new Node(x, y);
+				p[k].setColor(cl[k]);
+				k++;}
 				xTmp += 166;
 			}
 			yTmp += 166;
@@ -100,11 +111,14 @@ public class Data extends JFrame {
 		return p;
 	}
 	
+	/* Prirad k hospode nejblizsi prekladiste */
 	private void pub2dock(){
-		float lng, lngMin = Float.MAX_VALUE;
+		float lng, lngMin;
 		int ind = 0;
 		
 		for(int i = 0; i < ph.length; i++){
+	//		System.out.println(ph[i]);
+			lngMin = Float.MAX_VALUE;
 			for(int j = 0; j < ps.length; j++){		
 				
 				lng = lengthEdge(ph[i], ps[j]);
@@ -121,9 +135,7 @@ public class Data extends JFrame {
 	private void checkPub(){
 		int ck[] = new int[9];
 		for(int i = 0; i < this.ph.length; i++){
-			
-			System.out.println(ph[i]+"      "+ph[i].getDock());
-			
+						
 			if(this.ph[i].getDock().equals(this.ps[0])) ck[0]++;
 			if(this.ph[i].getDock().equals(this.ps[1])) ck[1]++;
 			if(this.ph[i].getDock().equals(this.ps[2])) ck[2]++;
@@ -144,8 +156,8 @@ public class Data extends JFrame {
 	
 	public static void main(String [] arg){
 		Data d = new Data();
-		d.pub2dock();
-		d.checkPub();
+//		d.pub2dock();
+//		d.checkPub();
 		
 	}
 }
