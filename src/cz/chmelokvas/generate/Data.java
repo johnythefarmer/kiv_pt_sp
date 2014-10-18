@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.TreeSet;
@@ -15,8 +14,9 @@ public class Data extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	private final static int countPub = 4000;
-	Node[] ps;
-	Node[] ph;
+	private final static int countDock = 8;
+	private Node[] ps;
+	private Node[] ph;
 	
 	
 	public Data(){
@@ -24,7 +24,8 @@ public class Data extends JFrame {
 		this.ps = generateS();
 		this.ph = generateH();
 		this.pub2dock();
-		this.neirPub();
+		this.ph = neirNeighboursToPoint(ph, ph, 15);
+		this.ps = neirNeighboursToPoint(ps, ph, 50);
 //		System.out.println(System.currentTimeMillis()-t);
 
 //		this.setSize(500, 500);
@@ -79,44 +80,47 @@ public class Data extends JFrame {
 		return p;
 	}
 	
-	private void neirPub(){
-		 int neighbours = 15;
+	/* Pro co (a) hledam nejblizsi hospody (b) */
+	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
 		 TreeSet<Node> tree;
 		 Node[] p;
 		 float leng = 0;
 		 int k;
 //		 int countPub = 0;
 		 
-		 for(int i = 0; i < ph.length; i++){
+		 for(int i = 0; i < a.length; i++){
 			 tree = new TreeSet<Node>(new Compar());
-			 for(int j = 0; j < ph.length; j++){
+			 for(int j = 0; j < b.length; j++){
 				 if(i == j) continue;
 				 
-				 if(ph[i].getX()+50 > ph[j].getX() && ph[i].getX()-50 < ph[j].getX() &&
-					ph[i].getY()+50 > ph[j].getY() && ph[i].getY()-50 < ph[j].getY()){
+				 if(a[i].getX()+50 > b[j].getX() && a[i].getX()-50 < b[j].getX() &&
+					a[i].getY()+50 > b[j].getY() && a[i].getY()-50 < b[j].getY()){
 					 
-				 	leng = lengthEdge(ph[i], ph[j]);
-					tree.add(new Node(ph[j], leng));	
+				 	leng = lengthEdge(a[i], b[j]);
+					tree.add(new Node(b[j], leng));	
 				 }
 			 }
-			 if(tree.size() >= neighbours){
-				 p = new Node[neighbours];
+			 if(tree.size() >= cnt){
+				 p = new Node[cnt];
 				 k = 0;
 				 for(Node x : tree){
-					 if(k >= neighbours) break;
+					 if(k >= cnt) break;
 					 p[k] = x.getDock();
 					 k++;
 				 }
-				 ph[i].setNeighbours(p);
-				/* System.out.println("--------------------------------------------");
-				 System.out.println("Hospoda: "+i +"     "+ph[i]);
-				 for(int l = 0; l < ph[i].getNeighbours().length; l++){
-				 	System.out.println("Sousedi: "+l+"   "+ph[i].getNeighbours()[l].getX()+"   "+ph[i].getNeighbours()[l].getY());
-				 }
-				 countPub++;*/
+				 a[i].setNeighbours(p);
+				 
+				 
+//				 System.out.println("--------------------------------------------");
+//				 System.out.println("Hospoda: "+i +"     "+a[i]);
+//				 for(int l = 0; l < a[i].getNeighbours().length; l++){
+//				 	System.out.println("Sousedi: "+l+"   "+a[i].getNeighbours()[l].getX()+"   "+a[i].getNeighbours()[l].getY());
+//				 }
+//				 countPub++;
 			 }
 		 }
 //		 System.out.println("----------   "+countPub);
+		 return a;
 	}
 	
 	class Compar implements Comparator<Node>{
@@ -132,7 +136,7 @@ public class Data extends JFrame {
 	}
 	
 	private Node[] generateS(){
-		Node [] p = new Node[8];
+		Node [] p = new Node[countDock];
 		Random rd = new Random();
 		Color[] cl = {Color.yellow, Color.black, Color.red, Color.green, Color.blue,
 					Color.orange, Color.magenta, Color.pink, Color.darkGray};
@@ -212,12 +216,10 @@ public class Data extends JFrame {
 	}
 	
 	private void checkPub(){
-		int ck[] = new int[9];
+		int ck[] = new int[countDock];
 		for(int i = 0; i < this.ph.length; i++){
 						
-			if(this.ph[i].getDock().equals(this.ps[0])){
-				ck[0]++;
-			}
+			if(this.ph[i].getDock().equals(this.ps[0])) ck[0]++;
 			if(this.ph[i].getDock().equals(this.ps[1])) ck[1]++;
 			if(this.ph[i].getDock().equals(this.ps[2])) ck[2]++;
 			if(this.ph[i].getDock().equals(this.ps[3])) ck[3]++;
@@ -225,7 +227,6 @@ public class Data extends JFrame {
 			if(this.ph[i].getDock().equals(this.ps[5])) ck[5]++;
 			if(this.ph[i].getDock().equals(this.ps[6])) ck[6]++;
 			if(this.ph[i].getDock().equals(this.ps[7])) ck[7]++;
-			if(this.ph[i].getDock().equals(this.ps[8])) ck[8]++;
 		}
 		int count = 0;
 		for(int j = 0; j < ck.length; j++){
