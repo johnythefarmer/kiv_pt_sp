@@ -1,22 +1,25 @@
 package cz.chmelokvas.generate;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 public class Node {
+	private int id;
 	private float x;
 	private float y;
 	private float d;
 	private Node dock;
 	private Color color;
-	private Node[] neighbours;
+	private ArrayList<Node> neighbours;
 	
 	/* Konstruktor souradnice X a Y */
-	public Node(float x, float y){
+	public Node(float x, float y, int id){
 		this.x = x;
 		this.y = y;
 		this.dock = null;
 		this.color = null;
 		this.neighbours = null;
+		this.id = id;
 	}
 	
 	/* Konstruktor pro TreeSet
@@ -26,7 +29,11 @@ public class Node {
 		this.dock = dock;
 		this.d = d;
 	}
-		
+	
+	/* Konstruktor pro nove vygenerovane souradnice */
+	public Node(float x, float y){
+		this(x, y, 0);
+	}
 	
 	public String toString(){
 		return x+" "+y;
@@ -53,11 +60,11 @@ public class Node {
 	public float getD(){
 		return this.d;
 	}
-	public void setNeighbours(Node[] neighbours){
-		this.neighbours = neighbours;
+	public ArrayList<Node> getNeighbours(){
+		return neighbours;
 	}
-	public Node[] getNeighbours(){
-		return this.neighbours;
+	public void inclNeighbours(){
+		this.neighbours = new ArrayList<>();
 	}
 	
 }

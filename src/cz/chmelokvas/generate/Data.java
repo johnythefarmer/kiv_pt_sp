@@ -13,20 +13,44 @@ import javax.swing.JFrame;
 public class Data extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	private final static int countPub = 4000;
-	private final static int countDock = 8;
+	
+	/* Celkovy pocet hospod (z tanku + ze sudu) */
+	private final int countPub = 4000;
+	
+	/* Pocet prekladist + pivovar */
+	private final int countDock = 9;
+	
+	/* Pocet hospod z tanku */
+	private final int pubFromTank = 200;
+	
+	/* X rozmer mapy */
+	private final int sizeMapX = 500;
+	/* Y rozmer mapy */
+	private final int sizeMapY = 500;
+	
+	/* ID bodu
+	 * 		0 -> pivovar
+	 * 		1 - 8 -> prekladiste
+	 * 		9 - 200 -> hospody z tanku
+	 * 		201 - 4000 -> hospody ze sudu
+	*/
+	private int idCount = 1;
+	
+	/* Pole bodu prekladist + pivovar */
 	private Node[] ps;
+	
+	/* Pole bodu hospod */
 	private Node[] ph;
 	
 	
 	public Data(){
-//		long t = System.currentTimeMillis();
+		long t = System.currentTimeMillis();
 		this.ps = generateS();
 		this.ph = generateH();
 		this.pub2dock();
 		this.ph = neirNeighboursToPoint(ph, ph, 15);
 		this.ps = neirNeighboursToPoint(ps, ph, 50);
-//		System.out.println(System.currentTimeMillis()-t);
+		System.out.println(System.currentTimeMillis()-t);
 
 //		this.setSize(500, 500);
 //		this.setVisible(true);
@@ -35,7 +59,7 @@ public class Data extends JFrame {
 	public void paint(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
 		
-		g2.drawRect(0, 0, 500, 500);
+		g2.drawRect(0, 0, sizeMapX, sizeMapY);
 		
 //		g2.drawLine(0, 500/3, 500, 500/3);
 //		g2.drawLine(0, 500-500/3, 500, 500-500/3);
@@ -57,22 +81,30 @@ public class Data extends JFrame {
 		Node [] p = new Node[countPub];
 		Node tmp;
 		Random rd = new Random();
+		
+		/* X a Y souradnice hospody */
 		float x, y;
+		
+		/* Vzdalenost vygenovaneho bodu a jiz ulozeneho bodu */
 		float lng;
 		
+//		/* ID hospody */
+//		int idCount = countDock;
+		
 		for(int i = 0; i < p.length; i++){
-			x = rd.nextInt(500);
-			y = rd.nextInt(500);
-			tmp = new Node(x, y);
+			x = rd.nextInt(sizeMapX);
+			y = rd.nextInt(sizeMapY);
+			tmp = new Node(x, y, idCount);
 			
-			if(i == 0){ p[i] = new Node(x, y); continue; }
+			if(i == 0){ p[i] = tmp; idCount++; continue; }
 			
 			for(int j = 0; j < i; j++){
 				
 				lng = lengthEdge(tmp, p[j]);
 				
-				if(lng >= 2.0 || ps[j%9].getX() != x && ps[j%9].getY() != getY()){
-					p[i] = new Node(x, y);
+				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY()){
+					p[i] = tmp;
+					idCount++;
 					break;
 				}
 			}
@@ -83,8 +115,7 @@ public class Data extends JFrame {
 	/* Pro co (a) hledam nejblizsi hospody (b) */
 	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
 		 TreeSet<Node> tree;
-		 Node[] p;
-		 float leng = 0;
+		 float leng;
 		 int k;
 //		 int countPub = 0;
 		 
@@ -101,25 +132,23 @@ public class Data extends JFrame {
 				 }
 			 }
 			 if(tree.size() >= cnt){
-				 p = new Node[cnt];
+				 a[i].inclNeighbours();
 				 k = 0;
 				 for(Node x : tree){
-					 if(k >= cnt) break;
-					 p[k] = x.getDock();
-					 k++;
+					 if(k++ >= cnt) break;
+					 a[i].getNeighbours().add(x.getDock());
 				 }
-				 a[i].setNeighbours(p);
 				 
-				 
+// Kontrola sousedu
 //				 System.out.println("--------------------------------------------");
 //				 System.out.println("Hospoda: "+i +"     "+a[i]);
-//				 for(int l = 0; l < a[i].getNeighbours().length; l++){
-//				 	System.out.println("Sousedi: "+l+"   "+a[i].getNeighbours()[l].getX()+"   "+a[i].getNeighbours()[l].getY());
+//				 for(int l = 0; l < a[i].getNeighbours().size(); l++){
+//					 System.out.println("Sousedi: "+l+"   "+a[i].getNeighbours().get(l).getX()+"   "+a[i].getNeighbours().get(l).getY());
 //				 }
 //				 countPub++;
 			 }
 		 }
-//		 System.out.println("----------   "+countPub);
+//		 System.out.println("------------------------------------------------------   "+countPub);
 		 return a;
 	}
 	
@@ -140,49 +169,67 @@ public class Data extends JFrame {
 		Random rd = new Random();
 		Color[] cl = {Color.yellow, Color.black, Color.red, Color.green, Color.blue,
 					Color.orange, Color.magenta, Color.pink, Color.darkGray};
-		int xTmp = 0;
-		int yTmp = 0;
 		
+		/* Pomocne X a Y souradnice pro generovani  */
+		int xTmp = 0, yTmp = 0;
+		
+		/* X a Y souradnice prekladiste/pivovaru */
 		float x, y;
-		int k = 0;
+		
+//		/* ID prekladiste/pivovaru */
+//		int idCount = 1;
 		
 		/* Generuj XY 67 - 100 v kazdem sektoru */
 		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				if(i != 1 || j != 1){
-				x = rd.nextInt(33)+xTmp+67;
-				y = rd.nextInt(33)+yTmp+67;
-				p[k] = new Node(x, y);
-				p[k].setColor(cl[k]);
-				k++;}
+			for(int j = 0; j < 3; j++)
+			{	
+				if(i != 1 || j != 1)
+				{
+					/* Generovani souradnic prekladiste */
+					x = rd.nextInt(33)+xTmp+67;
+					y = rd.nextInt(33)+yTmp+67;
+					p[idCount] = new Node(x, y, idCount);
+					p[idCount].setColor(cl[idCount]);
+					idCount++;
+				}else
+				{
+					/* Generovani souradnic pivovaru */
+					x = rd.nextInt(33)+xTmp+67;
+					y = rd.nextInt(33)+yTmp+67;
+					p[0] = new Node(x, y, idCount);
+					p[0].setColor(cl[idCount]);
+					
+				}
 				xTmp += 166;
 			}
 			yTmp += 166;
 			xTmp = 0;
-			
 		}
 		return p;
 	}
 	
-	private float lengthEdge(Node a, Node b){
+	private float lengthEdge(Node a, Node b)
+	{
 		float p = (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
 				Math.pow(a.getY()-b.getY(), 2.0));
 		return p;
 	}
 	
 	/* Prirad k hospode nejblizsi prekladiste */
-	private void pub2dock(){
+	private void pub2dock()
+	{
 		float lng, lngMin;
 		int ind = 0;
 		
-		for(int i = 0; i < ph.length; i++){
-	//		System.out.println(ph[i]);
+		for(int i = 0; i < ph.length; i++)
+		{
 			lngMin = Float.MAX_VALUE;
-			for(int j = 0; j < ps.length; j++){		
-				
+			for(int j = 0; j < ps.length; j++)
+			{
 				lng = lengthEdge(ph[i], ps[j]);
 				
-				if(lng < lngMin){
+				if(lng < lngMin)
+				{
 					lngMin = lng;
 					ind = j;
 				}
@@ -191,34 +238,26 @@ public class Data extends JFrame {
 		}
 	}
 	
-	private void lengXY(Node p){
-//		int xy = 0;
+	private void lengXY(Node p)
+	{
 		float lengXmin = Float.MAX_VALUE, lengXmax = Float.MIN_VALUE, lengYmin = Float.MAX_VALUE, lengYmax = Float.MIN_VALUE;
-		for(int i = 0; i < this.ph.length; i++){
-			if(this.ph[i].getDock().equals(p)){
-				if(ph[i].getX() < lengXmin){
-					lengXmin = ph[i].getX();
-				}
-				if(ph[i].getX() > lengXmax){
-					lengXmax = ph[i].getX();
-				}
-				if(ph[i].getY() < lengYmin){
-					lengYmin = ph[i].getY();
-				}
-				if(ph[i].getY() > lengYmax){
-					lengYmax = ph[i].getY();
-				}
+		for(int i = 0; i < this.ph.length; i++)
+		{
+			if(this.ph[i].getDock().equals(p))
+			{
+				if(ph[i].getX() < lengXmin) lengXmin = ph[i].getX();
+				if(ph[i].getX() > lengXmax) lengXmax = ph[i].getX();
+				if(ph[i].getY() < lengYmin) lengYmin = ph[i].getY();
+				if(ph[i].getY() > lengYmax) lengYmax = ph[i].getY();
 			}	
 		}
 //		System.out.println(Math.abs(lengXmax - lengXmin) + " x " + Math.abs(lengYmax - lengYmin));
-		
-//		return xy;
 	}
 	
 	private void checkPub(){
 		int ck[] = new int[countDock];
-		for(int i = 0; i < this.ph.length; i++){
-						
+		for(int i = 0; i < this.ph.length; i++)
+		{			
 			if(this.ph[i].getDock().equals(this.ps[0])) ck[0]++;
 			if(this.ph[i].getDock().equals(this.ps[1])) ck[1]++;
 			if(this.ph[i].getDock().equals(this.ps[2])) ck[2]++;
@@ -229,21 +268,23 @@ public class Data extends JFrame {
 			if(this.ph[i].getDock().equals(this.ps[7])) ck[7]++;
 		}
 		int count = 0;
-		for(int j = 0; j < ck.length; j++){
+		for(int j = 0; j < ck.length; j++)
+		{
 			System.out.println("Sklad_"+j+": "+ck[j]);
 			count += ck[j];
 		}
-		
-		
 		System.out.println("Celkem: "+count);
 	}
 	
-	public static void main(String [] arg){
+	public static void main(String [] arg)
+	{
 		Data d = new Data();
-		for(int i = 0; i < d.ps.length; i++){
-			d.lengXY(d.ps[i]);
-		}
-//		d.pub2dock();
+		System.out.println(d.idCount);
+		
+//		for(int i = 0; i < d.ps.length; i++)
+//		{
+//			d.lengXY(d.ps[i]);
+//		}
 //		d.checkPub();
 		
 	}
