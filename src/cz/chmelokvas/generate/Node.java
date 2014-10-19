@@ -12,7 +12,13 @@ public class Node {
 	private Color color;
 	private ArrayList<Node> neighbours;
 	
-	/* Konstruktor souradnice X a Y */
+	/* Konstruktor souradnice X a Y,
+	 * 	  ID bodu
+	 * 		0 -> pivovar
+	 * 		1 - 8 -> prekladiste
+	 * 		9 - 200 -> hospody z tanku
+	 * 		201 - 4000 -> hospody ze sudu
+	*/
 	public Node(float x, float y, int id){
 		this.x = x;
 		this.y = y;
@@ -28,11 +34,6 @@ public class Node {
 	public Node(Node dock, float d){
 		this.dock = dock;
 		this.d = d;
-	}
-	
-	/* Konstruktor pro nove vygenerovane souradnice */
-	public Node(float x, float y){
-		this(x, y, 0);
 	}
 	
 	public String toString(){
@@ -65,6 +66,9 @@ public class Node {
 	}
 	public void inclNeighbours(){
 		this.neighbours = new ArrayList<>();
+	}
+	public int getID(){
+		return this.id;
 	}
 	
 }

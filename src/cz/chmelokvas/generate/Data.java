@@ -50,16 +50,17 @@ public class Data extends JFrame {
 		this.pub2dock();
 		this.ph = neirNeighboursToPoint(ph, ph, 15);
 		this.ps = neirNeighboursToPoint(ps, ph, 50);
-		System.out.println(System.currentTimeMillis()-t);
+		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
-//		this.setSize(500, 500);
-//		this.setVisible(true);
+		this.setSize(500, 500);
+		this.setVisible(true);
 	}
 	
 	public void paint(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
 		
 		g2.drawRect(0, 0, sizeMapX, sizeMapY);
+		int pivovar=0, prekladiste=0, hospodaZT=0, hospodaZS=0;
 		
 //		g2.drawLine(0, 500/3, 500, 500/3);
 //		g2.drawLine(0, 500-500/3, 500, 500-500/3);
@@ -67,14 +68,31 @@ public class Data extends JFrame {
 //		g2.drawLine(500-500/3, 0, 500-500/3, 500);
 		
 		for(int i = 0; i < ps.length; i++){
-			g2.setColor(ps[i].getColor());
+			if(ps[i].getID() == 0){
+				g2.setColor(Color.black);
+				pivovar++;
+			}
+			else{
+				g2.setColor(Color.yellow);
+				prekladiste++;
+			}
+	//		g2.setColor(ps[i].getColor());
 			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 4,4));
 		}
 		
 		for(int j = 0; j < ph.length; j++){
-			g2.setColor(ph[j].getDock().getColor());
+			if(ph[j].getDock().equals(ps[0])){
+				hospodaZT++;
+				g2.setColor(Color.black);
+			}
+			else{
+				g2.setColor(Color.yellow);
+				hospodaZS++;
+			}
+	//		g2.setColor(ph[j].getDock().getColor());
 			g2.fill(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 2,2));
 		}
+		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
 	}
 	
 	private Node[] generateH(){		
@@ -88,24 +106,43 @@ public class Data extends JFrame {
 		/* Vzdalenost vygenovaneho bodu a jiz ulozeneho bodu */
 		float lng;
 		
-//		/* ID hospody */
-//		int idCount = countDock;
-		
 		for(int i = 0; i < p.length; i++){
 			x = rd.nextInt(sizeMapX);
 			y = rd.nextInt(sizeMapY);
 			tmp = new Node(x, y, idCount);
 			
-			if(i == 0){ p[i] = tmp; idCount++; continue; }
+			/* 1. vygenerovana hospoda je z tanku */
+			if(i == 0)
+			{ 
+				p[i] = tmp;
+				p[i].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
+				ps[0].inclNeighbours();
+				ps[0].getNeighbours().add(tmp);	// pivovar drzi seznam hospod z tanku
+				idCount++;
+				continue;
+			}
 			
 			for(int j = 0; j < i; j++){
 				
 				lng = lengthEdge(tmp, p[j]);
 				
-				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY()){
-					p[i] = tmp;
-					idCount++;
-					break;
+				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY())
+				{
+					if( i < pubFromTank)
+					{
+						/* Hospody z tanku */
+						p[i] = tmp;
+						p[i].setDock(ps[0]);
+						ps[0].getNeighbours().add(tmp);
+						idCount++;
+						break;
+					}else
+					{
+						/* Hospody ze sudu */
+						p[i] = tmp;
+						idCount++;
+						break;
+					}
 				}
 			}
 		}
@@ -119,8 +156,13 @@ public class Data extends JFrame {
 		 int k;
 //		 int countPub = 0;
 		 
-		 for(int i = 0; i < a.length; i++){
+		 for(int i = 0; i < a.length; i++)
+		 {
+			 if(a[i].getID() == 0) continue;
+			 a[i].inclNeighbours();
+			 
 			 tree = new TreeSet<Node>(new Compar());
+			 
 			 for(int j = 0; j < b.length; j++){
 				 if(i == j) continue;
 				 
@@ -132,7 +174,6 @@ public class Data extends JFrame {
 				 }
 			 }
 			 if(tree.size() >= cnt){
-				 a[i].inclNeighbours();
 				 k = 0;
 				 for(Node x : tree){
 					 if(k++ >= cnt) break;
@@ -176,27 +217,24 @@ public class Data extends JFrame {
 		/* X a Y souradnice prekladiste/pivovaru */
 		float x, y;
 		
-//		/* ID prekladiste/pivovaru */
-//		int idCount = 1;
-		
 		/* Generuj XY 67 - 100 v kazdem sektoru */
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++)
 			{	
+				/* Generovani souradnic prekladiste/pivovaru */
+				x = rd.nextInt(33)+xTmp+67;
+				y = rd.nextInt(33)+yTmp+67;
+				
 				if(i != 1 || j != 1)
 				{
-					/* Generovani souradnic prekladiste */
-					x = rd.nextInt(33)+xTmp+67;
-					y = rd.nextInt(33)+yTmp+67;
+					/* Prekladiste */
 					p[idCount] = new Node(x, y, idCount);
 					p[idCount].setColor(cl[idCount]);
 					idCount++;
 				}else
-				{
-					/* Generovani souradnic pivovaru */
-					x = rd.nextInt(33)+xTmp+67;
-					y = rd.nextInt(33)+yTmp+67;
-					p[0] = new Node(x, y, idCount);
+				{	
+					/* Pivovar */
+					p[0] = new Node(x, y, 0);
 					p[0].setColor(cl[idCount]);
 					
 				}
@@ -215,16 +253,19 @@ public class Data extends JFrame {
 		return p;
 	}
 	
-	/* Prirad k hospode nejblizsi prekladiste */
+	/* Prirad k hospode ze sudu nejblizsi prekladiste */
 	private void pub2dock()
 	{
 		float lng, lngMin;
 		int ind = 0;
 		
-		for(int i = 0; i < ph.length; i++)
+		/* 0 - pubFromTank maji prekladiste pivovar */
+		for(int i = pubFromTank; i < ph.length; i++)
 		{
 			lngMin = Float.MAX_VALUE;
-			for(int j = 0; j < ps.length; j++)
+			
+			/* Porovnavej pouze prekladiste (index 0 je pivovar) */
+			for(int j = 1; j < ps.length; j++)
 			{
 				lng = lengthEdge(ph[i], ps[j]);
 				
@@ -279,7 +320,7 @@ public class Data extends JFrame {
 	public static void main(String [] arg)
 	{
 		Data d = new Data();
-		System.out.println(d.idCount);
+		System.out.println("Hospoda s poslednim ID: "+d.ph[d.ph.length-1].getID());
 		
 //		for(int i = 0; i < d.ps.length; i++)
 //		{
