@@ -63,8 +63,8 @@ public class Data extends JFrame {
 		this.export();
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
-		this.setSize(sizeMapX, sizeMapY);
-		this.setVisible(true);
+//		this.setSize(sizeMapX, sizeMapY);
+//		this.setVisible(true);
 	}
 	
 	public void paint(Graphics g){
@@ -130,7 +130,7 @@ public class Data extends JFrame {
 				p[0].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
 				ps[0].inclNeighbours();
 				leng = lengthEdge(ps[0], tmp);
-				ps[0].getNeighbours().add(new Node(tmp, leng));	// pivovar drzi seznam hospod z tanku
+				ps[0].getNeighbours().add(new Route(leng, tmp));	// pivovar drzi seznam hospod z tanku
 				idCount++;
 				continue;
 			}
@@ -147,7 +147,7 @@ public class Data extends JFrame {
 						p[i] = tmp;
 						p[i].setDock(ps[0]);
 						leng = lengthEdge(ps[0], tmp);
-						ps[0].getNeighbours().add(new Node(tmp, leng));
+						ps[0].getNeighbours().add(new Route(leng, tmp));
 						idCount++;
 						break;
 					}else
@@ -165,7 +165,7 @@ public class Data extends JFrame {
 	
 	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
 	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
-		 TreeSet<Node> tree;
+		 TreeSet<Route> tree;
 		 float leng;
 		 int k;
 		 
@@ -174,7 +174,7 @@ public class Data extends JFrame {
 			 if(objA.getID() == 0) continue;
 			 objA.inclNeighbours();
 			 
-			 tree = new TreeSet<Node>(new Compar());
+			 tree = new TreeSet<Route>(new Compar());
 			 
 			 for(Node objB : b)
 			 {
@@ -185,26 +185,26 @@ public class Data extends JFrame {
 					objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
 					 
 				 	leng = lengthEdge(objA, objB);
-					tree.add(new Node(objB, leng));
+					tree.add(new Route(leng,objB));
 				 }
 			 }
 			 if(tree.size() >= cnt)
 			 {	
 				 k = 0;
-				 for(Node x : tree)
+				 for(Route x : tree)
 				 {
 					 if(k++ == cnt) break;
 					 objA.getNeighbours().add(x);
 				 }
-			 }else for(Node x : tree) objA.getNeighbours().add(x);
+			 }else for(Route x : tree) objA.getNeighbours().add(x);
 		 }
 		 return a;
 	}
 	
-	class Compar implements Comparator<Node>{
+	class Compar implements Comparator<Route>{
 		 
 	    @Override
-	    public int compare(Node e1, Node e2) {
+	    public int compare(Route e1, Route e2) {
 	        if(e1.getD() > e2.getD()){
 	            return 1;
 	        } else {
@@ -329,16 +329,16 @@ public class Data extends JFrame {
 			/* ID_zdroj:ID_soused1,vzdalenost;ID_soused2,vzdalenost;ID_soused3,vzdalenost;... */	
 			for(Node x : ps){
 				line = x.getID()+":";
-				for(Node y : x.getNeighbours()){
-					line += y.getDock().getID()+","+y.getD()+";";
+				for(Route y : x.getNeighbours()){
+					line += y.getValue().getID()+","+y.getD()+";";
 				}
 				line += "\n";
 				bf.write(line);
 			}
 			for(Node x : ph){
 				line = x.getID()+":";
-				for(Node y : x.getNeighbours()){
-					line += y.getDock().getID()+","+y.getD()+";";
+				for(Route y : x.getNeighbours()){
+					line += y.getValue().getID()+","+y.getD()+";";
 				}
 				line += "\n";
 				bf.write(line);

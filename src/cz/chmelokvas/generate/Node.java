@@ -30,7 +30,7 @@ public class Node {
 	private Color color;
 	
 	/** List nejblizsich sousedu */
-	private ArrayList<Node> neighbours;
+	private ArrayList<Route> neighbours;
 	
 	/** Konstruktor souradnice X a Y, ID */
 	public Node(float x, float y, int id){
@@ -75,7 +75,7 @@ public class Node {
 	public float getD(){
 		return this.d;
 	}
-	public ArrayList<Node> getNeighbours(){
+	public ArrayList<Route> getNeighbours(){
 		return neighbours;
 	}
 	public void inclNeighbours(){
