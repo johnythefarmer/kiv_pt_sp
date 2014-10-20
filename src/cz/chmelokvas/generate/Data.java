@@ -63,6 +63,7 @@ public class Data extends JFrame {
 		this.export();
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(sizeMapX, sizeMapY);
 		this.setVisible(true);
 	}
@@ -79,8 +80,13 @@ public class Data extends JFrame {
 //		g2.drawLine(500-500/3, 0, 500-500/3, 500);
 		
 		for(int i = 0; i < ps.length; i++){
+			for(Node n: ps[i].getNeighbours()){
+//				System.out.println(n.get);
+				g2.setColor(new Color(10,10,10,50));
+				g2.drawLine((int)ps[i].getX(), (int)ps[i].getY(), (int)n.getDock().getX(), (int)n.getDock().getY());
+			}
 			if(ps[i].getID() == 0){
-				g2.setColor(Color.black);
+				g2.setColor(Color.blue);
 				pivovar++;
 			}
 			else{
@@ -88,20 +94,26 @@ public class Data extends JFrame {
 				prekladiste++;
 			}
 	//		g2.setColor(ps[i].getColor());
-			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 4,4));
+			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 5,5));
 		}
 		
 		for(int j = 0; j < ph.length; j++){
+			for(Node n: ph[j].getNeighbours()){
+//				System.out.println(n.get);
+				g2.setColor(new Color(100,100,100,40));
+				g2.drawLine((int)ph[j].getX(), (int)ph[j].getY(), (int)n.getDock().getX(), (int)n.getDock().getY());
+			}
 			if(ph[j].getDock().equals(ps[0])){
 				hospodaZT++;
-				g2.setColor(Color.black);
+				g2.setColor(Color.blue);
 			}
 			else{
 				g2.setColor(Color.green);
 				hospodaZS++;
 			}
 	//		g2.setColor(ph[j].getDock().getColor());
-			g2.fill(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 2,2));
+			
+			g2.fill(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 3,3));
 		}
 		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
 	}
