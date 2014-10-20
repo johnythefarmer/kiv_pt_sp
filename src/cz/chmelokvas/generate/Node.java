@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Node {
 	
-	/*	ID bodu
+	/**	ID bodu
 	 * 		0 -> pivovar
 	 * 		1 - 8 -> prekladiste
 	 * 		9 - 200 -> hospody z tanku
@@ -13,26 +13,26 @@ public class Node {
 	*/
 	private int id;
 	
-	/* Nazev pivovaru */
+	/** Nazev pivovaru */
 	private String name;
 	
-	/* X souradnice bodu */
+	/** X souradnice bodu */
 	private float x;
 	
-	/* Y souradnice bodu */
+	/** Y souradnice bodu */
 	private float y;
 	
-	/* Vzdalenost 2 bodu */
+	/** Vzdalenost 2 bodu */
 	private float d;
 	
-	/* Instance nejblizsiho prekladiste/pivovaru */
+	/** Instance nejblizsiho prekladiste/pivovaru */
 	private Node dock;
 	private Color color;
 	
-	/* List nejblizsich sousedu */
+	/** List nejblizsich sousedu */
 	private ArrayList<Node> neighbours;
 	
-	/* Konstruktor souradnice X a Y, ID */
+	/** Konstruktor souradnice X a Y, ID */
 	public Node(float x, float y, int id){
 		this.x = x;
 		this.y = y;
@@ -42,7 +42,7 @@ public class Node {
 		this.id = id;
 	}
 	
-	/* Konstruktor pro TreeSet
+	/** Konstruktor pro TreeSet
 	 * Uklada uzel hospody a vzdalenost
 	 */
 	public Node(Node dock, float d){
