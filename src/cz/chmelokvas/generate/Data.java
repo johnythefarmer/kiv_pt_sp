@@ -58,14 +58,16 @@ public class Data extends JFrame {
 		this.ps = generateS();
 		this.ph = generateH();
 		this.pub2dock();
-		this.ph = neirNeighboursToPoint(ph, ph, 15);
-		this.ps = neirNeighboursToPoint(ps, ph, 50);
+//		this.ph = neirNeighboursToPoint(ph, ph, 15);
+//		this.ps = neirNeighboursToPoint(ps, ph, 50);
+		this.neirNeighbour(ph);
+		this.neirNeighbour(ps);
 		this.export();
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setSize(sizeMapX, sizeMapY);
-		this.setVisible(true);
+//		setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		this.setSize(sizeMapX, sizeMapY);
+//		this.setVisible(true);
 	}
 	
 	public void paint(Graphics g){
@@ -140,7 +142,6 @@ public class Data extends JFrame {
 			{ 
 				p[0] = tmp;
 				p[0].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
-				ps[0].inclNeighbours();
 				leng = lengthEdge(ps[0], tmp);
 				ps[0].getNeighbours().add(new Route(leng, tmp));	// pivovar drzi seznam hospod z tanku
 				idCount++;
@@ -160,6 +161,7 @@ public class Data extends JFrame {
 						p[i].setDock(ps[0]);
 						leng = lengthEdge(ps[0], tmp);
 						ps[0].getNeighbours().add(new Route(leng, tmp));
+						tmp.getNeighbours().add(new Route(leng,ps[0]));
 						idCount++;
 						break;
 					}else
@@ -176,42 +178,81 @@ public class Data extends JFrame {
 	}
 	
 	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
-	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
-		 TreeSet<Route> tree;
-		 float leng;
-		 int k;
-		 
-		 for(Node objA : a)
-		 {
-			 if(objA.getID() == 0) continue;
-			 objA.inclNeighbours();
-			 
-			 tree = new TreeSet<Route>(new Compar());
-			 
-			 for(Node objB : b)
-			 {
-				 if(objA == objB) continue;
-				 
-				 /* Nejblizsi hospody z okruhu 50 km */
-				 if(objA.getX()+50 > objB.getX() && objA.getX()-50 < objB.getX() &&
-					objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
-					 
-				 	leng = lengthEdge(objA, objB);
+	private void neirNeighbour(Node[] argv){
+		TreeSet<Route> tree = null;
+		float leng;
+		int count = 0;
+		
+		for(Node objA : argv){
+			tree = new TreeSet<Route>(new Compar());
+			
+			for(Node objB : ph){
+				if(objA == objB) continue;
+				
+				if(objA.getX()+50 > objB.getX() && objA.getX()-50 < objB.getX() &&
+						objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
+					
+					leng = lengthEdge(objA, objB);
 					tree.add(new Route(leng,objB));
-				 }
-			 }
-			 if(tree.size() >= cnt)
-			 {	
-				 k = 0;
-				 for(Route x : tree)
-				 {
-					 if(k++ == cnt) break;
-					 objA.getNeighbours().add(x);
-				 }
-			 }else for(Route x : tree) objA.getNeighbours().add(x);
-		 }
-		 return a;
+				}
+			}
+			
+			count = objA.getNeighbours().size();
+			for(Route x : tree){
+				if(objA.getNeighbours().size() <= 50){
+					if(argv.length == countPub && count++ < 15){
+						addNeighbourPub(objA, x); 
+					}
+					if(argv.length == countDock){
+						objA.getNeighbours().add(x);
+					}
+				}else break;
+				
+			}
+		}
 	}
+	
+	private void addNeighbourPub(Node x, Route y){	
+		x.getNeighbours().add(y);
+		y.getValue().getNeighbours().add(new Route(y.getD(), x));
+	}
+	
+//	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
+//	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
+//		 TreeSet<Route> tree;
+//		 float leng;
+//		 int k;
+//		 
+//		 for(Node objA : a)
+//		 {
+//			 if(objA.getID() == 0) continue;
+//			 
+//			 tree = new TreeSet<Route>(new Compar());
+//			 
+//			 for(Node objB : b)
+//			 {
+//				 if(objA == objB) continue;
+//				 
+//				 /* Nejblizsi hospody z okruhu 50 km */
+//				 if(objA.getX()+50 > objB.getX() && objA.getX()-50 < objB.getX() &&
+//					objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
+//					 
+//				 	leng = lengthEdge(objA, objB);
+//					tree.add(new Route(leng,objB));
+//				 }
+//			 }
+//			 if(tree.size() >= cnt)
+//			 {	
+//				 k = 0;
+//				 for(Route x : tree)
+//				 {
+//					 if(k++ == cnt) break;
+//					 objA.getNeighbours().add(x);
+//				 }
+//			 }else for(Route x : tree) objA.getNeighbours().add(x);
+//		 }
+//		 return a;
+//	}
 	
 	class Compar implements Comparator<Route>{
 		 
@@ -400,12 +441,25 @@ public class Data extends JFrame {
 		}
 		System.out.println("Celkem: "+count);
 	}
+	private void checkNeig(){
+		int n;
+		int cnt = 0;
+		for(Node x : ph){
+			n = x.getNeighbours().size();
+			if(n <= 15){
+			//	System.out.println(x.getID()+"   "+n);
+				cnt++;
+			}
+		}
+		System.out.println(cnt);
+	}
 	
 	public static void main(String [] arg)
 	{
 		Data d = new Data();
 		System.out.println("Hospoda s poslednim ID: "+d.ph[d.ph.length-1].getID());
 		
+//		d.checkNeig();	
 //		for(int i = 0; i < d.ps.length; i++) d.lengXY(d.ps[i]);
 //		d.checkPub();
 	}

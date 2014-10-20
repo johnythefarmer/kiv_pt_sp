@@ -38,17 +38,17 @@ public class Node {
 		this.y = y;
 		this.dock = null;
 		this.color = null;
-		this.neighbours = null;
+		this.neighbours = new ArrayList<>();
 		this.id = id;
 	}
 	
-	/** Konstruktor pro TreeSet
-	 * Uklada uzel hospody a vzdalenost
-	 */
-	public Node(Node dock, float d){
-		this.dock = dock;
-		this.d = d;
-	}
+//	/** Konstruktor pro TreeSet
+//	 * Uklada uzel hospody a vzdalenost
+//	 */
+//	public Node(Node dock, float d){
+//		this.dock = dock;
+//		this.d = d;
+//	}
 	
 	public String toString(){
 		return x+"\t"+y;
@@ -77,9 +77,6 @@ public class Node {
 	}
 	public ArrayList<Route> getNeighbours(){
 		return neighbours;
-	}
-	public void inclNeighbours(){
-		this.neighbours = new ArrayList<>();
 	}
 	public int getID(){
 		return this.id;
