@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.TreeSet;
@@ -13,6 +16,9 @@ import javax.swing.JFrame;
 public class Data extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
+	
+	/* Nazev pivovaru */
+	private final String nameBrewery = "Chmelokvas";
 	
 	/* Celkovy pocet hospod (z tanku + ze sudu) */
 	private final int countPub = 4000;
@@ -27,6 +33,9 @@ public class Data extends JFrame {
 	private final int sizeMapX = 500;
 	/* Y rozmer mapy */
 	private final int sizeMapY = 500;
+	
+	/* Nazev souboru pro export */
+	private final String nameExportFile = "export.txt";
 	
 	/* ID bodu
 	 * 		0 -> pivovar
@@ -50,9 +59,10 @@ public class Data extends JFrame {
 		this.pub2dock();
 		this.ph = neirNeighboursToPoint(ph, ph, 15);
 		this.ps = neirNeighboursToPoint(ps, ph, 50);
+		this.export();
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
-		this.setSize(500, 500);
+		this.setSize(sizeMapX, sizeMapY);
 		this.setVisible(true);
 	}
 	
@@ -73,7 +83,7 @@ public class Data extends JFrame {
 				pivovar++;
 			}
 			else{
-				g2.setColor(Color.yellow);
+				g2.setColor(Color.red);
 				prekladiste++;
 			}
 	//		g2.setColor(ps[i].getColor());
@@ -86,7 +96,7 @@ public class Data extends JFrame {
 				g2.setColor(Color.black);
 			}
 			else{
-				g2.setColor(Color.yellow);
+				g2.setColor(Color.green);
 				hospodaZS++;
 			}
 	//		g2.setColor(ph[j].getDock().getColor());
@@ -166,18 +176,24 @@ public class Data extends JFrame {
 			 for(int j = 0; j < b.length; j++){
 				 if(i == j) continue;
 				 
+				 /* Nejblizsi hospody z okruhu 50 km */
 				 if(a[i].getX()+50 > b[j].getX() && a[i].getX()-50 < b[j].getX() &&
 					a[i].getY()+50 > b[j].getY() && a[i].getY()-50 < b[j].getY()){
 					 
 				 	leng = lengthEdge(a[i], b[j]);
-					tree.add(new Node(b[j], leng));	
+					tree.add(new Node(b[j], leng));
 				 }
 			 }
-			 if(tree.size() >= cnt){
+			 if(tree.size() >= cnt)
+			 {	
 				 k = 0;
-				 for(Node x : tree){
-					 if(k++ >= cnt) break;
-					 a[i].getNeighbours().add(x.getDock());
+				 for(Node x : tree)
+				 {
+					 /* ulozi pouze predem definovany pocet sousedu */
+					 if(k++ == cnt) break;
+					 /* Ulozi instanci nejblizsiho souseda k danne hospode se vzdalenosti */
+					 a[i].getNeighbours().add(x);
+			//		 System.out.println(x.getID());
 				 }
 				 
 // Kontrola sousedu
@@ -187,7 +203,7 @@ public class Data extends JFrame {
 //					 System.out.println("Sousedi: "+l+"   "+a[i].getNeighbours().get(l).getX()+"   "+a[i].getNeighbours().get(l).getY());
 //				 }
 //				 countPub++;
-			 }
+			 }else for(Node x : tree) a[i].getNeighbours().add(x);
 		 }
 //		 System.out.println("------------------------------------------------------   "+countPub);
 		 return a;
@@ -235,6 +251,7 @@ public class Data extends JFrame {
 				{	
 					/* Pivovar */
 					p[0] = new Node(x, y, 0);
+					p[0].setName(nameBrewery);
 					p[0].setColor(cl[idCount]);
 					
 				}
@@ -248,6 +265,7 @@ public class Data extends JFrame {
 	
 	private float lengthEdge(Node a, Node b)
 	{
+		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
 		float p = (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
 				Math.pow(a.getY()-b.getY(), 2.0));
 		return p;
@@ -259,7 +277,7 @@ public class Data extends JFrame {
 		float lng, lngMin;
 		int ind = 0;
 		
-		/* 0 - pubFromTank maji prekladiste pivovar */
+		/* 0 az pubFromTank maji prekladiste pivovar */
 		for(int i = pubFromTank; i < ph.length; i++)
 		{
 			lngMin = Float.MAX_VALUE;
@@ -277,6 +295,67 @@ public class Data extends JFrame {
 			}
 			ph[i].setDock(ps[ind]);
 		}
+	}
+	
+	private void export(){
+		
+		String line = null;
+		FileWriter file = null;
+		try {file = new FileWriter(nameExportFile);} 
+		catch (IOException e) {e.printStackTrace();}
+		BufferedWriter bf = new BufferedWriter(file);
+		
+		try {
+			/* ID_pivovar	Nazev_pivovar	X	Y */
+			line = ps[0].getID()+"\t"+ps[0].getName()+"\t"+ps[0]+"\n";
+			bf.write(line);
+			
+			/* Pocet prekladist */
+			line = (countDock-1)+"\n";
+			bf.write(line);
+			
+			/* ID_prekladiste	X	Y */
+			for(Node x : ps){
+				line = x.getID()+"\t"+x+"\n";
+				bf.write(line);
+			}
+			
+			/* Pocet hospod z tanku */
+			line = pubFromTank+"\n";
+			bf.write(line);
+			
+			for(Node x : ph){
+				/* Pocet hospod ze sudu */
+				if(x.getID() == (pubFromTank+countDock)){
+					line = (countPub-pubFromTank)+"\n";
+					bf.write(line);
+				}
+				line = x.getID()+"\t"+x+"\n";
+				bf.write(line);
+			}
+						
+			/* ID_zdroj:ID_soused1,vzdalenost;ID_soused2,vzdalenost;ID_soused3,vzdalenost;... */	
+			for(Node x : ps){
+				line = x.getID()+":";
+				for(Node y : x.getNeighbours()){
+					line += y.getDock().getID()+","+y.getD()+";";
+				}
+				line += "\n";
+				bf.write(line);
+			}
+			for(Node x : ph){
+				line = x.getID()+":";
+				for(Node y : x.getNeighbours()){
+					line += y.getDock().getID()+","+y.getD()+";";
+				}
+				line += "\n";
+				bf.write(line);
+			}
+		} 
+		catch (IOException e1) {e1.printStackTrace();}
+		
+		try {bf.close();} 
+		catch (IOException e) {e.printStackTrace();}
 	}
 	
 	private void lengXY(Node p)
@@ -307,6 +386,7 @@ public class Data extends JFrame {
 			if(this.ph[i].getDock().equals(this.ps[5])) ck[5]++;
 			if(this.ph[i].getDock().equals(this.ps[6])) ck[6]++;
 			if(this.ph[i].getDock().equals(this.ps[7])) ck[7]++;
+			if(this.ph[i].getDock().equals(this.ps[8])) ck[8]++;
 		}
 		int count = 0;
 		for(int j = 0; j < ck.length; j++)

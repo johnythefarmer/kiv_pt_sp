@@ -4,21 +4,35 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 public class Node {
-	private int id;
-	private float x;
-	private float y;
-	private float d;
-	private Node dock;
-	private Color color;
-	private ArrayList<Node> neighbours;
 	
-	/* Konstruktor souradnice X a Y,
-	 * 	  ID bodu
+	/*	ID bodu
 	 * 		0 -> pivovar
 	 * 		1 - 8 -> prekladiste
 	 * 		9 - 200 -> hospody z tanku
 	 * 		201 - 4000 -> hospody ze sudu
 	*/
+	private int id;
+	
+	/* Nazev pivovaru */
+	private String name;
+	
+	/* X souradnice bodu */
+	private float x;
+	
+	/* Y souradnice bodu */
+	private float y;
+	
+	/* Vzdalenost 2 bodu */
+	private float d;
+	
+	/* Instance nejblizsiho prekladiste/pivovaru */
+	private Node dock;
+	private Color color;
+	
+	/* List nejblizsich sousedu */
+	private ArrayList<Node> neighbours;
+	
+	/* Konstruktor souradnice X a Y, ID */
 	public Node(float x, float y, int id){
 		this.x = x;
 		this.y = y;
@@ -37,7 +51,7 @@ public class Node {
 	}
 	
 	public String toString(){
-		return x+" "+y;
+		return x+"\t"+y;
 	}
 	
 	public void setDock(Node dock){
@@ -70,5 +84,10 @@ public class Node {
 	public int getID(){
 		return this.id;
 	}
-	
+	public String getName(){
+		return this.name;
+	}
+	public void setName(String name){
+		this.name = name;
+	}
 }
