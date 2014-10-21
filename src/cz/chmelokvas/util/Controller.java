@@ -1,8 +1,8 @@
 package cz.chmelokvas.util;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import cz.chmelokvas.brewery.Order;
 import cz.chmelokvas.brewery.Pub;
@@ -11,22 +11,22 @@ import cz.chmelokvas.brewery.TransportNode;
 
 public class Controller {
 	/** Casovy krok*/
-	private static final int STEP = 30;
+	private static final int STEP = 60;
 	
 	/**Nko v konecnem programu zmizi. je to jen pomocna promena pro generovani zkusebnich dat */
-	public static int N = 10;
+	public static final int N = 10;
 	
 	/** Vsechny dopravni uzly simulace */
 	public TransportNode[] nodes = new TransportNode[N+1];
 	
 	/** Vsechny objednavky pro dany den	 */
-	public List<Order> todayOrders = new LinkedList<Order>();
+	public Set<Order> todayOrders = new TreeSet<Order>();
 	
 	/**hlavni cas cele aplikace*/
 	public Time mainTime = new Time(0,0,0);
 	
 	/** cas ukonceni simulace */
-	public Time endTime = new Time(1,0,0);
+	public Time endTime = new Time(2,0,0);
 	
 	/**
 	 * Prida silnici mezi dvema dopravnimi uzly
@@ -48,7 +48,7 @@ public class Controller {
 			
 			
 			
-//			System.out.println(mainTime);
+			System.out.println(mainTime);
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
 				generateOrders();
@@ -62,6 +62,12 @@ public class Controller {
 			//tady se zavola neco jako vsechno se hne o kus nebo neco podobnyho
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
+			/*try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
 		}
 //		System.out.println(mainTime);
 	}

@@ -26,22 +26,22 @@ public class Main {
 			s.getCustomers()[i+1] = c.nodes[i+1];
 		}
 		
-		/*c.addEdge(0, 2, 2.3f);
-		c.addEdge(2,4, 2f);
-		c.addEdge(4, 3, 1f);
-		c.addEdge(3, 6, 3.5f);
-		c.addEdge(6,5, 3.5f);
-		c.addEdge(3, 7, 1f);
-		c.addEdge(7,5, 1f);
+		/*c.addRoute(0, 2, 2.3f);
+		c.addRoute(2,4, 2f);
+		c.addRoute(4, 3, 1f);
+		c.addRoute(3, 6, 3.5f);
+		c.addRoute(6,5, 3.5f);
+		c.addRoute(3, 7, 1f);
+		c.addRoute(7,5, 10f);
 		
 		s.calculateShortestPaths();
-//		System.out.println(s.getD()[5]);
+		System.out.println(s.getD()[5]);
 		int i = 5;
 		while(s.getP()[i] != 0){
 			i = s.getP()[i];
 			System.out.println(s.getCustomers()[i]);
-		}*/
-		
+		}
+*/		
 		/*while(c.mainTime.getDay() < 1){
 			System.out.println(c.mainTime);
 			c.mainTime.addMinutes(30);

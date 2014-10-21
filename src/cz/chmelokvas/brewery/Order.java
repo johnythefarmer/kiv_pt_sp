@@ -1,6 +1,6 @@
 package cz.chmelokvas.brewery;
 
-public class Order {
+public class Order implements Comparable<Order>{
 
 	/** Cas objednani */
 	private final Time time;
@@ -31,5 +31,10 @@ public class Order {
 	
 	public String toString(){
 		return "Objednavka(" + time + "): " + amount + " sudu do hospody " + ((TransportNode)pub).idCont;
+	}
+
+	@Override
+	public int compareTo(Order o) {
+		return Integer.compare(time.value(), o.getTime().value());
 	}
 }

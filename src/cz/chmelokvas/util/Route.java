@@ -1,9 +1,9 @@
 package cz.chmelokvas.util;
 
 public class Route {
-	private int v;
+	private final int v;
 	
-	private float d;
+	private final float d;
 	
 	public Route(float d, int v){
 		this.v = v;

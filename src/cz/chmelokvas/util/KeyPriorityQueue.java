@@ -4,9 +4,9 @@ import java.util.PriorityQueue;
 
 public class KeyPriorityQueue<E> {
 	
-	private class Item<E> implements Comparable<Item<E>>{
-		private float key;
-		private E value;
+	private final class Item<E> implements Comparable<Item<E>>{
+		private final float key;
+		private final E value;
 		
 		public Item(float key, E value) {
 			this.key = key;
@@ -29,7 +29,7 @@ public class KeyPriorityQueue<E> {
 		
 	}
 	
-	private PriorityQueue<Item<E>> queue;
+	private final PriorityQueue<Item<E>> queue;
 	
 	public KeyPriorityQueue(){
 		this.queue = new PriorityQueue<Item<E>>();
