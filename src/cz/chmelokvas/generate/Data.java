@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -427,6 +426,7 @@ public class Data extends JFrame {
 		System.out.println(Math.abs(lengXmax - lengXmin) + " x " + Math.abs(lengYmax - lengYmin));
 	}
 	
+	@SuppressWarnings("unused")
 	private void checkPub(){
 		int ck[] = new int[countDock];
 		for(int i = 0; i < this.ph.length; i++)

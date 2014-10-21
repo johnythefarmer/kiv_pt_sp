@@ -35,18 +35,23 @@ public class Route {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		Route other = (Route) obj;
 		if (value == null) {
-			if (other.value != null)
+			if (other.value != null){
 				return false;
-		} else if (!value.equals(other.value))
+			}
+		} else if (!value.equals(other.value)){
 			return false;
+		}
 		return true;
 	}
 	

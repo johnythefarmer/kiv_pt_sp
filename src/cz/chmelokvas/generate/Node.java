@@ -2,6 +2,7 @@ package cz.chmelokvas.generate;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Node {
 	
@@ -30,7 +31,7 @@ public class Node {
 	private Color color;
 	
 	/** List nejblizsich sousedu */
-	private ArrayList<Route> neighbours;
+	private List<Route> neighbours;
 	
 	/** Konstruktor souradnice X a Y, ID */
 	public Node(float x, float y, int id){
@@ -38,7 +39,7 @@ public class Node {
 		this.y = y;
 		this.dock = null;
 		this.color = null;
-		this.neighbours = new ArrayList<>();
+		this.neighbours = new ArrayList<Route>();
 		this.id = id;
 	}
 	
@@ -75,7 +76,7 @@ public class Node {
 	public float getD(){
 		return this.d;
 	}
-	public ArrayList<Route> getNeighbours(){
+	public List<Route> getNeighbours(){
 		return neighbours;
 	}
 	public int getID(){
