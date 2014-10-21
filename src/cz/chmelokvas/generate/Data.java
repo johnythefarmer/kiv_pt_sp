@@ -3,6 +3,7 @@ package cz.chmelokvas.generate;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -68,11 +69,16 @@ public class Data extends JFrame {
 //		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(sizeMapX, sizeMapY);
 		this.setVisible(true);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setSize(sizeMapX*2, sizeMapY*2);
+		this.setVisible(true);
 	}
+	
 	
 	public void paint(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
-		
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.scale(2, 2);
 		g2.drawRect(0, 0, sizeMapX, sizeMapY);
 		int pivovar=0, prekladiste=0, hospodaZT=0, hospodaZS=0;
 		
@@ -96,7 +102,7 @@ public class Data extends JFrame {
 				prekladiste++;
 			}
 	//		g2.setColor(ps[i].getColor());
-			g2.fill(new Ellipse2D.Double(ps[i].getX(), ps[i].getY(), 5,5));
+			g2.fill(new Ellipse2D.Double(ps[i].getX()-2.5, ps[i].getY()-2.5, 5,5));
 		}
 		
 		for(int j = 0; j < ph.length; j++){
@@ -115,7 +121,7 @@ public class Data extends JFrame {
 			}
 	//		g2.setColor(ph[j].getDock().getColor());
 			
-			g2.fill(new Ellipse2D.Double(ph[j].getX(), ph[j].getY(), 3,3));
+			g2.fill(new Ellipse2D.Double(ph[j].getX()-1.5, ph[j].getY()-1.5, 3,3));
 		}
 		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
 	}
@@ -189,22 +195,24 @@ public class Data extends JFrame {
 			for(Node objB : ph){
 				if(objA == objB) continue;
 				
-				if(objA.getX()+50 > objB.getX() && objA.getX()-50 < objB.getX() &&
-						objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
+				if(objA.getX()+100 > objB.getX() && objA.getX()-100 < objB.getX() &&
+						objA.getY()+100 > objB.getY() && objA.getY()-100 < objB.getY()){
 					
 					leng = lengthEdge(objA, objB);
 					tree.add(new Route(leng,objB));
 				}
 			}
 			
-			count = objA.getNeighbours().size();
 			for(Route x : tree){
-				if(objA.getNeighbours().size() <= 50){
-					if(argv.length == countPub && count++ < 15){
-						addNeighbourPub(objA, x); 
+				count = objA.getNeighbours().size();
+				if(count <= 50){
+					if(argv.length == countPub){
+						if(count < 15 && x.getValue().getNeighbours().size() < 15){
+							addNeighbourNode(objA, x); 
+						}
 					}
 					if(argv.length == countDock){
-						objA.getNeighbours().add(x);
+						addNeighbourNode(objA,x);
 					}
 				}else break;
 				
@@ -212,9 +220,11 @@ public class Data extends JFrame {
 		}
 	}
 	
-	private void addNeighbourPub(Node x, Route y){	
-		x.getNeighbours().add(y);
-		y.getValue().getNeighbours().add(new Route(y.getD(), x));
+	private void addNeighbourNode(Node x, Route y){
+		if(!x.getNeighbours().contains(y)){
+			x.getNeighbours().add(y);
+			y.getValue().getNeighbours().add(new Route(y.getD(), x));
+		}
 	}
 	
 //	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
@@ -419,6 +429,7 @@ public class Data extends JFrame {
 		System.out.println(Math.abs(lengXmax - lengXmin) + " x " + Math.abs(lengYmax - lengYmin));
 	}
 	
+	@SuppressWarnings("unused")
 	private void checkPub(){
 		int ck[] = new int[countDock];
 		for(int i = 0; i < this.ph.length; i++)
@@ -441,13 +452,14 @@ public class Data extends JFrame {
 		}
 		System.out.println("Celkem: "+count);
 	}
+	
 	private void checkNeig(){
 		int n;
 		int cnt = 0;
 		for(Node x : ph){
 			n = x.getNeighbours().size();
-			if(n <= 15){
-			//	System.out.println(x.getID()+"   "+n);
+			if(n < 15){
+				System.out.println(x.getID()+"   "+n);
 				cnt++;
 			}
 		}
@@ -459,7 +471,7 @@ public class Data extends JFrame {
 		Data d = new Data();
 		System.out.println("Hospoda s poslednim ID: "+d.ph[d.ph.length-1].getID());
 		
-//		d.checkNeig();	
+		d.checkNeig();	
 //		for(int i = 0; i < d.ps.length; i++) d.lengXY(d.ps[i]);
 //		d.checkPub();
 	}
