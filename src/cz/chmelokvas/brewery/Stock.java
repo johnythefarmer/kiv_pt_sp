@@ -6,7 +6,7 @@ import java.util.List;
 import cz.chmelokvas.util.KeyPriorityQueue;
 import cz.chmelokvas.util.Route;
 
-public class Stock extends TransportNode {
+public abstract class Stock extends TransportNode {
 	
 	/** Atribut konstanty stavu skladu */
 	protected int state;
@@ -125,5 +125,7 @@ public class Stock extends TransportNode {
 			}
 		}
 	}
+	
+	public abstract void checkTimeEvents();
 	
 }

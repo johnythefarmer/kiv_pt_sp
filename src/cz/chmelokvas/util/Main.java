@@ -1,8 +1,14 @@
 package cz.chmelokvas.util;
 
+import java.util.ArrayList;
+
+import cz.chmelokvas.brewery.Car;
 import cz.chmelokvas.brewery.Dock;
+import cz.chmelokvas.brewery.Instruction;
 import cz.chmelokvas.brewery.Pub;
+import cz.chmelokvas.brewery.State;
 import cz.chmelokvas.brewery.Stock;
+import cz.chmelokvas.brewery.Time;
 import cz.chmelokvas.brewery.TransportNode;
 
 
@@ -17,6 +23,7 @@ public class Main {
 		s.setP(new int[Controller.N + 1]);
 		s.setC(c);
 		s.getCustomers()[0] = s;
+		s.setGarage(new ArrayList<Car>());
 		
 		for(int i = 0; i < Controller.N; i++){
 			Pub p = new Pub(i+1,i+1);
@@ -25,6 +32,17 @@ public class Main {
 			c.nodes[i+1] = p;
 			s.getCustomers()[i+1] = c.nodes[i+1];
 		}
+		
+		Car a = Car.getTruck(s);
+		Instruction t1 = new Instruction(State.TRAVELLING, c.nodes[2], new Time(0,7,30));
+		Instruction t2 = new Instruction(State.TRAVELLING,c.nodes[3], new Time(0,9,40));
+		Instruction t3 = new Instruction(State.UNLOADING, c.nodes[3], new Time(0,9,50));
+		Instruction t4 = new Instruction(State.TRAVELLING, c.nodes[0], new Time(0,10,30));
+		t3.setNext(t4);
+		t2.setNext(t3);
+		t1.setNext(t2);
+		a.setCurrentInstruction(t1);
+		s.getGarage().add(a);
 		
 		/*c.addRoute(0, 2, 2.3f);
 		c.addRoute(2,4, 2f);
@@ -60,6 +78,7 @@ public class Main {
 			System.out.println(p.makeOrder());
 		}*/
 		c.simulate();
+		System.out.println("Pozice "+ a + ": " +a.getPosition());
 	}
 
 }

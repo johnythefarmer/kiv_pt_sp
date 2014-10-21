@@ -6,12 +6,13 @@ import java.util.TreeSet;
 
 import cz.chmelokvas.brewery.Order;
 import cz.chmelokvas.brewery.Pub;
+import cz.chmelokvas.brewery.Stock;
 import cz.chmelokvas.brewery.Time;
 import cz.chmelokvas.brewery.TransportNode;
 
 public class Controller {
 	/** Casovy krok*/
-	private static final int STEP = 60;
+	public static final int STEP = 60;
 	
 	/**Nko v konecnem programu zmizi. je to jen pomocna promena pro generovani zkusebnich dat */
 	public static final int N = 10;
@@ -60,6 +61,7 @@ public class Controller {
 			}
 			
 			//tady se zavola neco jako vsechno se hne o kus nebo neco podobnyho
+			checkTime();
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
 			/*try {
@@ -79,6 +81,14 @@ public class Controller {
 		for(TransportNode node : nodes){
 			if(node instanceof Pub){
 				todayOrders.add(((Pub)node).makeOrder());
+			}
+		}
+	}
+	
+	private void checkTime(){
+		for(TransportNode n: nodes){
+			if(n instanceof Stock){
+				((Stock)n).checkTimeEvents();
 			}
 		}
 	}
