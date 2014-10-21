@@ -66,8 +66,8 @@ public class Data extends JFrame {
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
 //		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		this.setSize(sizeMapX, sizeMapY);
-//		this.setVisible(true);
+		this.setSize(sizeMapX, sizeMapY);
+		this.setVisible(true);
 	}
 	
 	public void paint(Graphics g){
@@ -85,7 +85,7 @@ public class Data extends JFrame {
 			for(Route r: ps[i].getNeighbours()){
 //				System.out.println(n.get);
 				g2.setColor(new Color(10,10,10,50));
-				g2.drawLine((int)ps[i].getX(), (int)ps[i].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
+		//		g2.drawLine((int)ps[i].getX(), (int)ps[i].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
 			}
 			if(ps[i].getID() == 0){
 				g2.setColor(Color.blue);
@@ -103,7 +103,7 @@ public class Data extends JFrame {
 			for(Route r: ph[j].getNeighbours()){
 //				System.out.println(n.get);
 				g2.setColor(new Color(100,100,100,40));
-				g2.drawLine((int)ph[j].getX(), (int)ph[j].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
+	//			g2.drawLine((int)ph[j].getX(), (int)ph[j].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
 			}
 			if(ph[j].getDock().equals(ps[0])){
 				hospodaZT++;
