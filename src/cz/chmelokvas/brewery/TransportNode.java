@@ -42,8 +42,6 @@ public class TransportNode {
 		return c;
 	}
 
-
-
 	public void setC(Controller c) {
 		this.c = c;
 	}

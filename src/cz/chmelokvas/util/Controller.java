@@ -4,13 +4,11 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import cz.chmelokvas.brewery.Order;
-import cz.chmelokvas.brewery.Pub;
-import cz.chmelokvas.brewery.Stock;
-import cz.chmelokvas.brewery.Time;
-import cz.chmelokvas.brewery.TransportNode;
+import cz.chmelokvas.brewery.*;
 
 public class Controller {
+	public Brewery brewery;
+	
 	/** Casovy krok*/
 	public static final int STEP = 60;
 	
@@ -106,9 +104,15 @@ public class Controller {
 		for(Iterator<Order> it = todayOrders.iterator(); it.hasNext();){
 			Order o = it.next();
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
-				System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
-				o.getPub().getProvider().recieveOrder(o);
-				it.remove();
+				if(o.getPub().isTank()){
+					System.out.println(o + " byla predana prekladisti " + brewery);
+					brewery.recieveOrder(o);
+					it.remove();
+				}else{
+					System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
+					o.getPub().getProvider().recieveOrder(o);
+					it.remove();
+				}
 			}
 		}
 	}

@@ -5,9 +5,12 @@ import java.util.Random;
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
 	
-	public Pub(int idProv, int idCont){
+	private boolean isTank;
+	
+	public Pub(int idProv, int idCont, boolean isTank){
 		this.idProv = idProv;
 		this.idCont = idCont;
+		this.isTank = isTank;
 	}
 	
 	public Order makeOrder(){
@@ -45,6 +48,16 @@ public class Pub extends TransportNode {
 		return amount;
 	}
 	
+	
+	
+	public boolean isTank() {
+		return isTank;
+	}
+
+	public void setTank(boolean isTank) {
+		this.isTank = isTank;
+	}
+
 	public String toString(){
 		return "Hospoda " +  idCont;
 	}

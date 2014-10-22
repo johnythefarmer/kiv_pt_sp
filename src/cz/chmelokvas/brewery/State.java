@@ -1,5 +1,22 @@
 package cz.chmelokvas.brewery;
 
 public enum State {
-	REFUELING, TRAVELLING, LOADING, UNLOADING, WAITING
+	REFUELING("cerpa v", "docerpal v"), TRAVELLING("cestuje do", "dorazil do"), LOADING("naklada v", "nalozil v"), UNLOADING("vyklada v","vylozil v"), WAITING("ceka v", "prestal cekat v");
+	
+	private final String strStart,strFin;
+	
+	private State(String strStart, String strFin){
+		this.strStart = strStart;
+		this.strFin = strFin;
+	}
+
+	public String getStrStart() {
+		return strStart;
+	}
+
+	public String getStrFin() {
+		return strFin;
+	}
+	
+	
 }

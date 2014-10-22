@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import cz.chmelokvas.brewery.Car;
 import cz.chmelokvas.brewery.Dock;
 import cz.chmelokvas.brewery.Instruction;
+import cz.chmelokvas.brewery.Order;
 import cz.chmelokvas.brewery.Pub;
 import cz.chmelokvas.brewery.State;
 import cz.chmelokvas.brewery.Stock;
@@ -27,7 +28,7 @@ public class Main {
 		s.setGarage(new ArrayList<Car>());
 		
 		for(int i = 0; i < Controller.N; i++){
-			Pub p = new Pub(i+1,i+1);
+			Pub p = new Pub(i+1,i+1,false);
 			p.setProvider(s);
 			p.setC(c);
 			c.nodes[i+1] = p;
@@ -38,7 +39,9 @@ public class Main {
 		Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
 		Instruction t1 = new Instruction(State.TRAVELLING, c.nodes[2], new Time(0,7,30));
 		Instruction t2 = new Instruction(State.TRAVELLING,c.nodes[3], new Time(0,9,40));
-		Instruction t3 = new Instruction(State.UNLOADING, c.nodes[3], new Time(0,9,50));
+		Order o = new Order(new Time(0,8,20), (Pub)c.nodes[3], 3);
+		s.recieveOrder(o);
+		Instruction t3 = new Instruction(State.UNLOADING, c.nodes[3], new Time(0,9,50), o);
 		Instruction t4 = new Instruction(State.TRAVELLING, c.nodes[0], new Time(0,10,30));
 		t3.setNext(t4);
 		t2.setNext(t3);

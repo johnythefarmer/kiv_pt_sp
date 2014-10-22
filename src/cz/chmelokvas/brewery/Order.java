@@ -36,5 +36,5 @@ public class Order implements Comparable<Order>{
 	@Override
 	public int compareTo(Order o) {
 		return Integer.compare(time.value(), o.getTime().value());
-	}
+	}	
 }

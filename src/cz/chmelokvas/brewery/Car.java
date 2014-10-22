@@ -1,30 +1,7 @@
 package cz.chmelokvas.brewery;
 
 public class Car {
-	/**Kapacita kamionu	v !SUDECH! *//*
-	private static final int CAM_CAP = 100;
-	
-	*//**Kapacita cisterny v !HEKTOLITRECH! *//*
-	private static final int CISTERN_CAP = 50;
-	
-	*//**Kapacita nakladaku v !SUDECH! *//*
-	private static final int TRUCK_CAP = 30;
-	
-	*//**Rychlost kamionu v km/h	 *//*
-	private static final float CAM_SPEED = 90;
-	
-	*//**Rychlost cisterny v km/h	 *//*
-	private static final float CISTERN_SPEED = 60;
-	
-	*//**Rychlost nakladaku v km/h	 *//*
-	private static final float TRUCK_SPEED = 70;
-	
-	*//**Pocet minut kolik zabere nalozeni/vylozeni 1 sudu*//*
-	private static final int RELOADING_SPEED_BARREL = 5;
-	
-	*//**Pocet minut kolik zabere nacerpani/precerpani 1 hl piva*//*
-	private static final int RELOADING_SPEED_HL = 2;*/
-	
+	/** Typ auta */
 	private final CarType type;
 	
 	/** Soucasny stav vozu */
@@ -36,15 +13,6 @@ public class Car {
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
 	
-/*	*//**Kapacita dane instance*//*
-	private final int capacity;
-	
-	*//**Rychlost dane instance*//*
-	private final float speed;
-	
-	*//**Rychlost nalozeni/vylozeni/nacerpani/precerpani *//*
-	private final int reloadingSpeed;
-	*/
 	/**
 	 * Pocet prazdnych sudu.<br>
 	 * V pripade cisterny je zbyvajici misto v nadrzi

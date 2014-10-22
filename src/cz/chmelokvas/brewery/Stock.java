@@ -44,6 +44,13 @@ public abstract class Stock extends TransportNode {
 		System.out.println("Prijata objednavka od hospody " + o.getPub());
 		orders.add(o);
 	}
+	
+	public void deliverOrder(Order o){
+		if(orders.contains(o)){
+			System.out.println("Vyrizena objednavka do hospody " + o.getPub());
+			orders.remove(o);
+		}
+	}
 
 
 	public List<Car> getGarage() {

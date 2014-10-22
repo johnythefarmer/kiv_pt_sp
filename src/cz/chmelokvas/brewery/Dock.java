@@ -12,7 +12,10 @@ public class Dock extends Stock {
 			while(i != null && Math.abs(i.getFinished().value() - c.mainTime.value()) < Controller.STEP){
 				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
 				car.setPosition(i.getDestination());
-				System.out.println(car + " finished " +i.getState() +" to  " + i.getDestination());
+				System.out.println(car + " " + i.getState().getStrFin() + " " + i.getDestination());
+				if(i.getOrder() != null){
+					deliverOrder(i.getOrder());
+				}
 				
 				//prechod na dalsi instrukci
 				car.setCurrentInstruction(i.getNext());
@@ -20,12 +23,12 @@ public class Dock extends Stock {
 				String text = "";
 				if(i != null){
 					car.setState(i.getState());
-					text = " to " + i.getDestination();
+					text = " " + i.getDestination();
 				}else{
 					car.setState(State.WAITING);
 				}
 				
-				System.out.println(car + " started " +car.getState() + text);
+				System.out.println(car + " " +car.getState().getStrStart() + text);
 			}
 		}
 	}
