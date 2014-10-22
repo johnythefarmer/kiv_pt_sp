@@ -145,8 +145,8 @@ public class Data extends JFrame {
 		float lng;
 		
 		for(int i = 0; i < p.length; i++){
-			x = rd.nextInt(sizeMapX);
-			y = rd.nextInt(sizeMapY);
+			x = rd.nextFloat()*sizeMapX;
+			y = rd.nextFloat()*sizeMapY;
 			tmp = new Node(x, y, idCount);
 			
 			/* 1. vygenerovana hospoda je z tanku */
@@ -318,8 +318,8 @@ public class Data extends JFrame {
 			for(int j = 0; j < 3; j++)
 			{	
 				/* Generovani souradnic prekladiste/pivovaru */
-				x = rd.nextInt(33)+xTmp+67;
-				y = rd.nextInt(33)+yTmp+67;
+				x = rd.nextFloat()*33+xTmp+67;
+				y = rd.nextFloat()*33+yTmp+67;
 				
 				if(i != 1 || j != 1)
 				{
