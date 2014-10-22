@@ -126,6 +126,11 @@ public class Data extends JFrame {
 		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
 	}
 	
+	/**
+	 * Generovani hospod
+	 * 
+	 * @return	p	Pole hospod
+	 */
 	private Node[] generateH(){		
 		Node [] p = new Node[countPub];
 		Node tmp;
@@ -183,7 +188,11 @@ public class Data extends JFrame {
 		return p;
 	}
 	
-	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
+	/**
+	 * Hledani nejblizsich ceste pro danny vstup
+	 * 
+	 * @param	argv	Ukazatel na vstupni data (prekladiste,hospody)
+	 */
 	private void neirNeighbour(Node[] argv){
 		TreeSet<Route> tree = null;
 		float leng;
@@ -220,6 +229,11 @@ public class Data extends JFrame {
 		}
 	}
 	
+	/**
+	 * Pridani hospody do seznamu sousedu pro oba uzly
+	 * @param x	1. uzel
+	 * @param y	2. uzel s hodnotou vzdalenosti
+	 */
 	private void addNeighbourNode(Node x, Route y){
 		if(!x.getNeighbours().contains(y)){
 			x.getNeighbours().add(y);
@@ -276,6 +290,10 @@ public class Data extends JFrame {
 	    }
 	}
 	
+	/**
+	 * Generovani prekladiste a pivovaru
+	 * @return	p	Seznam prekladist + pivovar
+	 */
 	private Node[] generateS(){
 		Node [] p = new Node[countDock];
 		Random rd = new Random();
@@ -318,6 +336,12 @@ public class Data extends JFrame {
 		return p;
 	}
 	
+	/**
+	 * Vypocet vzdalenosti 2 uzlu
+	 * @param a	1. uzel
+	 * @param b	2. uzel
+	 * @return	p	vzdalenost 2 uzlu
+	 */
 	private float lengthEdge(Node a, Node b)
 	{
 		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
@@ -326,7 +350,10 @@ public class Data extends JFrame {
 		return p;
 	}
 	
-	/** Prirad k hospode ze sudu nejblizsi prekladiste */
+	/** 
+	 * Prirad k hospode ze sudu nejblizsi prekladiste
+	 * 
+	*/
 	private void pub2dock()
 	{
 		float lng, lngMin;
@@ -352,6 +379,9 @@ public class Data extends JFrame {
 		}
 	}
 	
+	/**
+	 * Export dat do textoveho souboru
+	 */
 	private void export(){
 		
 		String line = null;

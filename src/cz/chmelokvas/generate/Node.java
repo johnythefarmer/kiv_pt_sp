@@ -55,36 +55,70 @@ public class Node {
 		return x+"\t"+y;
 	}
 	
+	/**
+	 * Nastavi prekladiste
+	 * @param	dock	prekladiste
+	 */
 	public void setDock(Node dock){
 		this.dock = dock;
 	}
+	
+	/**
+	 * Vrati aktualni prekladiste
+	 * @return	dock	prekladiste
+	 */
 	public Node getDock(){
 		return this.dock;
 	}
+	
+	/**
+	 * Vrati X souradnici uzlu
+	 * @return	x	X souradnice
+	 */
 	public float getX(){
 		return this.x;
 	}
+	/**
+	 * Vrati Y souradnici uzlu
+	 * @return	y	Y souradnice
+	 */
 	public float getY(){
 		return this.y;
 	}
+
+	
 	public void setColor(Color color){
 		this.color = color;
 	}
 	public Color getColor(){
 		return this.color;
 	}
-	public float getD(){
-		return this.d;
-	}
+	
+	/**
+	 * Vrati aktualni seznam nejblizsich sousedu
+	 * @return	neighbours	seznam sousedu
+	 */
 	public List<Route> getNeighbours(){
 		return neighbours;
 	}
+	/**
+	 * Vrati ID uzlu
+	 * @return	id	ID uzlu
+	 */
 	public int getID(){
 		return this.id;
 	}
+	/**
+	 * Nastavi jmeno uzlu
+	 * @return	name	jmeno uzlu
+	 */
 	public String getName(){
 		return this.name;
 	}
+	/**
+	 * Nastavi jmeno uzlu
+	 * @param name	jmeno uzlu
+	 */
 	public void setName(String name){
 		this.name = name;
 	}

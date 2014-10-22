@@ -1,26 +1,50 @@
 package cz.chmelokvas.generate;
 
 public class Route {
+	
+	/** Atribut uzlu */
 	private Node value;
+	
+	/** Atribut vzdalenosti */
 	private float d;
 	
+	/**
+	 * Konstruktor Routeru
+	 * @param d	vzdalenost
+	 * @param value	uzel
+	 */
 	public Route(float d, Node value){
 		this.d = d;
 		this.value = value;
 	}
-
+	
+	/**
+	 * Vrati aktualni uzel
+	 * @return value	uzel
+	 */
 	public Node getValue() {
 		return value;
 	}
-
+	
+	/**
+	 * Nastavi uzel
+	 * @param value	uzel
+	 */
 	public void setValue(Node value) {
 		this.value = value;
 	}
 
+	/**
+	 * Vrati vzdalenosti
+	 * @return d	vzdalenost
+	 */
 	public float getD() {
 		return d;
 	}
-
+	/**
+	 * Nastavi vzdalenost
+	 * @param d	vzdalenost
+	 */
 	public void setD(float d) {
 		this.d = d;
 	}
