@@ -34,6 +34,7 @@ public class Main {
 		}
 		
 		Car a = Car.getTruck(s);
+		Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
 		Instruction t1 = new Instruction(State.TRAVELLING, c.nodes[2], new Time(0,7,30));
 		Instruction t2 = new Instruction(State.TRAVELLING,c.nodes[3], new Time(0,9,40));
 		Instruction t3 = new Instruction(State.UNLOADING, c.nodes[3], new Time(0,9,50));
@@ -41,7 +42,8 @@ public class Main {
 		t3.setNext(t4);
 		t2.setNext(t3);
 		t1.setNext(t2);
-		a.setCurrentInstruction(t1);
+		t0.setNext(t1);
+		a.setCurrentInstruction(t0);
 		s.getGarage().add(a);
 		
 		/*c.addRoute(0, 2, 2.3f);
