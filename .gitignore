@@ -1,3 +1,5 @@
 asspath
 .project
 .settings
+/.classpath
+/.pmd
