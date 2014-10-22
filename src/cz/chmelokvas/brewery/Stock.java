@@ -3,9 +3,6 @@ package cz.chmelokvas.brewery;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.chmelokvas.util.KeyPriorityQueue;
-import cz.chmelokvas.util.Route;
-
 public abstract class Stock extends TransportNode {
 	
 	/** Atribut konstanty stavu skladu */
@@ -21,10 +18,10 @@ public abstract class Stock extends TransportNode {
 	protected TransportNode[] customers;
 	
 	/** pole vzdalenosti do ostatnich vrcholu*/
-	protected float[] d;
+	protected float[][] d;
 	
 	/**pole predchudcu*/
-	protected int[] p;
+	protected int[][] p;
 	
 	
 	
@@ -73,54 +70,55 @@ public abstract class Stock extends TransportNode {
 
 
 
-	public float[] getD() {
+	public float[][] getD() {
 		return d;
 	}
 
 
 
-	public void setD(float[] d) {
+	public void setD(float[][] d) {
+		for(int i = 0; i < d.length; i++){
+			for(int j = 0; j < d.length; j++){
+				if(i!=j && d[i][j] == 0){
+					d[i][j] = Float.MAX_VALUE;
+				}
+			}
+		}
+		
 		this.d = d;
 	}
 
 
 
-	public int[] getP() {
+	public int[][] getP() {
 		return p;
 	}
 
 
 
-	public void setP(int[] p) {
+	public void setP(int[][] p) {
 		this.p = p;
 	}
 
 
 
-	public void calculateShortestPaths(){
-		for(int i = 0; i < d.length; i++){
-			d[i] = Float.MAX_VALUE;
-		}
-		
-		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
-		
-		d[0] = 0;
-		queue.add(d[0],idCont);
-		
-		while(!queue.isEmpty()){
-			int u = queue.poll();
-			for(Route v : c.nodes[u].routes){
-				int vId = v.getValue();
-				if(c.nodes[vId].provider != null && !c.nodes[vId].provider.equals(this) && !c.nodes[vId].equals(this)){
+	public void floydWarshal(float[][] distance, int[][] pred, int n){
+		for(int k = 0; k < n; k++){
+			for(int i = 0; i < n; i++){
+				float aji = distance[i][k];
+				
+				//nepocitej kdyz neexistuje cesta
+				if(aji == Float.MAX_VALUE){
 					continue;
 				}
 				
-				float dist = d[c.nodes[u].idProv] + v.getDistance();
+				for(int j = 0; j < n; j++){
+					float c = aji + distance[k][j];
 				
-				if(dist < d[c.nodes[vId].idProv]){
-					d[c.nodes[vId].idProv] = dist;
-					p[c.nodes[vId].idProv] = u;
-					queue.add(d[c.nodes[vId].idProv], vId);
+					if(c < distance[i][j]){
+						distance[i][j] = c;
+						pred[i][j] = k;
+					}
 				}
 			}
 		}

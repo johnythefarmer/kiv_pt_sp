@@ -38,6 +38,12 @@ public class Controller {
 	public void addRoute(int a, int b, float d){
 		nodes[a].getRoutes().add(new Route(d, b));
 		nodes[b].getRoutes().add(new Route(d, a));
+		
+		Stock s = nodes[a].getProvider();
+		s.getD()[a][b] = d;
+		s.getD()[b][a] = d;
+		
+		//TODO pridat vkladani hran pro pivovar
 	}
 	
 	/**

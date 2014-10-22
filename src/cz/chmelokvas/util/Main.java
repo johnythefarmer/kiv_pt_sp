@@ -18,9 +18,10 @@ public class Main {
 		Controller c = new Controller();
 		c.nodes[0] = new Dock();
 		Stock s = (Stock)c.nodes[0];
+		s.setProvider(s);
 		s.setCustomers(new TransportNode[Controller.N + 1]);
-		s.setD(new float[Controller.N + 1]);
-		s.setP(new int[Controller.N + 1]);
+		s.setD(new float[Controller.N + 1][Controller.N + 1]);
+		s.setP(new int[Controller.N + 1][Controller.N + 1]);
 		s.setC(c);
 		s.getCustomers()[0] = s;
 		s.setGarage(new ArrayList<Car>());
@@ -46,7 +47,7 @@ public class Main {
 		a.setCurrentInstruction(t0);
 		s.getGarage().add(a);
 		
-		/*c.addRoute(0, 2, 2.3f);
+		c.addRoute(0, 2, 2.3f);
 		c.addRoute(2,4, 2f);
 		c.addRoute(4, 3, 1f);
 		c.addRoute(3, 6, 3.5f);
@@ -54,14 +55,11 @@ public class Main {
 		c.addRoute(3, 7, 1f);
 		c.addRoute(7,5, 10f);
 		
-		s.calculateShortestPaths();
-		System.out.println(s.getD()[5]);
-		int i = 5;
-		while(s.getP()[i] != 0){
-			i = s.getP()[i];
-			System.out.println(s.getCustomers()[i]);
-		}
-*/		
+		long t = System.currentTimeMillis();
+		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
+		System.out.println(System.currentTimeMillis() - t);
+		System.out.println(s.getD()[7][5]);
+		
 		/*while(c.mainTime.getDay() < 1){
 			System.out.println(c.mainTime);
 			c.mainTime.addMinutes(30);

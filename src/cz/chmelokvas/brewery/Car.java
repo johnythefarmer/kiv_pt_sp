@@ -1,29 +1,31 @@
 package cz.chmelokvas.brewery;
 
 public class Car {
-	/**Kapacita kamionu	v !SUDECH! */
+	/**Kapacita kamionu	v !SUDECH! *//*
 	private static final int CAM_CAP = 100;
 	
-	/**Kapacita cisterny v !HEKTOLITRECH! */
+	*//**Kapacita cisterny v !HEKTOLITRECH! *//*
 	private static final int CISTERN_CAP = 50;
 	
-	/**Kapacita nakladaku v !SUDECH! */
+	*//**Kapacita nakladaku v !SUDECH! *//*
 	private static final int TRUCK_CAP = 30;
 	
-	/**Rychlost kamionu v km/h	 */
+	*//**Rychlost kamionu v km/h	 *//*
 	private static final float CAM_SPEED = 90;
 	
-	/**Rychlost cisterny v km/h	 */
+	*//**Rychlost cisterny v km/h	 *//*
 	private static final float CISTERN_SPEED = 60;
 	
-	/**Rychlost nakladaku v km/h	 */
+	*//**Rychlost nakladaku v km/h	 *//*
 	private static final float TRUCK_SPEED = 70;
 	
-	/**Pocet minut kolik zabere nalozeni/vylozeni 1 sudu*/
+	*//**Pocet minut kolik zabere nalozeni/vylozeni 1 sudu*//*
 	private static final int RELOADING_SPEED_BARREL = 5;
 	
-	/**Pocet minut kolik zabere nacerpani/precerpani 1 hl piva*/
-	private static final int RELOADING_SPEED_HL = 2;
+	*//**Pocet minut kolik zabere nacerpani/precerpani 1 hl piva*//*
+	private static final int RELOADING_SPEED_HL = 2;*/
+	
+	private final CarType type;
 	
 	/** Soucasny stav vozu */
 	private State state;
@@ -34,15 +36,15 @@ public class Car {
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
 	
-	/**Kapacita dane instance*/
+/*	*//**Kapacita dane instance*//*
 	private final int capacity;
 	
-	/**Rychlost dane instance*/
+	*//**Rychlost dane instance*//*
 	private final float speed;
 	
-	/**Rychlost nalozeni/vylozeni/nacerpani/precerpani */
+	*//**Rychlost nalozeni/vylozeni/nacerpani/precerpani *//*
 	private final int reloadingSpeed;
-	
+	*/
 	/**
 	 * Pocet prazdnych sudu.<br>
 	 * V pripade cisterny je zbyvajici misto v nadrzi
@@ -65,14 +67,12 @@ public class Car {
 	 * @param speed Rychlost jakou auto cestuje silnici
 	 * @param reloadingSpeed Pocet minut kolik zabere naklad/vyklad sudu nebo nacerpani/precerpani hl piva
 	 */
-	private Car(TransportNode position, int capacity, float speed, int reloadingSpeed){
+	private Car(TransportNode position, CarType type){
 		this.state = State.WAITING;
 		this.currentInstruction = null;
 		this.position = position;
-		this.capacity = capacity;
-		this.speed = speed;
-		this.reloadingSpeed = reloadingSpeed;
-		this.empty = capacity;
+		this.type = type;
+		this.empty = type.getCapacity();
 		this.full = 0;
 	}
 	
@@ -82,7 +82,7 @@ public class Car {
 	 * @return Instance s vlastnostmi kamionu
 	 */
 	public static Car getCamion(TransportNode position){
-		return new Car(position,CAM_CAP,CAM_SPEED,RELOADING_SPEED_BARREL);
+		return new Car(position,CarType.CAMION);
 	}
 	
 	/**
@@ -91,7 +91,7 @@ public class Car {
 	 * @return Instance s vlastnostmi cisterny
 	 */
 	public static Car getCistern(TransportNode position){
-		return new Car(position,CISTERN_CAP,CISTERN_SPEED,RELOADING_SPEED_HL);
+		return new Car(position,CarType.CISTERN);
 	}
 	
 	/**
@@ -100,7 +100,7 @@ public class Car {
 	 * @return Instance s vlastnostmi nakladaku
 	 */
 	public static Car getTruck(TransportNode position){
-		return new Car(position,TRUCK_CAP,TRUCK_SPEED,RELOADING_SPEED_BARREL);
+		return new Car(position,CarType.TRUCK);
 	}
 
 	public State getState() {
@@ -128,15 +128,15 @@ public class Car {
 	}
 
 	public int getCapacity() {
-		return capacity;
+		return type.getCapacity();
 	}
 
 	public float getSpeed() {
-		return speed;
+		return type.getSpeed();
 	}
 
 	public int getReloadingSpeed() {
-		return reloadingSpeed;
+		return type.getReloadingSpeed();
 	}
 	
 	public int getEmpty() {
