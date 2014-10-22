@@ -164,4 +164,8 @@ public class Car {
 		this.full -= n;
 		this.empty += n;
 	}
+	
+	public String toString(){
+		return type + "";
+	}
 }

@@ -47,7 +47,7 @@ public class Main {
 		a.setCurrentInstruction(t0);
 		s.getGarage().add(a);
 		
-		c.addRoute(0, 2, 2.3f);
+		/*c.addRoute(0, 2, 2.3f);
 		c.addRoute(2,4, 2f);
 		c.addRoute(4, 3, 1f);
 		c.addRoute(3, 6, 3.5f);
@@ -58,7 +58,7 @@ public class Main {
 		long t = System.currentTimeMillis();
 		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
 		System.out.println(System.currentTimeMillis() - t);
-		System.out.println(s.getD()[7][5]);
+		System.out.println(s.getD()[7][5]);*/
 		
 		/*while(c.mainTime.getDay() < 1){
 			System.out.println(c.mainTime);
