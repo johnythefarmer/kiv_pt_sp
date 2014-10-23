@@ -1,10 +1,10 @@
 package cz.chmelokvas.generate;
 
 import java.awt.Color;
-//import java.awt.Graphics;
-//import java.awt.Graphics2D;
-//import java.awt.RenderingHints;
-//import java.awt.geom.Ellipse2D;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Ellipse2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,8 +60,6 @@ public class Data extends JFrame {
 		this.ps = generateS();
 		this.ph = generateH();
 		this.pub2dock();
-//		this.ph = neirNeighboursToPoint(ph, ph, 15);
-//		this.ps = neirNeighboursToPoint(ps, ph, 50);
 		this.neirNeighbourFind(ph);
 		this.neirNeighbourFind(ps);
 		this.export();
@@ -76,56 +74,56 @@ public class Data extends JFrame {
 	}
 	
 	
-//	public void paint(Graphics g){
-//		Graphics2D g2 = (Graphics2D) g;
-//		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//		g2.scale(2, 2);
-//		g2.drawRect(0, 0, sizeMapX, sizeMapY);
-//		int pivovar=0, prekladiste=0, hospodaZT=0, hospodaZS=0;
-//		
-////		g2.drawLine(0, 500/3, 500, 500/3);
-////		g2.drawLine(0, 500-500/3, 500, 500-500/3);
-////		g2.drawLine(500/3, 0, 500/3, 500);
-////		g2.drawLine(500-500/3, 0, 500-500/3, 500);
-//		
-//		for(int i = 0; i < ps.length; i++){
-//			for(Route r: ps[i].getNeighbours()){
-////				System.out.println(n.get);
-//				g2.setColor(new Color(10,10,10,50));
-//		//		g2.drawLine((int)ps[i].getX(), (int)ps[i].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
-//			}
-//			if(ps[i].getID() == 0){
-//				g2.setColor(Color.blue);
-//				pivovar++;
-//			}
-//			else{
-//				g2.setColor(Color.red);
-//				prekladiste++;
-//			}
-//	//		g2.setColor(ps[i].getColor());
-//			g2.fill(new Ellipse2D.Double(ps[i].getX()-2.5, ps[i].getY()-2.5, 5,5));
-//		}
-//		
-//		for(int j = 0; j < ph.length; j++){
-//			for(Route r: ph[j].getNeighbours()){
-////				System.out.println(n.get);
-//				g2.setColor(new Color(100,100,100,40));
-//	//			g2.drawLine((int)ph[j].getX(), (int)ph[j].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
-//			}
+	public void paint(Graphics g){
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.scale(2, 2);
+		g2.drawRect(0, 0, sizeMapX, sizeMapY);
+		int pivovar=0, prekladiste=0, hospodaZT=0, hospodaZS=0;
+		
+//		g2.drawLine(0, 500/3, 500, 500/3);
+//		g2.drawLine(0, 500-500/3, 500, 500-500/3);
+//		g2.drawLine(500/3, 0, 500/3, 500);
+//		g2.drawLine(500-500/3, 0, 500-500/3, 500);
+		
+		for(int i = 0; i < ps.length; i++){
+			for(Route r: ps[i].getNeighbours()){
+//				System.out.println(n.get);
+				g2.setColor(new Color(10,10,10,50));
+				g2.drawLine((int)ps[i].getX(), (int)ps[i].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
+			}
+			if(ps[i].getID() == 0){
+				g2.setColor(Color.blue);
+				pivovar++;
+			}
+			else{
+				g2.setColor(Color.red);
+				prekladiste++;
+			}
+	//		g2.setColor(ps[i].getColor());
+			g2.fill(new Ellipse2D.Double(ps[i].getX()-2.5, ps[i].getY()-2.5, 5,5));
+		}
+		
+		for(int j = 0; j < ph.length; j++){
+			for(Route r: ph[j].getNeighbours()){
+//				System.out.println(n.get);
+				g2.setColor(new Color(100,100,100,40));
+				g2.drawLine((int)ph[j].getX(), (int)ph[j].getY(), (int)r.getValue().getX(), (int)r.getValue().getY());
+			}
 //			if(ph[j].getDock().equals(ps[0])){
 //				hospodaZT++;
 //				g2.setColor(Color.blue);
 //			}
 //			else{
-//				g2.setColor(Color.green);
-//				hospodaZS++;
+				g2.setColor(Color.green);
+				hospodaZS++;
 //			}
-//	//		g2.setColor(ph[j].getDock().getColor());
-//			
-//			g2.fill(new Ellipse2D.Double(ph[j].getX()-1.5, ph[j].getY()-1.5, 3,3));
-//		}
-//		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
-//	}
+	//		g2.setColor(ph[j].getDock().getColor());
+			
+			g2.fill(new Ellipse2D.Double(ph[j].getX()-1.5, ph[j].getY()-1.5, 3,3));
+		}
+		System.out.println("Pivovar: "+pivovar+"   Prekladiste: "+prekladiste+"   Z tanku: "+hospodaZT+"   Ze sudu: "+hospodaZS);
+	}
 	
 	/**
 	 * Generovani hospod
@@ -153,9 +151,9 @@ public class Data extends JFrame {
 			if(i == 0)
 			{ 
 				p[0] = tmp;
-				p[0].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
-				leng = lengthEdge(ps[0], tmp);
-				ps[0].getNeighbours().add(new Route(leng, tmp));	// pivovar drzi seznam hospod z tanku
+//				p[0].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
+//				leng = lengthEdge(ps[0], tmp);
+//				ps[0].getNeighbours().add(new Route(leng, tmp));	// pivovar drzi seznam hospod z tanku
 				idCount++;
 				continue;
 			}
@@ -165,25 +163,25 @@ public class Data extends JFrame {
 				lng = lengthEdge(tmp, p[j]);
 				
 				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY())
-				{
-					if( i < pubFromTank)
-					{
-						/* Hospody z tanku */
-						p[i] = tmp;
-						p[i].setDock(ps[0]);
-						leng = lengthEdge(ps[0], tmp);
-						ps[0].getNeighbours().add(new Route(leng, tmp));
-						tmp.getNeighbours().add(new Route(leng,ps[0]));
-						idCount++;
-						break;
-					}else
-					{
+//				{
+//					if( i < pubFromTank)
+//					{
+//						/* Hospody z tanku */
+//						p[i] = tmp;
+//						p[i].setDock(ps[0]);
+	//					leng = lengthEdge(ps[0], tmp);
+	//					ps[0].getNeighbours().add(new Route(leng, tmp));
+	//					tmp.getNeighbours().add(new Route(leng,ps[0]));
+	//					idCount++;
+//						break;
+//					}else
+	//				{
 						/* Hospody ze sudu */
 						p[i] = tmp;
 						idCount++;
 						break;
-					}
-				}
+//			}
+//				}
 			}
 		}
 		return p;
@@ -366,8 +364,7 @@ public class Data extends JFrame {
 		float lng, lngMin;
 		int ind = 0;
 		
-		/* 0 az pubFromTank maji prekladiste pivovar */
-		for(int i = pubFromTank; i < ph.length; i++)
+		for(int i = 0; i < ph.length; i++)
 		{
 			lngMin = Float.MAX_VALUE;
 			
@@ -423,7 +420,7 @@ public class Data extends JFrame {
 					line = (countPub-pubFromTank)+"\n";
 					bf.write(line);
 				}
-				line = x.getID()+"\t"+x+"\n";
+				line = x.getID()+"\t"+x.getDock().getID()+"\t"+x+"\n";
 				bf.write(line);
 			}
 		}
@@ -461,7 +458,7 @@ public class Data extends JFrame {
 	private void exportNeighbours(BufferedWriter bf){
 		String line;
 		try {
-			/* ID_zdroj:ID_soused1,vzdalenost;ID_soused2,vzdalenost;ID_soused3,vzdalenost;... */	
+			/* ID_zdroj	ID_prekladiste:ID_soused1,vzdalenost;ID_soused2,vzdalenost;ID_soused3,vzdalenost;... */	
 			for(Node x : ps){
 				line = x.getID()+":";
 				for(Route y : x.getNeighbours()){
@@ -498,30 +495,30 @@ public class Data extends JFrame {
 //		System.out.println(Math.abs(lengXmax - lengXmin) + " x " + Math.abs(lengYmax - lengYmin));
 //	}
 //	
-//	@SuppressWarnings("unused")
-//	private void checkPub(){
-//		int ck[] = new int[countDock];
-//		for(int i = 0; i < this.ph.length; i++)
-//		{			
-//			if(this.ph[i].getDock().equals(this.ps[0])){ ck[0]++;}
-//			if(this.ph[i].getDock().equals(this.ps[1])){ ck[1]++;}
-//			if(this.ph[i].getDock().equals(this.ps[2])){ ck[2]++;}
-//			if(this.ph[i].getDock().equals(this.ps[3])){ ck[3]++;}
-//			if(this.ph[i].getDock().equals(this.ps[4])){ ck[4]++;}
-//			if(this.ph[i].getDock().equals(this.ps[5])){ ck[5]++;}
-//			if(this.ph[i].getDock().equals(this.ps[6])){ ck[6]++;}
-//			if(this.ph[i].getDock().equals(this.ps[7])){ ck[7]++;}
-//			if(this.ph[i].getDock().equals(this.ps[8])){ ck[8]++;}
-//		}
-//		int count = 0;
-//		for(int j = 0; j < ck.length; j++)
-//		{
-//			System.out.println("Sklad_"+j+": "+ck[j]);
-//			count += ck[j];
-//		}
-//		System.out.println("Celkem: "+count);
-//	}
-//	
+	@SuppressWarnings("unused")
+	private void checkPub(){
+		int ck[] = new int[countDock];
+		for(int i = 0; i < this.ph.length; i++)
+		{			
+			if(this.ph[i].getDock().equals(this.ps[0])){ ck[0]++;}
+			if(this.ph[i].getDock().equals(this.ps[1])){ ck[1]++;}
+			if(this.ph[i].getDock().equals(this.ps[2])){ ck[2]++;}
+			if(this.ph[i].getDock().equals(this.ps[3])){ ck[3]++;}
+			if(this.ph[i].getDock().equals(this.ps[4])){ ck[4]++;}
+			if(this.ph[i].getDock().equals(this.ps[5])){ ck[5]++;}
+			if(this.ph[i].getDock().equals(this.ps[6])){ ck[6]++;}
+			if(this.ph[i].getDock().equals(this.ps[7])){ ck[7]++;}
+			if(this.ph[i].getDock().equals(this.ps[8])){ ck[8]++;}
+		}
+		int count = 0;
+		for(int j = 0; j < ck.length; j++)
+		{
+		System.out.println("Sklad_"+j+": "+ck[j]);
+			count += ck[j];
+		}
+		System.out.println("Celkem: "+count);
+	}
+	
 //	private void checkNeig(){
 //		int n;
 //		int cnt = 0;
@@ -542,6 +539,6 @@ public class Data extends JFrame {
 		
 //		d.checkNeig();	
 //		for(int i = 0; i < d.ps.length; i++) d.lengXY(d.ps[i]);
-//		d.checkPub();
+		d.checkPub();
 	}
 }
