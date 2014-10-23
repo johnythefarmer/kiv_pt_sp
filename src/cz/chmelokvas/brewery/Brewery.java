@@ -4,11 +4,14 @@ public class Brewery extends Stock {
 //	private int productionPerDay;
 	
 	private String name;
-	private TransportNode transportNode;
 	
-	public Brewery(String name, TransportNode transportNode){
+	public Brewery(String name, int id, float x, float y){
 		this.name = name;
-		this.transportNode = transportNode;
+		this.x = x;
+		this.y = y;
+		this.idCont = id;
+		this.idProv = 0;
+		this.provider = this;
 	}
 	
 	public void checkTimeEvents(){
@@ -17,9 +20,6 @@ public class Brewery extends Stock {
 	
 	public void setName(String name){
 		this.name = name;
-	}
-	public void setTransportNode(TransportNode tn){
-		this.transportNode = tn;
 	}
 	
 /*	private void produceBeer()

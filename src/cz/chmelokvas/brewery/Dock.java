@@ -4,10 +4,12 @@ import cz.chmelokvas.util.Controller;
 
 public class Dock extends Stock {
 	
-	private TransportNode node;
 	
-	public Dock(TransportNode node){
-		this.node = node;
+	public Dock(int id, float x, float y){
+		this.idCont = id;
+		this.idProv = 0;
+		this.x = x;
+		this.y = y;
 	}
 	
 	public void checkTimeEvents(){

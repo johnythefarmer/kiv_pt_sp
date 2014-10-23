@@ -14,6 +14,13 @@ public class Pub extends TransportNode {
 		this.node = node;
 	}
 	
+	public Pub(int idProv, int idCont, float x, float y){
+		this.idProv = idProv;
+		this.idCont = idCont;
+		this.x = x;
+		this.y = y;
+	}
+	
 	public Order makeOrder(){
 		return new Order(generateTime(), this, generateAmount());
 	}
