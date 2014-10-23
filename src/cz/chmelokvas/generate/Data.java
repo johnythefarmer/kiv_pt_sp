@@ -68,12 +68,12 @@ public class Data extends JFrame {
 		
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		this.setSize(sizeMapX, sizeMapY);
-//		this.setVisible(true);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		this.setSize(sizeMapX*2, sizeMapY*2);
-//		this.setVisible(true);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setSize(sizeMapX, sizeMapY);
+		this.setVisible(true);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setSize(sizeMapX*2, sizeMapY*2);
+		this.setVisible(true);
 	}
 	
 	
