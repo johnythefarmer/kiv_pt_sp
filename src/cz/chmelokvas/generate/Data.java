@@ -400,8 +400,8 @@ public class Data extends JFrame {
 			bf.write(line);
 			
 			/* ID_prekladiste	X	Y */
-			for(Node x : ps){
-				line = x.getID()+"\t"+x+"\n";
+			for(int i = 1; i < ps.length; i++){
+				line = ps[i].getID()+"\t"+ps[i]+"\n";
 				bf.write(line);
 			}
 		}
