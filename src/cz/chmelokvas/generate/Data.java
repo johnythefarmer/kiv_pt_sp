@@ -57,12 +57,15 @@ public class Data extends JFrame {
 	
 	public Data(){
 		long t = System.currentTimeMillis();
-		this.ps = generateS();
-		this.ph = generateH();
-		this.pub2dock();
-		this.neirNeighbourFind(ph);
-		this.neirNeighbourFind(ps);
-		this.export();
+		
+		this.ps = genStocks();
+		this.ph = genPubs();
+		
+		pub2dock();
+		neirNeighbourFind(ph);
+		neirNeighbourFind(ps);
+		export();
+		
 		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
 
 //		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -126,15 +129,60 @@ public class Data extends JFrame {
 	}
 	
 	/**
+	 * Generovani prekladiste a pivovaru
+	 * @return	p	Seznam prekladist + pivovar
+	 */
+	private Node[] genStocks(){
+		Node [] p = new Node[countDock];
+		Random rd = new Random();
+		Color[] cl = {Color.yellow, Color.black, Color.red, Color.green, Color.blue,
+					Color.orange, Color.magenta, Color.pink, Color.darkGray};
+		
+		/* Pomocne X a Y souradnice pro generovani  */
+		int xTmp = 0, yTmp = 0;
+		
+		/* X a Y souradnice prekladiste/pivovaru */
+		float x, y;
+		
+		/* Generuj XY 67 - 100 v kazdem sektoru */
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++)
+			{	
+				/* Generovani souradnic prekladiste/pivovaru */
+				x = rd.nextFloat()*33+xTmp+67;
+				y = rd.nextFloat()*33+yTmp+67;
+				
+				if(i != 1 || j != 1)
+				{
+					/* Prekladiste */
+					p[idCount] = new Node(x, y, idCount);
+					p[idCount].setColor(cl[idCount]);
+					idCount++;
+				}else
+				{	
+					/* Pivovar */
+					p[0] = new Node(x, y, 0);
+					p[0].setName(nameBrewery);
+					p[0].setColor(cl[idCount]);
+					
+				}
+				xTmp += 166;
+			}
+			yTmp += 166;
+			xTmp = 0;
+		}
+		return p;
+	}
+	
+	/**
 	 * Generovani hospod
 	 * 
 	 * @return	p	Pole hospod
 	 */
-	private Node[] generateH(){		
+	private Node[] genPubs(){		
 		Node [] p = new Node[countPub];
 		Node tmp;
 		Random rd = new Random();
-		float leng;
 		
 		/* X a Y souradnice hospody */
 		float x, y;
@@ -147,13 +195,9 @@ public class Data extends JFrame {
 			y = rd.nextFloat()*sizeMapY;
 			tmp = new Node(x, y, idCount);
 			
-			/* 1. vygenerovana hospoda je z tanku */
 			if(i == 0)
 			{ 
 				p[0] = tmp;
-//				p[0].setDock(ps[0]);			// hospoda z tanku objednava z pivovaru
-//				leng = lengthEdge(ps[0], tmp);
-//				ps[0].getNeighbours().add(new Route(leng, tmp));	// pivovar drzi seznam hospod z tanku
 				idCount++;
 				continue;
 			}
@@ -162,26 +206,11 @@ public class Data extends JFrame {
 				
 				lng = lengthEdge(tmp, p[j]);
 				
-				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY())
-//				{
-//					if( i < pubFromTank)
-//					{
-//						/* Hospody z tanku */
-//						p[i] = tmp;
-//						p[i].setDock(ps[0]);
-	//					leng = lengthEdge(ps[0], tmp);
-	//					ps[0].getNeighbours().add(new Route(leng, tmp));
-	//					tmp.getNeighbours().add(new Route(leng,ps[0]));
-	//					idCount++;
-//						break;
-//					}else
-	//				{
-						/* Hospody ze sudu */
+				if(lng >= 2.0 || ps[j%countDock].getX() != x && ps[j%countDock].getY() != getY()){
 						p[i] = tmp;
 						idCount++;
 						break;
-//			}
-//				}
+				}
 			}
 		}
 		return p;
@@ -246,43 +275,6 @@ public class Data extends JFrame {
 		}
 	}
 	
-//	/** Pro Node[] a hleda nejblizsi hospody z Node[] b */
-//	private Node[] neirNeighboursToPoint(Node[] a, Node[] b, int cnt){
-//		 TreeSet<Route> tree;
-//		 float leng;
-//		 int k;
-//		 
-//		 for(Node objA : a)
-//		 {
-//			 if(objA.getID() == 0) continue;
-//			 
-//			 tree = new TreeSet<Route>(new Compar());
-//			 
-//			 for(Node objB : b)
-//			 {
-//				 if(objA == objB) continue;
-//				 
-//				 /* Nejblizsi hospody z okruhu 50 km */
-//				 if(objA.getX()+50 > objB.getX() && objA.getX()-50 < objB.getX() &&
-//					objA.getY()+50 > objB.getY() && objA.getY()-50 < objB.getY()){
-//					 
-//				 	leng = lengthEdge(objA, objB);
-//					tree.add(new Route(leng,objB));
-//				 }
-//			 }
-//			 if(tree.size() >= cnt)
-//			 {	
-//				 k = 0;
-//				 for(Route x : tree)
-//				 {
-//					 if(k++ == cnt) break;
-//					 objA.getNeighbours().add(x);
-//				 }
-//			 }else for(Route x : tree) objA.getNeighbours().add(x);
-//		 }
-//		 return a;
-//	}
-	
 	class Compar implements Comparator<Route>{
 		 
 	    @Override
@@ -296,52 +288,6 @@ public class Data extends JFrame {
 	}
 	
 	/**
-	 * Generovani prekladiste a pivovaru
-	 * @return	p	Seznam prekladist + pivovar
-	 */
-	private Node[] generateS(){
-		Node [] p = new Node[countDock];
-		Random rd = new Random();
-		Color[] cl = {Color.yellow, Color.black, Color.red, Color.green, Color.blue,
-					Color.orange, Color.magenta, Color.pink, Color.darkGray};
-		
-		/* Pomocne X a Y souradnice pro generovani  */
-		int xTmp = 0, yTmp = 0;
-		
-		/* X a Y souradnice prekladiste/pivovaru */
-		float x, y;
-		
-		/* Generuj XY 67 - 100 v kazdem sektoru */
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++)
-			{	
-				/* Generovani souradnic prekladiste/pivovaru */
-				x = rd.nextFloat()*33+xTmp+67;
-				y = rd.nextFloat()*33+yTmp+67;
-				
-				if(i != 1 || j != 1)
-				{
-					/* Prekladiste */
-					p[idCount] = new Node(x, y, idCount);
-					p[idCount].setColor(cl[idCount]);
-					idCount++;
-				}else
-				{	
-					/* Pivovar */
-					p[0] = new Node(x, y, 0);
-					p[0].setName(nameBrewery);
-					p[0].setColor(cl[idCount]);
-					
-				}
-				xTmp += 166;
-			}
-			yTmp += 166;
-			xTmp = 0;
-		}
-		return p;
-	}
-	
-	/**
 	 * Vypocet vzdalenosti 2 uzlu
 	 * @param a	1. uzel
 	 * @param b	2. uzel
@@ -350,9 +296,8 @@ public class Data extends JFrame {
 	private float lengthEdge(Node a, Node b)
 	{
 		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
-		float p = (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
+		return (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
 				Math.pow(a.getY()-b.getY(), 2.0));
-		return p;
 	}
 	
 	/** 
@@ -389,8 +334,14 @@ public class Data extends JFrame {
 	private void export(){
 		
 		FileWriter file = null;
-		try {file = new FileWriter(nameExportFile);} 
-		catch (IOException e) {e.printStackTrace();}
+		
+		try {
+			file = new FileWriter(nameExportFile);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		BufferedWriter bf = new BufferedWriter(file);
 		
 		exportDock(bf);
@@ -399,8 +350,12 @@ public class Data extends JFrame {
 		
 		exportNeighbours(bf);
 		
-		try {bf.close();} 
-		catch (IOException e) {e.printStackTrace();}
+		try {
+			bf.close();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -424,7 +379,9 @@ public class Data extends JFrame {
 				bf.write(line);
 			}
 		}
-		catch (IOException e1) {e1.printStackTrace();}
+		catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	/**
@@ -448,7 +405,9 @@ public class Data extends JFrame {
 				bf.write(line);
 			}
 		}
-		catch (IOException e1) {e1.printStackTrace();}
+		catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	/**
@@ -476,69 +435,16 @@ public class Data extends JFrame {
 				bf.write(line);
 			}
 		}
-		catch (IOException e1) {e1.printStackTrace();}
-	}
-	
-//	private void lengXY(Node p)
-//	{
-//		float lengXmin = Float.MAX_VALUE, lengXmax = Float.MIN_VALUE, lengYmin = Float.MAX_VALUE, lengYmax = Float.MIN_VALUE;
-//		for(int i = 0; i < this.ph.length; i++)
-//		{
-//			if(this.ph[i].getDock().equals(p))
-//			{
-//				if(ph[i].getX() < lengXmin){ lengXmin = ph[i].getX();}
-//				if(ph[i].getX() > lengXmax){ lengXmax = ph[i].getX();}
-//				if(ph[i].getY() < lengYmin){ lengYmin = ph[i].getY();}
-//				if(ph[i].getY() > lengYmax){ lengYmax = ph[i].getY();}
-//			}	
-//		}
-//		System.out.println(Math.abs(lengXmax - lengXmin) + " x " + Math.abs(lengYmax - lengYmin));
-//	}
-//	
-	@SuppressWarnings("unused")
-	private void checkPub(){
-		int ck[] = new int[countDock];
-		for(int i = 0; i < this.ph.length; i++)
-		{			
-			if(this.ph[i].getDock().equals(this.ps[0])){ ck[0]++;}
-			if(this.ph[i].getDock().equals(this.ps[1])){ ck[1]++;}
-			if(this.ph[i].getDock().equals(this.ps[2])){ ck[2]++;}
-			if(this.ph[i].getDock().equals(this.ps[3])){ ck[3]++;}
-			if(this.ph[i].getDock().equals(this.ps[4])){ ck[4]++;}
-			if(this.ph[i].getDock().equals(this.ps[5])){ ck[5]++;}
-			if(this.ph[i].getDock().equals(this.ps[6])){ ck[6]++;}
-			if(this.ph[i].getDock().equals(this.ps[7])){ ck[7]++;}
-			if(this.ph[i].getDock().equals(this.ps[8])){ ck[8]++;}
+		catch (IOException e1) {
+			e1.printStackTrace();
 		}
-		int count = 0;
-		for(int j = 0; j < ck.length; j++)
-		{
-		System.out.println("Sklad_"+j+": "+ck[j]);
-			count += ck[j];
-		}
-		System.out.println("Celkem: "+count);
 	}
-	
-//	private void checkNeig(){
-//		int n;
-//		int cnt = 0;
-//		for(Node x : ph){
-//			n = x.getNeighbours().size();
-//			if(n < 15){
-//				System.out.println(x.getID()+"   "+n);
-//				cnt++;
-//			}
-//		}
-//		System.out.println(cnt);
-//	}
+
 	
 	public static void main(String [] arg)
 	{
 		Data d = new Data();
 		System.out.println("Hospoda s poslednim ID: "+d.ph[d.ph.length-1].getID());
 		
-//		d.checkNeig();	
-//		for(int i = 0; i < d.ps.length; i++) d.lengXY(d.ps[i]);
-		d.checkPub();
 	}
 }
