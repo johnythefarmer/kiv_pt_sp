@@ -3,6 +3,13 @@ package cz.chmelokvas.brewery;
 import cz.chmelokvas.util.Controller;
 
 public class Dock extends Stock {
+	
+	private TransportNode node;
+	
+	public Dock(TransportNode node){
+		this.node = node;
+	}
+	
 	public void checkTimeEvents(){
 		//Pocitani a planovani cest
 		

@@ -4,10 +4,14 @@ import java.util.Random;
 
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
+	private TransportNode node;
 	
 	public Pub(int idProv, int idCont){
 		this.idProv = idProv;
 		this.idCont = idCont;
+	}
+	public Pub(TransportNode node){
+		this.node = node;
 	}
 	
 	public Order makeOrder(){
