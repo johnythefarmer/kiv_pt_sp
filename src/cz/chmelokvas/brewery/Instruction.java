@@ -6,13 +6,24 @@ public class Instruction {
 	private final Time finished;
 	private final Order order;
 	private Instruction next;
+	private final int amount;
 	
-	public Instruction(State state, TransportNode destination, Time finished, Order order){
+	public Instruction(State state, TransportNode destination, Time finished, int amount, Order order){
 		this.state = state;
 		this.destination = destination;
 		this.finished = finished;
 		this.order = order;
+		this.amount = amount;
 		this.next = null;
+	}
+	
+	public Instruction(State state, TransportNode destination,int amount, Time finished){
+		this.state = state;
+		this.destination = destination;
+		this.finished = finished;
+		this.order = null;
+		this.next = null;
+		this.amount = amount;
 	}
 	
 	public Instruction(State state, TransportNode destination, Time finished){
@@ -21,6 +32,7 @@ public class Instruction {
 		this.finished = finished;
 		this.order = null;
 		this.next = null;
+		this.amount = 0;
 	}
 
 	public Instruction getNext() {
@@ -45,6 +57,10 @@ public class Instruction {
 
 	public Order getOrder() {
 		return order;
+	}
+
+	public int getAmount() {
+		return amount;
 	}
 	
 	
