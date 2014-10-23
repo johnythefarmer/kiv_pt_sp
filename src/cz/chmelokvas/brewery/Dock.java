@@ -126,7 +126,7 @@ public class Dock extends Stock {
 		
 		prepareStackForPath(i, j, nodes);
 		
-		addPathInstructions(i, c, t, nodes);
+		addPathInstructions(i, c, nodes);
 		
 		t = t.getTimeAfterMinutes(o.getAmount()*c.getReloadingSpeed());
 		c.addInstruction(new Instruction(State.UNLOADING,o.getPub(),t,o));
@@ -139,11 +139,12 @@ public class Dock extends Stock {
 	 * @param nodes zasobnik kde budeme ukladat uzly
 	 */
 	public void prepareStackForPath(int source, int destination, Stack<Integer> nodes){
-		nodes.push(destination);
-		while(p[source][destination] != 0){
-			int tmp = p[source][destination];
+		int i = destination;
+		nodes.push(i);
+		while(p[source][i] != 0){
+			int tmp = p[source][i];
 			nodes.push(tmp);
-			destination = tmp;
+			i = tmp;
 		}
 	}
 	
@@ -153,10 +154,10 @@ public class Dock extends Stock {
 	 *  {@code ((LinkedList<Instruction>)c.getInstructions()).getLast().getDestination().idProv},
 	 *   coz ale uznejme je hodne slozite a stejne jsme jiz hodnotu jednou ziskali
 	 * @param c Auto, kteremu dane instrukce predame
-	 * @param t Cas dokonceni posledni drive predane instrukce. Slo by ziskat podobne jako i ale lehci je predat
 	 * @param nodes Zasobnik, ktery obsahuje uzly, pres ktere auto pojede
 	 */
-	public void addPathInstructions(int i, Car c, Time t, Stack<Integer> nodes){
+	public void addPathInstructions(int i, Car c, Stack<Integer> nodes){
+		Time t = ((LinkedList<Instruction>)c.getInstructions()).getLast().getFinished();
 		int x = i, y = 0;
 		while(!nodes.empty()){
 			y = nodes.pop();
