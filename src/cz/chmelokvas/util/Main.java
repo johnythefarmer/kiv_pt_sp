@@ -4,12 +4,8 @@ import java.util.ArrayList;
 
 import cz.chmelokvas.brewery.Car;
 import cz.chmelokvas.brewery.Dock;
-import cz.chmelokvas.brewery.Instruction;
-import cz.chmelokvas.brewery.Order;
 import cz.chmelokvas.brewery.Pub;
-import cz.chmelokvas.brewery.State;
 import cz.chmelokvas.brewery.Stock;
-import cz.chmelokvas.brewery.Time;
 import cz.chmelokvas.brewery.TransportNode;
 
 

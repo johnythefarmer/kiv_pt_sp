@@ -1,6 +1,7 @@
 package cz.chmelokvas.brewery;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class Car {
 	/** Typ auta */
@@ -10,7 +11,7 @@ public class Car {
 	private State state;
 	
 	/** Soucasna instrukce */
-	private final LinkedList<Instruction> instructions;
+	private final List<Instruction> instructions;
 	
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
@@ -27,7 +28,7 @@ public class Car {
 	 */
 	private int full;
 	
-	private int id;
+	private final int id;
 	
 	/**
 	 * Privatni konstruktor. Vytvori auto na danem miste s danymi specifikacemi.<br>
@@ -88,11 +89,11 @@ public class Car {
 		if(instructions.isEmpty()){
 			return null;
 		}
-		return instructions.getFirst();
+		return ((LinkedList<Instruction>)instructions).getFirst();
 	}
 
 	public void addInstruction(Instruction instruction) {
-		instructions.addLast(instruction);
+		((LinkedList<Instruction>)instructions).addLast(instruction);
 	}
 
 	public TransportNode getPosition() {
@@ -145,7 +146,7 @@ public class Car {
 		return type + " " + id;
 	}
 
-	public LinkedList<Instruction> getInstructions() {
+	public List<Instruction> getInstructions() {
 		return instructions;
 	}
 	
