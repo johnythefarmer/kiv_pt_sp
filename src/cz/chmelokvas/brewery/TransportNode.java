@@ -45,4 +45,22 @@ public class TransportNode {
 	public void setC(Controller c) {
 		this.c = c;
 	}
+
+	public int getIdCont() {
+		return idCont;
+	}
+
+	public void setIdCont(int idCont) {
+		this.idCont = idCont;
+	}
+
+	public int getIdProv() {
+		return idProv;
+	}
+
+	public void setIdProv(int idProv) {
+		this.idProv = idProv;
+	}
+	
+	
 }

@@ -1,5 +1,7 @@
 package cz.chmelokvas.brewery;
 
+import java.util.LinkedList;
+
 public class Car {
 	/** Typ auta */
 	private final CarType type;
@@ -8,7 +10,7 @@ public class Car {
 	private State state;
 	
 	/** Soucasna instrukce */
-	private Instruction currentInstruction;
+	private final LinkedList<Instruction> instructions;
 	
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
@@ -25,6 +27,8 @@ public class Car {
 	 */
 	private int full;
 	
+	private int id;
+	
 	/**
 	 * Privatni konstruktor. Vytvori auto na danem miste s danymi specifikacemi.<br>
 	 * Konstruktor je privatni, jelikoz chceme zamezit vkladani nesmyslnych hodnot
@@ -35,13 +39,14 @@ public class Car {
 	 * @param speed Rychlost jakou auto cestuje silnici
 	 * @param reloadingSpeed Pocet minut kolik zabere naklad/vyklad sudu nebo nacerpani/precerpani hl piva
 	 */
-	private Car(TransportNode position, CarType type){
+	private Car(TransportNode position, CarType type, int id){
 		this.state = State.WAITING;
-		this.currentInstruction = null;
+		this.instructions = new LinkedList<Instruction>();
 		this.position = position;
 		this.type = type;
 		this.empty = type.getCapacity();
 		this.full = 0;
+		this.id = id;
 	}
 	
 	/**
@@ -49,8 +54,8 @@ public class Car {
 	 * @param position Misto kde se kamion vytvori
 	 * @return Instance s vlastnostmi kamionu
 	 */
-	public static Car getCamion(TransportNode position){
-		return new Car(position,CarType.CAMION);
+	public static Car getCamion(TransportNode position, int id){
+		return new Car(position,CarType.CAMION, id);
 	}
 	
 	/**
@@ -58,8 +63,8 @@ public class Car {
 	 * @param position Misto kde se cisterna vytvori
 	 * @return Instance s vlastnostmi cisterny
 	 */
-	public static Car getCistern(TransportNode position){
-		return new Car(position,CarType.CISTERN);
+	public static Car getCistern(TransportNode position, int id){
+		return new Car(position,CarType.CISTERN, id);
 	}
 	
 	/**
@@ -67,8 +72,8 @@ public class Car {
 	 * @param position Misto kde se nakladak vytvori
 	 * @return Instance s vlastnostmi nakladaku
 	 */
-	public static Car getTruck(TransportNode position){
-		return new Car(position,CarType.TRUCK);
+	public static Car getTruck(TransportNode position, int id){
+		return new Car(position,CarType.TRUCK,id);
 	}
 
 	public State getState() {
@@ -80,11 +85,14 @@ public class Car {
 	}
 
 	public Instruction getCurrentInstruction() {
-		return currentInstruction;
+		if(instructions.isEmpty()){
+			return null;
+		}
+		return instructions.getFirst();
 	}
 
-	public void setCurrentInstruction(Instruction currentInstruction) {
-		this.currentInstruction = currentInstruction;
+	public void addInstruction(Instruction instruction) {
+		instructions.addLast(instruction);
 	}
 
 	public TransportNode getPosition() {
@@ -134,6 +142,12 @@ public class Car {
 	}
 	
 	public String toString(){
-		return type + "";
+		return type + " " + id;
 	}
+
+	public LinkedList<Instruction> getInstructions() {
+		return instructions;
+	}
+	
+	
 }

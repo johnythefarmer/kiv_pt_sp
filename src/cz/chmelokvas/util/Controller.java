@@ -37,9 +37,13 @@ public class Controller {
 		nodes[a].getRoutes().add(new Route(d, b));
 		nodes[b].getRoutes().add(new Route(d, a));
 		
-		Stock s = nodes[a].getProvider();
-		s.getD()[a][b] = d;
-		s.getD()[b][a] = d;
+		if(nodes[a].getProvider().equals(nodes[b].getProvider())){
+			Stock s = nodes[a].getProvider();
+			int tmpA = nodes[a].getIdProv();
+			int tmpB = nodes[b].getIdProv();
+			s.getD()[tmpA][tmpB] = d;
+			s.getD()[tmpB][tmpA] = d;
+		}
 		
 		//TODO pridat vkladani hran pro pivovar
 	}
@@ -53,7 +57,7 @@ public class Controller {
 			
 			
 			
-			System.out.println(mainTime);
+//			System.out.println(mainTime);
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
 				generateOrders();
@@ -105,11 +109,11 @@ public class Controller {
 			Order o = it.next();
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
 				if(o.getPub().isTank()){
-					System.out.println(o + " byla predana prekladisti " + brewery);
+//					System.out.println(o + " byla predana prekladisti " + brewery);
 					brewery.recieveOrder(o);
 					it.remove();
 				}else{
-					System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
+//					System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
 					o.getPub().getProvider().recieveOrder(o);
 					it.remove();
 				}

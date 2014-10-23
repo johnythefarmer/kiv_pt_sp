@@ -18,6 +18,14 @@ public class Time {
 		this.minute = minute;
 	}
 	
+	public Time(int minutes){
+		addMinutes(minutes);
+	}
+	
+	public Time getTimeAfterMinutes(int minutes){
+		return new Time(value() + minutes);
+	}
+	
 	public void addMinutes(int minute){
 		this.minute += minute;
 		

@@ -1,7 +1,7 @@
 package cz.chmelokvas.brewery;
 
 public enum CarType {
-	CAMION(100,90,5),CISTERN(50,60,2),TRUCK(30,70,5);
+	CAMION(100,90f/60f,5),CISTERN(50,1,2),TRUCK(30,70f/60f,5);
 	
 	private final int capacity;
 	private final float speed;

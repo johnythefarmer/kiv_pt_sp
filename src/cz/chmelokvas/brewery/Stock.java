@@ -1,7 +1,9 @@
 package cz.chmelokvas.brewery;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public abstract class Stock extends TransportNode {
 	
@@ -9,7 +11,14 @@ public abstract class Stock extends TransportNode {
 	protected int state;
 	
 	/** Seznam prijatych objednavek */
-	protected List<Order> orders = new ArrayList<Order>();
+	protected SortedSet<Order> orders = new TreeSet<Order>(new Comparator<Order>() {
+
+		@Override
+		public int compare(Order o1, Order o2) {
+			return Float.compare(d[0][o1.getPub().idProv], d[0][o2.getPub().idProv]);
+		}
+		
+	});
 	
 	/** Atribut konstanty auto */
 	protected List<Car> garage;
@@ -41,7 +50,7 @@ public abstract class Stock extends TransportNode {
 
 
 	public void recieveOrder(Order o){
-		System.out.println("Prijata objednavka od hospody " + o.getPub());
+//		System.out.println("Prijata objednavka od hospody " + o.getPub());
 		orders.add(o);
 	}
 	

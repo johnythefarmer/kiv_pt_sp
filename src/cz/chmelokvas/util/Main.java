@@ -35,8 +35,8 @@ public class Main {
 			s.getCustomers()[i+1] = c.nodes[i+1];
 		}
 		
-		Car a = Car.getTruck(s);
-		Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
+//		Car a = Car.getTruck(s);
+		/*Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
 		Instruction t1 = new Instruction(State.TRAVELLING, c.nodes[2], new Time(0,7,30));
 		Instruction t2 = new Instruction(State.TRAVELLING,c.nodes[3], new Time(0,9,40));
 		Order o = new Order(new Time(0,8,20), (Pub)c.nodes[3], 3);
@@ -47,8 +47,8 @@ public class Main {
 		t2.setNext(t3);
 		t1.setNext(t2);
 		t0.setNext(t1);
-		a.setCurrentInstruction(t0);
-		s.getGarage().add(a);
+		a.setCurrentInstruction(t0);*/
+//		s.getGarage().add(a);
 		
 		/*c.addRoute(0, 2, 2.3f);
 		c.addRoute(2,4, 2f);
@@ -56,9 +56,20 @@ public class Main {
 		c.addRoute(3, 6, 3.5f);
 		c.addRoute(6,5, 3.5f);
 		c.addRoute(3, 7, 1f);
-		c.addRoute(7,5, 10f);
+		c.addRoute(7,5, 10f);*/
+		c.addRoute(0, 1, 2);
+		c.addRoute(1, 2, 2);
+		c.addRoute(2, 3, 2);
+		c.addRoute(3, 4, 2);
+		c.addRoute(4, 5, 2);
+		c.addRoute(5, 6, 2);
+		c.addRoute(6, 7, 2);
+		c.addRoute(7, 8, 2);
+		c.addRoute(8, 9, 2);
+		c.addRoute(9, 10, 2);
+		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
 		
-		long t = System.currentTimeMillis();
+		/*long t = System.currentTimeMillis();
 		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
 		System.out.println(System.currentTimeMillis() - t);
 		System.out.println(s.getD()[7][5]);*/
@@ -81,7 +92,7 @@ public class Main {
 			System.out.println(p.makeOrder());
 		}*/
 		c.simulate();
-		System.out.println("Pozice "+ a + ": " +a.getPosition());
+//		System.out.println("Pozice "+ a + ": " +a.getPosition());
 	}
 
 }
