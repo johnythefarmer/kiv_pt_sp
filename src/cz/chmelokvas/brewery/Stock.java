@@ -33,7 +33,9 @@ public abstract class Stock extends TransportNode {
 	protected int[][] p;
 	
 	
-	
+	public Stock(){
+		this.provider = this;
+	}
 	
 
 

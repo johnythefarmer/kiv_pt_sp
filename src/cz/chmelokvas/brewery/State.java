@@ -16,7 +16,5 @@ public enum State {
 
 	public String getStrFin() {
 		return strFin;
-	}
-	
-	
+	}	
 }

@@ -4,12 +4,21 @@ import java.util.Random;
 
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
+	private TransportNode node;
 	
 	private boolean isTank;
 	
 	public Pub(int idProv, int idCont, boolean isTank){
 		this.idProv = idProv;
 		this.idCont = idCont;
+		this.isTank = isTank;
+	}
+	
+	public Pub(Stock tmpDock, int idProv, int idCont, float x, float y, boolean isTank){
+		this.idProv = idProv;
+		this.idCont = idCont;
+		this.x = x;
+		this.y = y;
 		this.isTank = isTank;
 	}
 	

@@ -6,12 +6,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
 import cz.chmelokvas.brewery.Pub;
-import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Stock;
-import cz.chmelokvas.brewery.TransportNode;
 
 
 public class ParseData {
@@ -36,21 +36,25 @@ public class ParseData {
 	private Brewery brewery;
 	
 	/** Atribut pole instanci prekladiste */
-	private Dock[] dock;
+	private List<Dock> dock = new ArrayList<>();
 	
 	/** Atribut pole instance hospod */
-	private Pub[] pub;
+	private List<Pub> pub = new ArrayList<>();
 	
-	public ParseData(){
-	}
+	/** Atribut poctu tankovych hospod */
+	private int tankCount;
 	
+	/** Atribut poctu sudovych hospod */
+	private int kegCount;
 	
+	/** Atribut poctu prekladist */
+	private int dockCount;
+		
 
 	private void importData(){
 		String line;
 		FileReader rd = null;
 		BufferedReader br = null;
-		int index = 0;
 		
 		try {
 			rd = new FileReader(nameFile);
@@ -62,26 +66,35 @@ public class ParseData {
 		try {
 			while(true){
 				
+				/* Nacti pivovar */
 				line = br.readLine();
 				loadBrewery(line);
 				
+				/* Nacti prekladiste */
 				line = br.readLine();
-				index = Integer.valueOf(line);
-				dock = new Dock[index];
-				for(int i = 0; i < index; i++){
+				dockCount = Integer.valueOf(line);
+				for(int i = 0; i < dockCount; i++){
 					line = br.readLine();
-					loadDock(line, i);
+					loadDock(line);
 				}
 				
+				/* Nacti hospody z tanku */
 				line = br.readLine();
-				System.out.println(line);
-				index = Integer.valueOf(line);
-				pub = new Pub[index];
-				for(int i = 0; i < index; i++){
+				tankCount = Integer.valueOf(line);
+				for(int i = 0; i < tankCount; i++){
 					line = br.readLine();
-					loadPub(line, i);
+					loadPub(line, true);
+				}			
+				
+				/* Nacti hospody ze sudu */
+				line = br.readLine();
+				kegCount = Integer.valueOf(line);
+				for(int i = 0; i < kegCount; i++){
+					line = br.readLine();
+					loadPub(line, false);
 				}
 				
+				/* Nacti sousedy */
 				while((line = br.readLine()) != null){
 					loadNeighbours(line);
 				}
@@ -102,8 +115,48 @@ public class ParseData {
 		}
 	}
 	
+	/**
+	 * Format dat:
+	 * 	ID:ID,d;ID,d;...
+	 * @param line
+	 */
 	private void loadNeighbours(String line){
+		String parse[], tmpParse[];
+		int idCont, v;
+		Float d;
+				
+		parse = line.split(":");
+		idCont = Integer.valueOf(parse[0]);
 		
+		parse = parse[1].split(";");
+		
+		if(idCont == 0){
+			// pivovar
+			for(int i = 0; i < parse.length; i++){
+				tmpParse = parse[i].split(",");
+				v = Integer.valueOf(tmpParse[0]);
+				d = Float.valueOf(tmpParse[1]);
+				brewery.getRoutes().add(new Route(d, v));
+			}
+		}
+		if(idCont > 0 && idCont <= dockCount){
+			// prekladiste
+			for(int i = 0; i < parse.length; i++){
+				tmpParse = parse[i].split(",");
+				v = Integer.valueOf(tmpParse[0]);
+				d = Float.valueOf(tmpParse[1]);
+				dock.get(idCont-1).getRoutes().add(new Route(d, v));
+			}	
+		}
+		if(idCont > dockCount){
+			// hospody
+			for(int i = 0; i < parse.length; i++){
+				tmpParse = parse[i].split(",");
+				v = Integer.valueOf(tmpParse[0]);
+				d = Float.valueOf(tmpParse[1]);
+				pub.get(idCont-dockCount-1).getRoutes().add(new Route(d, v));
+			}	
+		}
 	}
 	
 	/**
@@ -111,24 +164,26 @@ public class ParseData {
 	 * Format dat:
 	 * 	ID	prekladiste	X	Y
 	 * @param line nactena radka
-	 * @param i	index do pole
+	 * @param isTank je ci neni tank
 	 */
-	private void loadPub(String line, int i){
+	private void loadPub(String line, boolean isTank){
 		String parse[];
 		float x, y;
 		int idC, idP;
+		Stock tmpDock;
 		
 		parse = line.split("\t");
 		/* ID hospody */
 		idC = Integer.valueOf(parse[0]);
 		/* ID prekladiste */
 		idP = Integer.valueOf(parse[1]);
+		tmpDock = dock.get(idP-1);
 		/* X souradnice */
 		x = Float.valueOf(parse[2]);
 		/* Y souradnice */
 		y = Float.valueOf(parse[3]);
 		
-		pub[i] = new Pub(idP, idC, x, y);
+		pub.add(new Pub(tmpDock, idP, idC, x, y, isTank));
 	}
 	
 	/**
@@ -138,7 +193,7 @@ public class ParseData {
 	 * @param line nactena radka
 	 * @param i	index do pole
 	 */
-	private void loadDock(String line, int i){
+	private void loadDock(String line){
 		String parse[];
 		float x, y;
 		int id;
@@ -151,7 +206,7 @@ public class ParseData {
 		/* Y souradnice */
 		y = Float.valueOf(parse[2]);
 		
-		dock[i] = new Dock(id, x, y);
+		dock.add(new Dock(id, x, y));
 	}
 	
 	/**
@@ -183,5 +238,13 @@ public class ParseData {
 	public static void main(String [] arg){
 		ParseData pd = new ParseData();
 		pd.importData();
+		
+		int i = 3999;
+		System.out.println(pd.pub.get(i).getRoutes().get(0).getValue());
+		System.out.println(pd.pub.get(i).getRoutes().get(pd.pub.get(i).getRoutes().size()-1).getValue());
+		System.out.println("\n");
+		i = 8;
+		System.out.println(pd.dock.get(i-1).getRoutes().get(0).getValue());
+		System.out.println(pd.dock.get(i-1).getRoutes().get(pd.dock.get(i-1).getRoutes().size()-1).getValue());
 	}
 }

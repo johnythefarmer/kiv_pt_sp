@@ -9,6 +9,16 @@ import java.util.stream.Collectors;
 import cz.chmelokvas.util.Controller;
 
 public class Dock extends Stock {
+	
+	
+	public Dock(int idCont, float x, float y){
+		this.provider = this;
+		this.idCont = idCont;
+		this.idProv = 0;
+		this.x = x;
+		this.y = y;
+	}
+	
 	public void checkTimeEvents(){
 		//Pocitani a planovani cest
 		Time t = new Time(0,13,0);

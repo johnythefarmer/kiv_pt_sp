@@ -21,10 +21,10 @@ public class TransportNode {
 	protected List<Route> routes = new ArrayList<Route>();
 	
 	/** Atribut konstanty X souradnice */
-	protected double x;
+	protected float x;
 	
 	/** Atribut konstanty Y souradnice */
-	protected double y;
+	protected float y;
 	
 	public List<Route> getRoutes(){
 		return routes;
@@ -46,6 +46,24 @@ public class TransportNode {
 		this.c = c;
 	}
 
+	public int getIdCont1() {
+		return idCont;
+	}
+
+	public void setIdCont1(int idCont) {
+		this.idCont = idCont;
+	}
+
+	public int getIdProv1() {
+		return idProv;
+	}
+
+	public void setIdProv1(int idProv) {
+		this.idProv = idProv;
+	}
+	
+	
+
 	public int getIdCont() {
 		return idCont;
 	}
@@ -60,6 +78,22 @@ public class TransportNode {
 
 	public void setIdProv(int idProv) {
 		this.idProv = idProv;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
 	}
 	
 	
