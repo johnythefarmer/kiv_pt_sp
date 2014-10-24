@@ -45,7 +45,7 @@ public class Car {
 		this.instructions = new LinkedList<Instruction>();
 		this.position = position;
 		this.type = type;
-		this.empty = type.getCapacity();
+		this.empty = 0;
 		this.full = 0;
 		this.id = id;
 	}
@@ -91,6 +91,13 @@ public class Car {
 		}
 		return ((LinkedList<Instruction>)instructions).getFirst();
 	}
+	
+	public Instruction getLastInstruction(){
+		if(instructions.isEmpty()){
+			return null;
+		}
+		return ((LinkedList<Instruction>)instructions).getLast();
+	}
 
 	public void addInstruction(Instruction instruction) {
 		((LinkedList<Instruction>)instructions).addLast(instruction);
@@ -130,7 +137,6 @@ public class Car {
 	 */
 	public void load(int n){
 		this.full += n;
-		this.empty -= n;
 	}
 	
 	/**
@@ -139,11 +145,26 @@ public class Car {
 	 */
 	public void unload(int n){
 		this.full -= n;
+	}
+	
+	/**
+	 * Nalozi n prazdnych sudu (resp. hl) piva
+	 * @param n mnozstvi piva
+	 */
+	public void loadEmpty(int n){
 		this.empty += n;
 	}
 	
+	/**
+	 * Vylozi n prazdnych sudu (resp. hl) piva
+	 * @param n mnozstvi piva
+	 */
+	public void unloadEmpty(int n){
+		this.empty -= n;
+	}
+	
 	public String toString(){
-		return type + " " + id;
+		return type + " " + id + "(empty:" + empty + ", full:" + full + ")";
 	}
 
 	public List<Instruction> getInstructions() {
