@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
-	private TransportNode node;
 	
 	private boolean isTank;
 	

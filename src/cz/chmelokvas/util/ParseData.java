@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import cz.chmelokvas.brewery.Brewery;
@@ -29,17 +28,16 @@ public class ParseData {
 	 */
 	
 	/** Atribut jmena vstupniho souboru */
-	// TODO jmeno souboru pres konstruktor
-	private final String nameFile = "export.txt";
+	private final String nameFile;
 	
 	/** Atribut instance pivovaru */
 	private Brewery brewery;
 	
 	/** Atribut pole instanci prekladiste */
-	private List<Dock> dock = new ArrayList<>();
+	private final List<Dock> dock = new ArrayList<>();
 	
 	/** Atribut pole instance hospod */
-	private List<Pub> pub = new ArrayList<>();
+	private final List<Pub> pub = new ArrayList<>();
 	
 	/** Atribut poctu tankovych hospod */
 	private int tankCount;
@@ -50,6 +48,10 @@ public class ParseData {
 	/** Atribut poctu prekladist */
 	private int dockCount;
 		
+	
+	public ParseData(String nameFile){
+		this.nameFile = nameFile;
+	}
 
 	private void importData(){
 		String line;
@@ -59,7 +61,6 @@ public class ParseData {
 		try {
 			rd = new FileReader(nameFile);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		br = new BufferedReader(rd);
@@ -101,7 +102,6 @@ public class ParseData {
 				break;
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -110,7 +110,6 @@ public class ParseData {
 		try {
 			br.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -235,16 +234,50 @@ public class ParseData {
 		brewery = new Brewery(name, id, x, y);
 	}
 	
+	
+	
+	public Brewery getBrewery() {
+		return brewery;
+	}
+
+	public void setBrewery(Brewery brewery) {
+		this.brewery = brewery;
+	}
+
+	public int getTankCount() {
+		return tankCount;
+	}
+
+	public void setTankCount(int tankCount) {
+		this.tankCount = tankCount;
+	}
+
+	public int getKegCount() {
+		return kegCount;
+	}
+
+	public void setKegCount(int kegCount) {
+		this.kegCount = kegCount;
+	}
+
+	public int getDockCount() {
+		return dockCount;
+	}
+
+	public void setDockCount(int dockCount) {
+		this.dockCount = dockCount;
+	}
+
+	public List<Dock> getDock() {
+		return dock;
+	}
+
+	public List<Pub> getPub() {
+		return pub;
+	}
+
 	public static void main(String [] arg){
-		ParseData pd = new ParseData();
+		ParseData pd = new ParseData("export.txt");
 		pd.importData();
-		
-		int i = 3999;
-		System.out.println(pd.pub.get(i).getRoutes().get(0).getValue());
-		System.out.println(pd.pub.get(i).getRoutes().get(pd.pub.get(i).getRoutes().size()-1).getValue());
-		System.out.println("\n");
-		i = 8;
-		System.out.println(pd.dock.get(i-1).getRoutes().get(0).getValue());
-		System.out.println(pd.dock.get(i-1).getRoutes().get(pd.dock.get(i-1).getRoutes().size()-1).getValue());
 	}
 }
