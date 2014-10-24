@@ -23,7 +23,7 @@ public class Dock extends Stock {
 	public void checkTimeEvents(){
 		//Pocitani a planovani cest
 		Time t = new Time(0,13,0);
-		if(Controller.c.mainTime.value() == t.value()|| Controller.c.mainTime.value() == t.value()+60){
+		if(c.mainTime.value() == t.value()||c.mainTime.value() == t.value()+60){
 //			Set<Order> or = ;
 			createInstructions((Set<Order>)(orders.stream().filter(o->{return !o.isBeingDelivered();}).collect(Collectors.toSet())));
 		}
