@@ -158,6 +158,7 @@ public class Dock extends Stock {
 		c.addInstruction(new Instruction(State.UNLOADING,o.getPub(), o.getAmount(), t));
 		t = t.getTimeAfterMinutes(reloadingMinutes);
 		c.addInstruction(new Instruction(State.LOADING_EMPTY_BARRELS,o.getPub(), t, o.getAmount(), o));
+		
 	}
 	
 	/**
@@ -169,9 +170,7 @@ public class Dock extends Stock {
 	public void prepareStackForPath(int source, int destination, Stack<Integer> nodes){
 		int i = destination;
 		nodes.push(i);
-
 		//poradi je treba prohodit, proto se uziva zasobniku
-
 		while(p[source][i] != 0){
 			int tmp = p[source][i];
 			nodes.push(tmp);
