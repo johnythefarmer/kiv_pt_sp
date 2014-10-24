@@ -28,7 +28,7 @@ public class Data extends JFrame {
 	/** Pocet prekladist + pivovar */
 	private final int countDock = 9;
 	
-	/** Pocet hospod z tanku */
+	/** Pocet hospod z  tanku */
 	private final int pubFromTank = 200;
 	
 	/** X rozmer mapy */
