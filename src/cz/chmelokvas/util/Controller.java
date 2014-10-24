@@ -95,7 +95,7 @@ public class Controller {
 			
 			
 			
-//			System.out.println(mainTime);
+			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
 				generateOrders();
@@ -116,6 +116,7 @@ public class Controller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}*/
+			System.out.println("\n\n");
 		}
 //		System.out.println(mainTime);
 	}

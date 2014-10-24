@@ -158,7 +158,6 @@ public class Dock extends Stock {
 		c.addInstruction(new Instruction(State.UNLOADING,o.getPub(), o.getAmount(), t));
 		t = t.getTimeAfterMinutes(reloadingMinutes);
 		c.addInstruction(new Instruction(State.LOADING_EMPTY_BARRELS,o.getPub(), t, o.getAmount(), o));
-
 	}
 	
 	/**
