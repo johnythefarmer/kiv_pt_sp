@@ -12,7 +12,7 @@ public class Brewery extends Stock {
 		this.y = y;
 		this.idCont = idCont;
 		this.idProv = 0;
-		this.provider = null;
+		this.provider = this;
 	}
 	
 	public void checkTimeEvents(){

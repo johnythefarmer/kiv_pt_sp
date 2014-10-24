@@ -15,6 +15,7 @@ public class Dock extends Stock {
 		this.provider = this;
 		this.idCont = idCont;
 		this.idProv = 0;
+		customers.add(this);
 		this.x = x;
 		this.y = y;
 	}
@@ -22,7 +23,7 @@ public class Dock extends Stock {
 	public void checkTimeEvents(){
 		//Pocitani a planovani cest
 		Time t = new Time(0,13,0);
-		if(c.mainTime.value() == t.value()|| c.mainTime.value() == t.value()+60){
+		if(Controller.c.mainTime.value() == t.value()|| Controller.c.mainTime.value() == t.value()+60){
 //			Set<Order> or = ;
 			createInstructions((Set<Order>)(orders.stream().filter(o->{return !o.isBeingDelivered();}).collect(Collectors.toSet())));
 		}
@@ -117,7 +118,7 @@ public class Dock extends Stock {
 			
 			t = t.getTimeAfterMinutes((int)(distance/c.getSpeed()));
 			
-			c.addInstruction(new Instruction(State.TRAVELLING,customers[y],t));
+			c.addInstruction(new Instruction(State.TRAVELLING,customers.get(y),t));
 			
 			x = y;
 		}

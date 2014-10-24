@@ -2,6 +2,8 @@ package cz.chmelokvas.brewery;
 
 import java.util.Random;
 
+import cz.chmelokvas.util.Controller;
+
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
 	
@@ -19,6 +21,7 @@ public class Pub extends TransportNode {
 		this.x = x;
 		this.y = y;
 		this.isTank = isTank;
+		this.provider = tmpDock;
 	}
 	
 	public Order makeOrder(){
@@ -34,7 +37,7 @@ public class Pub extends TransportNode {
 		int h = (int)Math.floor(d);
 		int m = (int)((d - (double)h)*60.);
 		
-		return new Time(c.mainTime.getDay(), h, m);
+		return new Time(Controller.c.mainTime.getDay(), h, m);
 	}
 	
 	private int generateAmount(){

@@ -1,6 +1,7 @@
 package cz.chmelokvas.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import cz.chmelokvas.brewery.Car;
 import cz.chmelokvas.brewery.Dock;
@@ -16,7 +17,12 @@ import cz.chmelokvas.brewery.TransportNode;
 public class Main {
 
 	public static void main(String[] args) {
-		Controller c = new Controller();
+		ParseData pd = new ParseData("export.txt");
+		
+		Controller.c = pd.getC();
+		Controller.c.simulate();
+		
+		/*Controller c = new Controller();
 		c.nodes[0] = new Dock();
 		Stock s = (Stock)c.nodes[0];
 		s.setProvider(s);
@@ -36,7 +42,7 @@ public class Main {
 		}
 		
 //		Car a = Car.getTruck(s);
-		/*Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
+		Instruction t0 = new Instruction(State.WAITING, c.nodes[0], new Time(0,7,0));
 		Instruction t1 = new Instruction(State.TRAVELLING, c.nodes[2], new Time(0,7,30));
 		Instruction t2 = new Instruction(State.TRAVELLING,c.nodes[3], new Time(0,9,40));
 		Order o = new Order(new Time(0,8,20), (Pub)c.nodes[3], 3);
@@ -47,16 +53,16 @@ public class Main {
 		t2.setNext(t3);
 		t1.setNext(t2);
 		t0.setNext(t1);
-		a.setCurrentInstruction(t0);*/
+		a.setCurrentInstruction(t0);
 //		s.getGarage().add(a);
 		
-		/*c.addRoute(0, 2, 2.3f);
+		c.addRoute(0, 2, 2.3f);
 		c.addRoute(2,4, 2f);
 		c.addRoute(4, 3, 1f);
 		c.addRoute(3, 6, 3.5f);
 		c.addRoute(6,5, 3.5f);
 		c.addRoute(3, 7, 1f);
-		c.addRoute(7,5, 10f);*/
+		c.addRoute(7,5, 10f);
 		c.addRoute(0, 1, 2);
 		c.addRoute(1, 2, 2);
 		c.addRoute(2, 3, 2);
@@ -69,12 +75,12 @@ public class Main {
 		c.addRoute(9, 10, 2);
 		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
 		
-		/*long t = System.currentTimeMillis();
+		long t = System.currentTimeMillis();
 		s.floydWarshal(s.getD(), s.getP(), Controller.N + 1);
 		System.out.println(System.currentTimeMillis() - t);
-		System.out.println(s.getD()[7][5]);*/
+		System.out.println(s.getD()[7][5]);
 		
-		/*while(c.mainTime.getDay() < 1){
+		while(c.mainTime.getDay() < 1){
 			System.out.println(c.mainTime);
 			c.mainTime.addMinutes(30);
 			try {
@@ -84,15 +90,16 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(c.mainTime);*/
+		System.out.println(c.mainTime);
 	
-		/*Pub p = new Pub(10,120);
+		Pub p = new Pub(10,120);
 		p.setC(c);
 		for(int i = 0; i < 100; i++){
 			System.out.println(p.makeOrder());
-		}*/
+		}
 		c.simulate();
-//		System.out.println("Pozice "+ a + ": " +a.getPosition());
+//		System.out.println("Pozice "+ a + ": " +a.getPosition());*/
+		
 	}
 
 }

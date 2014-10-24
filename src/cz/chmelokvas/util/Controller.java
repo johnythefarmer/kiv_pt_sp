@@ -1,22 +1,50 @@
 package cz.chmelokvas.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import cz.chmelokvas.brewery.*;
+import cz.chmelokvas.brewery.Brewery;
+import cz.chmelokvas.brewery.Dock;
+import cz.chmelokvas.brewery.Order;
+import cz.chmelokvas.brewery.Pub;
+import cz.chmelokvas.brewery.Stock;
+import cz.chmelokvas.brewery.Time;
+import cz.chmelokvas.brewery.TransportNode;
 
 public class Controller {
-	public Brewery brewery;
+	public static Controller c;
+
 	
 	/** Casovy krok*/
 	public static final int STEP = 60;
 	
 	/**Nko v konecnem programu zmizi. je to jen pomocna promena pro generovani zkusebnich dat */
-	public static final int N = 10;
+//	public static final int N = 10;
 	
 	/** Vsechny dopravni uzly simulace */
-	public TransportNode[] nodes = new TransportNode[N+1];
+//	public TransportNode[] nodes = new TransportNode[N+1];
+	
+	public List<TransportNode> nodes;
+	
+	public List<Pub> pub;
+	
+	public List<Dock> dock;
+	
+	public Brewery brewery;
+	
+	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){
+		this.pub = pub;
+		this.dock = dock;
+		this.brewery = brewery;
+		
+		nodes = new ArrayList<TransportNode>();
+		nodes.add(brewery);
+		nodes.addAll(dock);
+		nodes.addAll(pub);
+	}
 	
 	/** Vsechny objednavky pro dany den	 */
 	public Set<Order> todayOrders = new TreeSet<Order>();
@@ -34,13 +62,15 @@ public class Controller {
 	 * @param d delka silnice
 	 */
 	public void addRoute(int a, int b, float d){
-		nodes[a].getRoutes().add(new Route(d, b));
-		nodes[b].getRoutes().add(new Route(d, a));
+		TransportNode nA = nodes.get(a);
+		TransportNode nB = nodes.get(b);
+		nA.getRoutes().add(new Route(d, b));
+		nB.getRoutes().add(new Route(d, a));
 		
-		if(nodes[a].getProvider().equals(nodes[b].getProvider())){
-			Stock s = nodes[a].getProvider();
-			int tmpA = nodes[a].getIdProv();
-			int tmpB = nodes[b].getIdProv();
+		if(nA.getProvider().equals(nB.getProvider())){
+			Stock s = nA.getProvider();
+			int tmpA = nA.getIdProv();
+			int tmpB = nB.getIdProv();
 			s.getD()[tmpA][tmpB] = d;
 			s.getD()[tmpB][tmpA] = d;
 		}
@@ -52,6 +82,10 @@ public class Controller {
 	 * Metoda ktera bude obstaravat celou simulaci
 	 */
 	public void simulate(){
+		for(Dock d:dock){
+			d.floydWarshal(d.getD(), d.getP(), d.getD().length);
+		}
+		
 		int oldDay = -1;
 		while(mainTime.value() < endTime.value()){
 			
@@ -91,14 +125,17 @@ public class Controller {
 				todayOrders.add(((Pub)node).makeOrder());
 			}
 		}
+		
+		for(Pub p : pub){
+			todayOrders.add(p.makeOrder());
+		}
 	}
 	
 	private void checkTime(){
-		for(TransportNode n: nodes){
-			if(n instanceof Stock){
-				((Stock)n).checkTimeEvents();
-			}
+		for(Dock d: dock){
+			d.checkTimeEvents();
 		}
+		brewery.checkTimeEvents();
 	}
 	
 	/**

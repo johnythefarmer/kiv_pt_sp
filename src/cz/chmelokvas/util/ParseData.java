@@ -27,6 +27,8 @@ public class ParseData {
 	 * 
 	 */
 	
+	private Controller c;
+	
 	/** Atribut jmena vstupniho souboru */
 	private final String nameFile;
 	
@@ -43,7 +45,7 @@ public class ParseData {
 	private int tankCount;
 	
 	/** Atribut poctu sudovych hospod */
-	private int kegCount;
+	private int barrelCount;
 	
 	/** Atribut poctu prekladist */
 	private int dockCount;
@@ -51,6 +53,7 @@ public class ParseData {
 	
 	public ParseData(String nameFile){
 		this.nameFile = nameFile;
+		importData();
 	}
 
 	private void importData(){
@@ -64,42 +67,46 @@ public class ParseData {
 			e.printStackTrace();
 		}
 		br = new BufferedReader(rd);
-		try {
-			while(true){
-				
-				/* Nacti pivovar */
+		try {				
+			/* Nacti pivovar */
+			line = br.readLine();
+			loadBrewery(line);
+			
+			/* Nacti prekladiste */
+			line = br.readLine();
+			dockCount = Integer.valueOf(line);
+			for(int i = 0; i < dockCount; i++){
 				line = br.readLine();
-				loadBrewery(line);
-				
-				/* Nacti prekladiste */
+				loadDock(line);
+			}
+			
+			/* Nacti hospody z tanku */
+			line = br.readLine();
+			tankCount = Integer.valueOf(line);
+			for(int i = 0; i < tankCount; i++){
 				line = br.readLine();
-				dockCount = Integer.valueOf(line);
-				for(int i = 0; i < dockCount; i++){
-					line = br.readLine();
-					loadDock(line);
-				}
-				
-				/* Nacti hospody z tanku */
+				loadPub(line, true);
+			}			
+			
+			/* Nacti hospody ze sudu */
+			line = br.readLine();
+			barrelCount = Integer.valueOf(line);
+			for(int i = 0; i < barrelCount; i++){
 				line = br.readLine();
-				tankCount = Integer.valueOf(line);
-				for(int i = 0; i < tankCount; i++){
-					line = br.readLine();
-					loadPub(line, true);
-				}			
-				
-				/* Nacti hospody ze sudu */
-				line = br.readLine();
-				kegCount = Integer.valueOf(line);
-				for(int i = 0; i < kegCount; i++){
-					line = br.readLine();
-					loadPub(line, false);
-				}
-				
-				/* Nacti sousedy */
-				while((line = br.readLine()) != null){
-					loadNeighbours(line);
-				}
-				break;
+				loadPub(line, false);
+			}
+			
+			c = new Controller(pub, dock, brewery);
+			
+			for(Dock d:dock){
+				int n = d.getCustomers().size();
+				d.setD(new float[n][n]);
+				d.setP(new int[n][n]);
+			}
+			
+			/* Nacti sousedy */
+			while((line = br.readLine()) != null){
+				loadNeighbours(line);
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -129,32 +136,11 @@ public class ParseData {
 		
 		parse = parse[1].split(";");
 		
-		if(idCont == 0){
-			// pivovar
-			for(int i = 0; i < parse.length; i++){
-				tmpParse = parse[i].split(",");
-				v = Integer.valueOf(tmpParse[0]);
-				d = Float.valueOf(tmpParse[1]);
-				brewery.getRoutes().add(new Route(d, v));
-			}
-		}
-		if(idCont > 0 && idCont <= dockCount){
-			// prekladiste
-			for(int i = 0; i < parse.length; i++){
-				tmpParse = parse[i].split(",");
-				v = Integer.valueOf(tmpParse[0]);
-				d = Float.valueOf(tmpParse[1]);
-				dock.get(idCont-1).getRoutes().add(new Route(d, v));
-			}	
-		}
-		if(idCont > dockCount){
-			// hospody
-			for(int i = 0; i < parse.length; i++){
-				tmpParse = parse[i].split(",");
-				v = Integer.valueOf(tmpParse[0]);
-				d = Float.valueOf(tmpParse[1]);
-				pub.get(idCont-dockCount-1).getRoutes().add(new Route(d, v));
-			}	
+		for(int i = 0; i < parse.length; i++){
+			tmpParse = parse[i].split(",");
+			v = Integer.valueOf(tmpParse[0]);
+			d = Float.valueOf(tmpParse[1]);
+			c.addRoute(idCont, v, d);
 		}
 	}
 	
@@ -182,7 +168,10 @@ public class ParseData {
 		/* Y souradnice */
 		y = Float.valueOf(parse[3]);
 		
-		pub.add(new Pub(tmpDock, idP, idC, x, y, isTank));
+		Pub p = new Pub(tmpDock, tmpDock.getCustomers().size(), idC, x, y, isTank);
+		
+		pub.add(p);
+		tmpDock.getCustomers().add(p);
 	}
 	
 	/**
@@ -205,7 +194,8 @@ public class ParseData {
 		/* Y souradnice */
 		y = Float.valueOf(parse[2]);
 		
-		dock.add(new Dock(id, x, y));
+		Dock d = new Dock(id, x, y);
+		dock.add(d);
 	}
 	
 	/**
@@ -252,12 +242,12 @@ public class ParseData {
 		this.tankCount = tankCount;
 	}
 
-	public int getKegCount() {
-		return kegCount;
+	public int getBarrelCount() {
+		return barrelCount;
 	}
 
-	public void setKegCount(int kegCount) {
-		this.kegCount = kegCount;
+	public void setBarrelCount(int barrelCount) {
+		this.barrelCount = barrelCount;
 	}
 
 	public int getDockCount() {
@@ -275,9 +265,15 @@ public class ParseData {
 	public List<Pub> getPub() {
 		return pub;
 	}
-
-	public static void main(String [] arg){
-		ParseData pd = new ParseData("export.txt");
-		pd.importData();
+	
+	public Controller getC(){
+		return c; 
 	}
+
+//	public static void main(String [] arg){
+//		ParseData pd = new ParseData("export.txt");
+//		long t = System.currentTimeMillis();
+//		pd.importData();
+//		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
+//	}
 }

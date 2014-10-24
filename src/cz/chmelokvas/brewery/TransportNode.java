@@ -46,24 +46,6 @@ public class TransportNode {
 		this.c = c;
 	}
 
-	public int getIdCont1() {
-		return idCont;
-	}
-
-	public void setIdCont1(int idCont) {
-		this.idCont = idCont;
-	}
-
-	public int getIdProv1() {
-		return idProv;
-	}
-
-	public void setIdProv1(int idProv) {
-		this.idProv = idProv;
-	}
-	
-	
-
 	public int getIdCont() {
 		return idCont;
 	}

@@ -1,5 +1,6 @@
 package cz.chmelokvas.brewery;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,7 +25,7 @@ public abstract class Stock extends TransportNode {
 	protected List<Car> garage;
 	
 	/**Pole zakazniku daneho skladu. Na nultem indexu lezi nase instance*/
-	protected TransportNode[] customers;
+	protected List<TransportNode> customers;
 	
 	/** pole vzdalenosti do ostatnich vrcholu*/
 	protected float[][] d;
@@ -35,6 +36,8 @@ public abstract class Stock extends TransportNode {
 	
 	public Stock(){
 		this.provider = this;
+		this.customers = new ArrayList<TransportNode>();
+		this.garage = new ArrayList<Car>();
 	}
 	
 
@@ -76,13 +79,13 @@ public abstract class Stock extends TransportNode {
 
 
 
-	public TransportNode[] getCustomers() {
+	public List<TransportNode> getCustomers() {
 		return customers;
 	}
 
 
 
-	public void setCustomers(TransportNode[] customers) {
+	public void setCustomers(List<TransportNode> customers) {
 		this.customers = customers;
 	}
 
