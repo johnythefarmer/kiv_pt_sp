@@ -54,13 +54,10 @@ public class Dock extends Stock {
 			
 			while(!s.isEmpty()){
 				int i = s.pop();
-//				System.out.println(i);
 				Pub tmp = ((Pub)customers.get(i));
-//				System.out.println(tmp.idCont);
 				
 				Order today = tmp.getTodayOrder();
 				Order yesterday = tmp.getYesterdayOrder();
-//				System.out.println(today);
 				if(orders.contains(today)){
 					selected.add(today);
 					orders.remove(today);
@@ -72,7 +69,6 @@ public class Dock extends Stock {
 			}
 			
 			beingPrepared.addAll(selected);
-//			System.out.println(selected);
 			createInstructions(selected);
 			
 		}
