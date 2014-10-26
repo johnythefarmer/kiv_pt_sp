@@ -1,22 +1,27 @@
 package cz.chmelokvas.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import cz.chmelokvas.brewery.Car;
-import cz.chmelokvas.brewery.Dock;
-import cz.chmelokvas.brewery.Pub;
-import cz.chmelokvas.brewery.Stock;
-import cz.chmelokvas.brewery.TransportNode;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 
 
 public class Main {
 
 	public static void main(String[] args) {
-		ParseData pd = new ParseData("export.txt");
+		try {
+			PrintStream ps = new PrintStream("output.txt");
+			System.setOut(ps);
+			ParseData pd = new ParseData("export.txt");
+			
+			Controller.c = pd.getC();
+			Controller.c.simulate();
+			
+			ps.close();
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		Controller.c = pd.getC();
-		Controller.c.simulate();
 		
 		/*Controller c = new Controller();
 		c.nodes[0] = new Dock();
