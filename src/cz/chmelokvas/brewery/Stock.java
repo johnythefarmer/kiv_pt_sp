@@ -49,6 +49,17 @@ public abstract class Stock extends TransportNode {
 	/**pole predchudcu*/
 	protected int[][] p;
 	
+	/**
+	 * Pocet prazdnych sudu v prekladisti.<br>
+	 */
+	protected int empty;
+	
+	/**
+	 * Pocet plnych sudu v prekladisti.<br>
+	 * V pripade pivovaru je to pocet vyrobeneho piva (v hektolitrech)
+	 */
+	protected int full;
+	
 	
 	public Stock(){
 		this.provider = this;

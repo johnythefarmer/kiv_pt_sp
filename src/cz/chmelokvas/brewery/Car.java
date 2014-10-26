@@ -176,6 +176,12 @@ public class Car {
 	public List<Instruction> getInstructions() {
 		return instructions;
 	}
+
+	public Stock getStock() {
+		return stock;
+	}
+	
+	
 	
 	public void setInstructions(List<Instruction> instructions){
 		this.instructions = instructions;

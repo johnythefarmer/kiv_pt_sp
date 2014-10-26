@@ -19,13 +19,13 @@ public class Pub extends TransportNode {
 		this.isTank = isTank;
 	}
 	
-	public Pub(Stock tmpDock, int idProv, int idCont, float x, float y, boolean isTank){
+	public Pub(Stock provider, int idProv, int idCont, float x, float y, boolean isTank){
 		this.idProv = idProv;
 		this.idCont = idCont;
 		this.x = x;
 		this.y = y;
 		this.isTank = isTank;
-		this.provider = tmpDock;
+		this.provider = provider;
 	}
 	
 	public Order makeOrder(){

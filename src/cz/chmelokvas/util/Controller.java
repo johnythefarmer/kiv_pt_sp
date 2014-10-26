@@ -141,7 +141,6 @@ public class Controller {
 	 * Pro vsechny hospody simulace vypocte objednavku pro dany den
 	 */
 	private void generateOrders(){
-		
 		for(Pub p : pub){
 			todayOrders.add(p.makeOrder());
 		}

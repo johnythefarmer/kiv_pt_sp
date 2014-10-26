@@ -21,6 +21,9 @@ public class Dock extends Stock {
 	 * Pocet vytvorenych aut v dane hodine
 	 */
 	private int createdCars = 0;
+
+	private static final int MAX_DOCK_CAPACITY = 2000;
+
 	
 	/**
 	 * Vytvori nove prekladiste na danych souradnicich a prida mu dane id pro kontroler
@@ -36,6 +39,10 @@ public class Dock extends Stock {
 		customers.add(this);
 		this.x = x;
 		this.y = y;
+		
+		// pro testovani je pri vytvoreni prekladiste plne plnych sudu
+		this.full = MAX_DOCK_CAPACITY;
+		this.empty = 0;
 	}
 	
 	/**
@@ -60,9 +67,7 @@ public class Dock extends Stock {
 			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
 			createdCars = 0;
 		}
-		
-		
-		
+
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
 	}
@@ -155,6 +160,10 @@ public class Dock extends Stock {
 		}
 	}
 	
+	private boolean isCarInDock(Car car){
+		return car.getStock().equals(car.getPosition());
+	}
+	
 	/**
 	 * Predane auto dokonci danou instrukci
 	 * @param car Predane auto
@@ -168,7 +177,11 @@ public class Dock extends Stock {
 			case LOADING: car.load(i.getAmount());break;
 			case UNLOADING: car.unload(i.getAmount());break;
 			case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
-			case UNLOADING_EMPTY_BARRELS: car.unloadEmpty(i.getAmount());break;
+			case UNLOADING_EMPTY_BARRELS:
+				car.unloadEmpty(i.getAmount());
+				if(isCarInDock(car)){
+					checkDockCapacity(i.getAmount());
+				};break;
 			default: break;
 		}
 		
@@ -225,6 +238,27 @@ public class Dock extends Stock {
 		}
 		
 		return sum;
+	}
+	
+	/**
+	 * Kontrola stavu sudu v prekladisti
+	 * @param count kladne cislo pridava prazdne sudy, zaporne odebira plne sudy
+	 * @return	true - pri objednavce mohou byt sudy nalozeny, pri vraceni vraceny
+	 * 			false - pri objednavce neni dostatek sudu v prekladisti, prekladiste je plne sudu
+	 */
+	public boolean checkDockCapacity(int count){
+		int tmpFull = full;
+		int tmpEmpty = empty;
+
+		if(count < 0 && (tmpFull += count) >= 0){
+			full += count;
+			return true;
+		}
+		if(count > 0 && (tmpEmpty += count) <= MAX_DOCK_CAPACITY){
+			empty += count;
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -350,6 +384,10 @@ public class Dock extends Stock {
 	 */
 	public List<List<Instruction>> getTomorrow() {
 		return tomorrow;
+/*=======
+
+		createInstructionsPathHome(car, order.getPub(), sum);
+>>>>>>> Kontrola stavu zasob v prekladisti*/
 	}
 	
 	
@@ -462,6 +500,7 @@ public class Dock extends Stock {
 		t = t.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed());
 		
 		instructions.add(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, t));
+
 	}
 	
 	/**
