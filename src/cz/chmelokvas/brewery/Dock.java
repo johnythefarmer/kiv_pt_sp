@@ -70,6 +70,10 @@ public class Dock extends Stock {
 
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
+		
+		if(checkDockCapacityForCamion()){
+			//TODO vytvor objednavku pro pivovar
+		}
 	}
 	
 	/**
@@ -259,6 +263,14 @@ public class Dock extends Stock {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Kontrola zda se cely naklad kamionu vejde do prekladiste
+	 * @return	true	kamion muze vyrazit doplnit prekladiste
+	 */
+	public boolean checkDockCapacityForCamion(){
+		return (CarType.CAMION.getCapacity() + full) <= MAX_DOCK_CAPACITY;
 	}
 	
 	/**
