@@ -24,11 +24,28 @@ public class Brewery extends Stock {
 	}
 	
 	public void checkTimeEvents(){
-		//TODO co bude s casem delat pivovar
+		
+		productionBeer();
+		
+		/* TODO 
+		 * kamiony budou jezdit do prekladist klesne-li pocet sudu na velikost kamionu
+		 * kamion -> full - 2*100 hl
+		 * cisterna -> full - hl
+		 */
+		
+	}
+	
+	private void productionBeer(){
+		if(c.mainTime.getHour() == 23) full += 307;
+		else full += 291;
 	}
 	
 	public String getName(){
 		return name;
+	}
+	
+	public void unload(int n){
+		this.full -= n;
 	}
 	
 	/*public void calculateShortestPathsDijkstra(){
