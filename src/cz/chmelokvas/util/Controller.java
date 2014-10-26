@@ -51,13 +51,13 @@ public class Controller {
 	}
 	
 	/** Vsechny objednavky pro dany den	 */
-	public Set<Order> todayOrders = new TreeSet<Order>();
+	public ArrayList<Order> todayOrders = new ArrayList<Order>();
 	
 	/**hlavni cas cele aplikace*/
 	public Time mainTime = new Time(0,0,0);
 	
 	/** cas ukonceni simulace */
-	public Time endTime = new Time(2,0,0);
+	public Time endTime = new Time(1,0,0);
 	
 	/**
 	 * Prida silnici mezi dvema dopravnimi uzly
@@ -95,7 +95,7 @@ public class Controller {
 			
 			
 			
-			System.out.println("---" + mainTime + "---");
+//			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
 				generateOrders();
@@ -116,7 +116,7 @@ public class Controller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}*/
-			System.out.println("\n\n");
+//			System.out.println("\n\n");
 		}
 //		System.out.println(mainTime);
 	}
@@ -125,11 +125,6 @@ public class Controller {
 	 * Pro vsechny hospody simulace vypocte objednavku pro dany den
 	 */
 	private void generateOrders(){
-		for(TransportNode node : nodes){
-			if(node instanceof Pub){
-				todayOrders.add(((Pub)node).makeOrder());
-			}
-		}
 		
 		for(Pub p : pub){
 			todayOrders.add(p.makeOrder());
@@ -140,6 +135,7 @@ public class Controller {
 		for(Dock d: dock){
 			d.checkTimeEvents();
 		}
+//		dock.get(1).checkTimeEvents();
 		brewery.checkTimeEvents();
 	}
 	

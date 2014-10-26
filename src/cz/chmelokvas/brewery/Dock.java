@@ -3,7 +3,9 @@ package cz.chmelokvas.brewery;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import cz.chmelokvas.util.Controller;
 
@@ -27,13 +29,53 @@ public class Dock extends Stock {
 	 */
 	public void checkTimeEvents(){
 		//Pocitani a planovani cest
-		Time t = new Time(0,13,0);
-		if(c.mainTime.value() == t.value()){
-			createInstructions(orders);
+//		Time t = new Time(0,16,0);
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
+//			createInstructions(orders);
+			prepareOrders();
 		}
 		
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
+	}
+	
+	public void prepareOrders(){
+		
+		while(!orders.isEmpty()){
+			SortedSet<Order> selected = new TreeSet<Order>(cmp);
+			Order o = orders.last();
+			selected.add(o);
+			orders.remove(o);
+			Pub p = o.getPub();
+//			System.out.println(p + " " + d[0][p.idProv]);
+			Stack<Integer> s = new Stack<Integer>();
+			
+			prepareStackForPath(0, p.idProv, s);
+			
+			while(!s.isEmpty()){
+				int i = s.pop();
+//				System.out.println(i);
+				Pub tmp = ((Pub)customers.get(i));
+				System.out.println(tmp.idCont);
+				
+				Order today = tmp.getTodayOrder();
+				Order yesterday = tmp.getYesterdayOrder();
+//				System.out.println(today);
+				if(orders.contains(today)){
+					selected.add(today);
+					orders.remove(today);
+				}
+				if(yesterday != null && orders.contains(yesterday)){
+					selected.add(yesterday);
+					orders.remove(yesterday);
+				}
+			}
+			
+			beingPrepared.addAll(selected);
+			System.out.println(selected);
+			createInstructions(selected);
+			
+		}
 	}
 	
 	/**
@@ -92,7 +134,8 @@ public class Dock extends Stock {
 			if((sum + o.getAmount()) < car.getCapacity()){
 				sum += o.getAmount();
 			}else{
-				//TODO tady se vlozi objednavka zpatky do nevyrizenych objednavek
+				beingPrepared.remove(o);
+				orders.add(o);
 				it.remove();
 			}
 		}
@@ -126,7 +169,6 @@ public class Dock extends Stock {
 		}
 		
 		createInstructionsPathHome(car, order.getPub(), sum);
-		//TODO cesta zpet
 	}
 	
 	/**
@@ -224,7 +266,7 @@ public class Dock extends Stock {
 	 */
 	public Car getFirstWaitingTruck(){
 		for(Car c: garage){
-			if(c.getState() == State.WAITING && c.getPosition().equals(this)){
+			if(c.getCurrentInstruction() == null && c.getPosition().equals(this)){
 				return c;
 			}
 		}

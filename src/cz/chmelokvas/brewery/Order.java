@@ -46,5 +46,41 @@ public class Order implements Comparable<Order>{
 	@Override
 	public int compareTo(Order o) {
 		return Integer.compare(time.value(), o.getTime().value());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + amount;
+		result = prime * result + ((pub == null) ? 0 : pub.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Order other = (Order) obj;
+		if (amount != other.amount)
+			return false;
+		if (pub == null) {
+			if (other.pub != null)
+				return false;
+		} else if (!pub.equals(other.pub))
+			return false;
+		if (time == null) {
+			if (other.time != null)
+				return false;
+		} else if (!time.equals(other.time))
+			return false;
+		return true;
 	}	
+	
+	
 }

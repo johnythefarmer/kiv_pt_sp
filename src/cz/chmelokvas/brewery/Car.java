@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Car {
+	private final Stock stock;
+	
 	/** Typ auta */
 	private final CarType type;
 	
@@ -48,6 +50,7 @@ public class Car {
 		this.empty = 0;
 		this.full = 0;
 		this.id = id;
+		this.stock = (Stock)position;
 	}
 	
 	/**
@@ -164,7 +167,7 @@ public class Car {
 	}
 	
 	public String toString(){
-		return type + " " + id + "(empty:" + empty + ", full:" + full + ")";
+		return type + " " + stock.idCont +"_" + id + "(empty:" + empty + ", full:" + full + ")";
 	}
 
 	public List<Instruction> getInstructions() {

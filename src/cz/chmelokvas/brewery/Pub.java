@@ -7,6 +7,10 @@ import cz.chmelokvas.util.Controller;
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
 	
+	private Order todayOrder;
+
+	private Order yesterdayOrder;
+	
 	private boolean isTank;
 	
 	public Pub(int idProv, int idCont, boolean isTank){
@@ -25,7 +29,16 @@ public class Pub extends TransportNode {
 	}
 	
 	public Order makeOrder(){
-		return new Order(generateTime(), this, generateAmount());
+		todayOrder = new Order(generateTime(), this, generateAmount());
+		return todayOrder;
+	}
+	
+	public Order getTodayOrder(){
+		return todayOrder;
+	}
+	
+	public Order getYesterdayOrder(){
+		return yesterdayOrder;
 	}
 	
 	private Time generateTime(){
@@ -71,5 +84,33 @@ public class Pub extends TransportNode {
 
 	public String toString(){
 		return "Hospoda " +  idCont;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + idCont;
+		result = prime * result + Float.floatToIntBits(x);
+		result = prime * result + Float.floatToIntBits(y);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TransportNode other = (TransportNode) obj;
+		if (idCont != other.idCont)
+			return false;
+		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x))
+			return false;
+		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y))
+			return false;
+		return true;
 	}
 }
