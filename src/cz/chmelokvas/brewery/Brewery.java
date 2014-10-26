@@ -1,9 +1,17 @@
 package cz.chmelokvas.brewery;
 
+import java.util.List;
+
 
 public class Brewery extends Stock {
-//	private int productionPerDay;
+
+	/** Atribut mnozstvi vyrobeneho piva za den */
+	private final static int PRODUCTION_PER_DAY = 7000;
 	
+	/** Atribut mnostvi cisteren */
+	protected List<Car> garage_for_tanks;
+	
+	/** Atribut nazev pivovaru */
 	private String name;
 	
 	public Brewery(String name, int idCont, float x, float y){
@@ -19,8 +27,8 @@ public class Brewery extends Stock {
 		//TODO co bude s casem delat pivovar
 	}
 	
-	public void setName(String name){
-		this.name = name;
+	public String getName(){
+		return name;
 	}
 	
 	/*public void calculateShortestPathsDijkstra(){

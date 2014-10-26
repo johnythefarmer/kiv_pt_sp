@@ -173,6 +173,12 @@ public class Car {
 	public List<Instruction> getInstructions() {
 		return instructions;
 	}
+
+	public Stock getStock() {
+		return stock;
+	}
+	
+	
 	
 	
 }

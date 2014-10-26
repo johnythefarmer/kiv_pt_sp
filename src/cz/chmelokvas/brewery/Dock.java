@@ -11,6 +11,7 @@ import cz.chmelokvas.util.Controller;
 
 public class Dock extends Stock {
 	
+	private static final int MAX_DOCK_CAPACITY = 2000;
 	
 	public Dock(int idCont, float x, float y){
 		this.provider = this;
@@ -19,6 +20,10 @@ public class Dock extends Stock {
 		customers.add(this);
 		this.x = x;
 		this.y = y;
+		
+		// pro testovani je pri vytvoreni prekladiste plne plnych sudu
+		this.full = MAX_DOCK_CAPACITY;
+		this.empty = 0;
 	}
 	
 	/**
@@ -34,7 +39,6 @@ public class Dock extends Stock {
 //			createInstructions(orders);
 			prepareOrders();
 		}
-		
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
 	}
@@ -86,11 +90,22 @@ public class Dock extends Stock {
 				
 				
 				switch(i.getState()){
-					case LOADING: car.load(i.getAmount());break;
-					case UNLOADING: car.unload(i.getAmount());break;
-					case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
-					case UNLOADING_EMPTY_BARRELS: car.unloadEmpty(i.getAmount());break;
-					default: break;
+					case LOADING: 
+						car.load(i.getAmount());
+						if(isCarInDock(car)){checkDockCapacity(-i.getAmount());}
+						break;
+					case UNLOADING: 
+						car.unload(i.getAmount());
+						break;
+					case LOADING_EMPTY_BARRELS: 
+						car.loadEmpty(i.getAmount());
+						break;
+					case UNLOADING_EMPTY_BARRELS: 
+						car.unloadEmpty(i.getAmount());
+						if(isCarInDock(car)){checkDockCapacity(i.getAmount());}
+						break;
+					default: 
+						break;
 				}
 				
 				System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination());
@@ -98,7 +113,8 @@ public class Dock extends Stock {
 				if(i.getOrder() != null){
 					deliverOrder(i.getOrder());
 				}
-				
+			
+					
 				//prechod na dalsi instrukci
 				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
 				i = car.getCurrentInstruction();
@@ -114,6 +130,10 @@ public class Dock extends Stock {
 				System.out.println(car + " " +car.getState().getStrStart() + " " + position);
 			}
 		}
+	}
+	
+	private boolean isCarInDock(Car car){
+		return car.getStock().equals(car.getPosition());
 	}
 	
 	/**
@@ -140,30 +160,52 @@ public class Dock extends Stock {
 	}
 	
 	/**
+	 * Kontrola stavu sudu v prekladisti
+	 * @param count kladne cislo pridava prazdne sudy, zaporne odebira plne sudy
+	 * @return	true - pri objednavce mohou byt sudy nalozeny, pri vraceni vraceny
+	 * 			false - pri objednavce neni dostatek sudu v prekladisti, prekladiste je plne sudu
+	 */
+	public boolean checkDockCapacity(int count){
+		int tmpFull = full;
+		int tmpEmpty = empty;
+
+		if(count < 0 && (tmpFull += count) >= 0){
+			full += count;
+			return true;
+		}
+		if(count > 0 && (tmpEmpty += count) <= MAX_DOCK_CAPACITY){
+			empty += count;
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
 	 * @param orders Vsechny objednavky ktere musi cestou vyridit
 	 */
 	public void createInstructions(Set<Order> orders){
 		Car car = getFirstWaitingTruck();
-		
+
 		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
 		int sum = checkCarCapacity(car, orders);
+			
 		int loadingMinutes = sum*car.getReloadingSpeed();
 		
 		Time tmpTime = new Time(c.mainTime.value());
 		car.addInstruction(new Instruction(State.WAITING, this, tmpTime));
-		
+			
 		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
 		car.addInstruction(new Instruction(State.LOADING, this, sum, tmpTime));
-		
-		
+			
+			
 		//prirazeni cestovacich instrukci pro dane auto
 		Order order = null;
 		for(Order o: orders){
 			createTravellingInstructions(car,o);
 			order = o;
 		}
-		
+
 		createInstructionsPathHome(car, order.getPub(), sum);
 	}
 	
@@ -228,6 +270,7 @@ public class Dock extends Stock {
 		Time t = ((LinkedList<Instruction>)c.getInstructions()).getLast().getFinished();
 		
 		t = t.getTimeAfterMinutes(c.getEmpty()*c.getReloadingSpeed());
+		
 		
 		c.addInstruction(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, t));
 	}
