@@ -82,6 +82,12 @@ public abstract class Stock extends TransportNode {
 		if(beingPrepared.contains(o)){
 			System.out.println("Vyrizena objednavka " + o);
 			beingPrepared.remove(o);
+			Pub p = o.getPub();
+			if(o.equals(p.getTodayOrder())){
+				p.setTodayOrder(null);
+			}else if(o.equals(p.getYesterdayOrder())){
+				p.setYesterdayOrder(null);
+			}
 			/*if(beingPrepared.contains(o)){
 				System.err.println("Neodebralo se");
 			}*/

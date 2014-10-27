@@ -29,6 +29,9 @@ public class Pub extends TransportNode {
 	}
 	
 	public Order makeOrder(){
+		if(todayOrder != null){
+			yesterdayOrder = todayOrder;
+		}
 		todayOrder = new Order(generateTime(), this, generateAmount());
 		return todayOrder;
 	}
@@ -39,6 +42,14 @@ public class Pub extends TransportNode {
 	
 	public Order getYesterdayOrder(){
 		return yesterdayOrder;
+	}
+	
+	public void setTodayOrder(Order todayOrder){
+		this.todayOrder = todayOrder;
+	}
+	
+	public void setYesterdayOrder(Order yesterdayOrder){
+		this.yesterdayOrder = yesterdayOrder;
 	}
 	
 	private Time generateTime(){
