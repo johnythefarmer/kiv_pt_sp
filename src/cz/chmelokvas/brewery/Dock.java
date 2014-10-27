@@ -86,7 +86,7 @@ public class Dock extends Stock {
 	private void checkPub(Pub p, Set<Order> selected){
 		Order today = p.getTodayOrder();
 		Order yesterday = p.getYesterdayOrder();
-		if(orders.contains(today)){
+		if(today != null && orders.contains(today)){
 			selected.add(today);
 			orders.remove(today);
 		}
@@ -117,7 +117,8 @@ public class Dock extends Stock {
 //			System.out.println((i.getFinished().value() >= c.mainTime.value()) + " " + (i.getFinished().value() < (c.mainTime.value() + 60)) + " " + i.getFinished());
 			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)){
 				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
-				car.setPosition(i.getDestination());
+				finishInstructions(car, i);
+				/*car.setPosition(i.getDestination());
 				
 				
 				switch(i.getState()){
@@ -133,11 +134,14 @@ public class Dock extends Stock {
 				if(i.getOrder() != null){
 //					System.out.println("----" + i.getOrder());
 					deliverOrder(i.getOrder(),car);
-				}
+				}*/
 				
 				//prechod na dalsi instrukci
 //				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
-				car.getInstructions().remove(0);
+				
+				i = startNewInstructions(car);
+				
+				/*car.getInstructions().remove(0);
 				
 				i = car.getCurrentInstruction();
 				String position;
@@ -149,9 +153,47 @@ public class Dock extends Stock {
 					position = car.getPosition() + "";
 				}
 				
-				System.out.println(car + " " +car.getState().getStrStart() + " " + position);
+				System.out.println(car + " " +car.getState().getStrStart() + " " + position);*/
 			}
 		}
+	}
+	
+	private void finishInstructions(Car car, Instruction i){
+		car.setPosition(i.getDestination());
+		
+		
+		switch(i.getState()){
+			case LOADING: car.load(i.getAmount());break;
+			case UNLOADING: car.unload(i.getAmount());break;
+			case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
+			case UNLOADING_EMPTY_BARRELS: car.unloadEmpty(i.getAmount());break;
+			default: break;
+		}
+		
+		System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination() + "\t" + car.getInstructions());
+		
+		if(i.getOrder() != null){
+//			System.out.println("----" + i.getOrder());
+			deliverOrder(i.getOrder(),car);
+		}
+	}
+	
+	private Instruction startNewInstructions(Car car){
+		car.getInstructions().remove(0);
+		
+		Instruction i = car.getCurrentInstruction();
+		String position;
+		if(i != null){
+			car.setState(i.getState());
+			position = i.getDestination() + "";
+		}else{
+			car.setState(State.WAITING);
+			position = car.getPosition() + "";
+		}
+		
+		System.out.println(car + " " +car.getState().getStrStart() + " " + position);
+		
+		return i;
 	}
 	
 	/**

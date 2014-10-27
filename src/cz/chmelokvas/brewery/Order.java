@@ -60,7 +60,6 @@ public class Order implements Comparable<Order>{
 
 	@Override
 	public boolean equals(Object obj) {
-		System.err.println(obj);
 		if (this == obj){
 			return true;
 		}
