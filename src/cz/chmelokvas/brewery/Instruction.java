@@ -71,7 +71,9 @@ public class Instruction {
 		if(order != null){
 			return order + " "  + finished;
 		}
-		else return state + " " + destination + " " + finished;
+		else{
+			return state + " " + destination + " " + finished;
+		}
 	}
 	
 }

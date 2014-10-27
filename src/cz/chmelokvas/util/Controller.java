@@ -96,7 +96,6 @@ public class Controller {
 			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
-				System.out.println(dock.get(1).getTomorrow());
 				generateOrders();
 			}
 		
@@ -118,8 +117,10 @@ public class Controller {
 			System.out.println("\n\n");
 		}
 		System.out.println(mainTime);
-//		System.out.println(dock.get(1).getBeingPrepared());
-//		System.err.println(dock.get(1).getGarage().size());
+		for(Dock d :dock){
+			System.err.println(d.getBeingPrepared());
+			System.err.println(d.getGarage().size() + "\n");
+		}
 	}
 	
 	/**

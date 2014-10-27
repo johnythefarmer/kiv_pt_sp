@@ -338,10 +338,13 @@ public class Dock extends Stock {
 //			System.err.println("dsfsdfdsfsdfdfsdfsdfsdfdsfdfdsfsfsdf");
 		}*/
 //		System.err.println("KOREKTIM!!!!");
-		for(int i = 1; i < instructions.size(); i++){
-//			System.err.println(instructions.get(i).getFinished());
-			instructions.get(i).getFinished().subMinutes(correct);
-//			System.err.println(instructions.get(i).getFinished());
+		
+		if(correct != 0){
+			for(int i = 1; i < instructions.size(); i++){
+	//			System.err.println(instructions.get(i).getFinished());
+				instructions.get(i).getFinished().subMinutes(correct);
+	//			System.err.println(instructions.get(i).getFinished());
+			}
 		}
 	}
 	
