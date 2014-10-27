@@ -3,8 +3,6 @@ package cz.chmelokvas.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
 
 import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
@@ -51,7 +49,7 @@ public class Controller {
 	}
 	
 	/** Vsechny objednavky pro dany den	 */
-	public ArrayList<Order> todayOrders = new ArrayList<Order>();
+	public List<Order> todayOrders = new ArrayList<Order>();
 	
 	/**hlavni cas cele aplikace*/
 	public Time mainTime = new Time(0,0,0);

@@ -92,19 +92,25 @@ public class Time {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		Time other = (Time) obj;
-		if (day != other.day)
+		if (day != other.day){
 			return false;
-		if (hour != other.hour)
+		}
+		if (hour != other.hour){
 			return false;
-		if (minute != other.minute)
+		}
+		if (minute != other.minute){
 			return false;
+		}
 		return true;
 	}
 	

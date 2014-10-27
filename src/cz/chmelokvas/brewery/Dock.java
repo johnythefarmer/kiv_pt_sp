@@ -13,6 +13,7 @@ public class Dock extends Stock {
 	
 	private static final int MAX_DOCK_CAPACITY = 2000;
 	
+	
 	public Dock(int idCont, float x, float y){
 		this.provider = this;
 		this.idCont = idCont;
@@ -43,8 +44,13 @@ public class Dock extends Stock {
 		moveCars();
 		
 		if(checkDockCapacityForCamion()){
-			//TODO vytvor objednavku pro pivovar
+			//TODO makeOrder() pro pivovar
 		}
+	}
+	
+	public Order makeOrder(){
+		return null;
+		
 	}
 	
 	public void prepareOrders(){
@@ -327,6 +333,7 @@ public class Dock extends Stock {
 		return newCar;
 	}
 	
+	@Override
 	public String toString(){
 		return "Prekladiste " + idCont;
 	}

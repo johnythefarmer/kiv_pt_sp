@@ -60,25 +60,33 @@ public class Order implements Comparable<Order>{
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		Order other = (Order) obj;
-		if (amount != other.amount)
+		if (amount != other.amount){
 			return false;
+		}
 		if (pub == null) {
-			if (other.pub != null)
+			if (other.pub != null){
 				return false;
-		} else if (!pub.equals(other.pub))
+			}
+		} else if (!pub.equals(other.pub)){
 			return false;
+		}
 		if (time == null) {
-			if (other.time != null)
+			if (other.time != null){
 				return false;
-		} else if (!time.equals(other.time))
+			}
+		} else if (!time.equals(other.time)){
 			return false;
+		}
 		return true;
 	}	
 	
