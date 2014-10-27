@@ -125,6 +125,11 @@ public class Car {
 		return type.getReloadingSpeed();
 	}
 	
+	
+	public CarType getType() {
+		return type;
+	}
+
 	public int getEmpty() {
 		return empty;
 	}

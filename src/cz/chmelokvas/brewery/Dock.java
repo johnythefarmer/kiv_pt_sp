@@ -25,6 +25,7 @@ public class Dock extends Stock {
 	private static final int MAX_DOCK_CAPACITY = 2000;
 
 	
+
 	/**
 	 * Vytvori nove prekladiste na danych souradnicich a prida mu dane id pro kontroler
 	 * vlozi sebe samo na prvni index v poli svych zakazniku
@@ -72,7 +73,7 @@ public class Dock extends Stock {
 		moveCars();
 		
 		if(checkDockCapacityForCamion()){
-			//TODO vytvor objednavku pro pivovar
+			//TODO makeOrder() pro pivovar
 		}
 	}
 	
@@ -80,7 +81,6 @@ public class Dock extends Stock {
 	 * Pro vsechny jiz prijmute objednavky urci cesty, kterymi budou reseny
 	 */
 	private void prepareOrders(){
-		
 		while(!orders.isEmpty()){
 			//vybrane objednavky musi byt serazeny podle vzdalenosti od prekladiste
 			SortedSet<Order> selected = new TreeSet<Order>(cmp);
@@ -556,6 +556,7 @@ public class Dock extends Stock {
 		return newCar;
 	}
 	
+	@Override
 	public String toString(){
 		return "Prekladiste " + idCont;
 	}
