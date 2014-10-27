@@ -98,19 +98,25 @@ public class Pub extends TransportNode {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		TransportNode other = (TransportNode) obj;
-		if (idCont != other.idCont)
+		if (idCont != other.idCont){
 			return false;
-		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x))
+		}
+		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x)){
 			return false;
-		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y))
+		}
+		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y)){
 			return false;
+		}
 		return true;
 	}
 }

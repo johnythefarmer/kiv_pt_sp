@@ -13,7 +13,7 @@ public class Car {
 	private State state;
 	
 	/** Soucasna instrukce */
-	private final List<Instruction> instructions;
+	private List<Instruction> instructions;
 	
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
@@ -44,7 +44,6 @@ public class Car {
 	 */
 	private Car(TransportNode position, CarType type, int id){
 		this.state = State.WAITING;
-		this.instructions = new LinkedList<Instruction>();
 		this.position = position;
 		this.type = type;
 		this.empty = 0;
@@ -174,5 +173,8 @@ public class Car {
 		return instructions;
 	}
 	
+	public void setInstructions(List<Instruction> instructions){
+		this.instructions = instructions;
+	}
 	
 }

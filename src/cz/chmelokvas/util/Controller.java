@@ -1,10 +1,8 @@
 package cz.chmelokvas.util;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
@@ -51,13 +49,13 @@ public class Controller {
 	}
 	
 	/** Vsechny objednavky pro dany den	 */
-	public ArrayList<Order> todayOrders = new ArrayList<Order>();
+	public List<Order> todayOrders = new ArrayList<Order>();
 	
 	/**hlavni cas cele aplikace*/
 	public Time mainTime = new Time(0,0,0);
 	
 	/** cas ukonceni simulace */
-	public Time endTime = new Time(1,0,0);
+	public Time endTime = new Time(2,0,0);
 	
 	/**
 	 * Prida silnici mezi dvema dopravnimi uzly
@@ -98,16 +96,17 @@ public class Controller {
 			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
+				System.out.println(dock.get(1).getTomorrow());
 				generateOrders();
 			}
 		
-			if(mainTime.getHour() >= 8 && mainTime.getHour() < 16){
+			checkTime();
+			
+			if(mainTime.getHour() >= 8 && mainTime.getHour() < 16 && mainTime.getDay() == 0){
 				//Rozeslani objednavek v dany cas
 				sendOrders();
 			}
 			
-			//tady se zavola neco jako vsechno se hne o kus nebo neco podobnyho
-			checkTime();
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
 			/*try {
@@ -119,6 +118,8 @@ public class Controller {
 			System.out.println("\n\n");
 		}
 		System.out.println(mainTime);
+//		System.out.println(dock.get(1).getBeingPrepared());
+//		System.err.println(dock.get(1).getGarage().size());
 	}
 	
 	/**

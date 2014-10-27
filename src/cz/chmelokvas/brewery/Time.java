@@ -26,6 +26,30 @@ public class Time {
 		return new Time(value() + minutes);
 	}
 	
+	public void subMinutes(int minute){
+		this.minute -= minute;
+		while(this.minute < 0){
+			subHours(1);
+			this.minute += 60;
+		}
+	}
+	
+	public void subHours(int hour){
+		this.hour -= hour;
+		
+		while(this.hour < 0){
+			subDays(1);
+			this.hour += 24;
+		}
+	}
+	
+	public void subDays(int day){
+		this.day -= day;
+		if(this.day < 0){
+			throw new IllegalArgumentException();
+		}
+	}
+	
 	public void addMinutes(int minute){
 		this.minute += minute;
 		
@@ -84,27 +108,25 @@ public class Time {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + day;
-		result = prime * result + hour;
-		result = prime * result + minute;
+		result = prime * result + value();
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		Time other = (Time) obj;
-		if (day != other.day)
+		if (value() != other.value()){
 			return false;
-		if (hour != other.hour)
-			return false;
-		if (minute != other.minute)
-			return false;
+		}
 		return true;
 	}
 	

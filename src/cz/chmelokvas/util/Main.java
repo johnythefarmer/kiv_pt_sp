@@ -22,7 +22,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		
 		/*Controller c = new Controller();
 		c.nodes[0] = new Dock();
 		Stock s = (Stock)c.nodes[0];

@@ -2,15 +2,17 @@ package cz.chmelokvas.brewery;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import cz.chmelokvas.util.Controller;
+import cz.chmelokvas.util.Route;
 
 public class Dock extends Stock {
 	
+	private final List<List<Instruction>> tomorrow = new LinkedList<List<Instruction>>();
 	
 	public Dock(int idCont, float x, float y){
 		this.provider = this;
@@ -28,9 +30,18 @@ public class Dock extends Stock {
 	 * <li>Posune auta o dany casovy usek</li>
 	 */
 	public void checkTimeEvents(){
+//		System.out.println(orders);
 		//Pocitani a planovani cest
 //		Time t = new Time(0,16,0);
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
+		if(c.mainTime.getHour() == 8){
+			for(List<Instruction> inst:tomorrow){
+				Car c = getFirstWaitingTruck();
+				c.setInstructions(inst);
+			}
+			tomorrow.remove(tomorrow);
+		}
+		
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
 //			createInstructions(orders);
 			prepareOrders();
 		}
@@ -47,6 +58,9 @@ public class Dock extends Stock {
 			selected.add(o);
 			orders.remove(o);
 			Pub p = o.getPub();
+			
+			checkNeighbours(p,selected);
+			
 //			System.out.println(p + " " + d[0][p.idProv]);
 			Stack<Integer> s = new Stack<Integer>();
 			
@@ -55,22 +69,40 @@ public class Dock extends Stock {
 			while(!s.isEmpty()){
 				int i = s.pop();
 				Pub tmp = ((Pub)customers.get(i));
+				checkPub(tmp,selected);
+//				checkNeighbours(tmp,selected);
 				
-				Order today = tmp.getTodayOrder();
-				Order yesterday = tmp.getYesterdayOrder();
-				if(orders.contains(today)){
-					selected.add(today);
-					orders.remove(today);
-				}
-				if(yesterday != null && orders.contains(yesterday)){
-					selected.add(yesterday);
-					orders.remove(yesterday);
-				}
+				
 			}
 			
 			beingPrepared.addAll(selected);
-			createInstructions(selected);
+			System.out.println(selected);
+			createInstructions(selected, 0);
 			
+			
+		}
+	}
+	
+	private void checkPub(Pub p, Set<Order> selected){
+		Order today = p.getTodayOrder();
+		Order yesterday = p.getYesterdayOrder();
+		if(orders.contains(today)){
+			selected.add(today);
+			orders.remove(today);
+		}
+		if(yesterday != null && orders.contains(yesterday)){
+			selected.add(yesterday);
+			orders.remove(yesterday);
+		}
+	}
+	
+	private void checkNeighbours(Pub p, Set<Order> selected){
+		for(Route r: p.routes){
+			TransportNode neighbourN = c.nodes.get(r.getValue());
+			if(neighbourN instanceof Pub && neighbourN.provider.equals(this)){
+				Pub neighbour = (Pub)neighbourN;
+				checkPub(neighbour, selected);
+			}
 		}
 	}
 	
@@ -79,8 +111,11 @@ public class Dock extends Stock {
 	 */
 	public void moveCars(){
 		for(Car car : garage){
+			
 			Instruction i = car.getCurrentInstruction();
-			while(i != null && Math.abs(i.getFinished().value() - c.mainTime.value()) < Controller.STEP){
+//			System.out.println(car + " " + car.getInstructions() + (i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)));
+//			System.out.println((i.getFinished().value() >= c.mainTime.value()) + " " + (i.getFinished().value() < (c.mainTime.value() + 60)) + " " + i.getFinished());
+			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)){
 				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
 				car.setPosition(i.getDestination());
 				
@@ -93,14 +128,17 @@ public class Dock extends Stock {
 					default: break;
 				}
 				
-				System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination());
+				System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination() + "\t" + car.getInstructions());
 				
 				if(i.getOrder() != null){
-					deliverOrder(i.getOrder());
+//					System.out.println("----" + i.getOrder());
+					deliverOrder(i.getOrder(),car);
 				}
 				
 				//prechod na dalsi instrukci
-				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
+//				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
+				car.getInstructions().remove(0);
+				
 				i = car.getCurrentInstruction();
 				String position;
 				if(i != null){
@@ -122,16 +160,16 @@ public class Dock extends Stock {
 	 * @param orders Objednavky, ktere ma dane auto stihnout
 	 * @return Celkovy pocet, ktery mame do auta nalozit
 	 */
-	public int checkCarCapacity(Car car, Set<Order> orders){
+	public int checkCarCapacity(Set<Order> orders){
 		int sum = 0;
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			
-			if((sum + o.getAmount()) < car.getCapacity()){
+			if((sum + o.getAmount()) < (CarType.TRUCK.getCapacity()*3)/4){
 				sum += o.getAmount();
 			}else{
 				beingPrepared.remove(o);
-				orders.add(o);
+				this.orders.add(o);
 				it.remove();
 			}
 		}
@@ -143,28 +181,178 @@ public class Dock extends Stock {
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
 	 * @param orders Vsechny objednavky ktere musi cestou vyridit
 	 */
-	public void createInstructions(Set<Order> orders){
-		Car car = getFirstWaitingTruck();
+	public void createInstructions(Set<Order> orders, int depth){
+//		Car car = getFirstWaitingTruck();
 		
 		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
-		int sum = checkCarCapacity(car, orders);
-		int loadingMinutes = sum*car.getReloadingSpeed();
+		int sum = checkCarCapacity(orders);
+//		int loadingMinutes = sum*CarType.TRUCK.getReloadingSpeed();
 		
+		List<Instruction> instructions = new LinkedList<Instruction>();
+		
+		addFirstInstructions(instructions,c.mainTime, sum);
+		/*
 		Time tmpTime = new Time(c.mainTime.value());
-		car.addInstruction(new Instruction(State.WAITING, this, tmpTime));
+		instructions.add(0,new Instruction(State.WAITING, this, tmpTime));
 		
 		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
-		car.addInstruction(new Instruction(State.LOADING, this, sum, tmpTime));
+		instructions.add(0,new Instruction(State.LOADING, this, sum, tmpTime));
+	*/	
+		Order order = checkTimeOfDelivery(orders, instructions, depth);
+//		System.out.println(orders.isEmpty());
+		
+//		System.err.println(orders.size());
+//		boolean deliverTomorrow = car.getLastInstruction().getFinished().getHour() >= 16;
 		
 		
-		//prirazeni cestovacich instrukci pro dane auto
-		Order order = null;
-		for(Order o: orders){
-			createTravellingInstructions(car,o);
-			order = o;
+//		System.err.println(orders);
+		
+		for(Order o:orders){
+//			System.err.println("odebiram");
+			
+			sum -= o.getAmount();
 		}
 		
-		createInstructionsPathHome(car, order.getPub(), sum);
+		if(!orders.isEmpty()){
+			/*if(depth == 3){
+				System.err.println("dsfd");
+			}*/
+			if(depth >= 4){
+//				System.err.println(orders);
+				tomorrow.add(deliverTomorrow(orders));
+			}else {
+//				System.err.println(orders);
+				createInstructions(orders, depth + 1);
+			}
+		}
+		
+		if(instructions.size() == 0){
+			return;
+		}
+//		System.err.println(instructions);
+		correctTime(instructions,sum);
+//		System.err.println(instructions + "\n\n");
+//		System.out.println(instructions.get(instructions.size()-1));
+		
+		createInstructionsPathHome(instructions, order.getPub(), sum);
+		
+		
+		Car c = getFirstWaitingTruck();
+//		System.out.println(instructions);
+		c.setInstructions(instructions);
+		/*if(deliverTomorrow){
+			Time eightTomorrow = new Time(c.mainTime.getDay() + 1, 8, 0);
+			int delay = eightTomorrow.value() - car.getCurrentInstruction().getFinished().value();
+			for(Instruction i : car.getInstructions()){
+				i.getFinished().addMinutes(delay);
+			}
+		}*/
+	}
+	
+	private Order checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions, int depth){
+		Order order = null;
+		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
+			Order o = it.next();
+			
+			createTravellingInstructions(instructions,o);
+			if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
+				if(depth >= 3){
+					removeUnnecessaryInstr(instructions);
+					break;
+				}else{
+					it.remove();
+					return o;
+				}
+			}
+			
+			order = o;
+			it.remove();
+		}
+		
+		return order;
+	}
+	
+	private void addFirstInstructions(List<Instruction> instructions, Time t, int sum){
+		int loadingMinutes = sum*CarType.TRUCK.getReloadingSpeed();
+		
+		Time tmpTime = new Time(t.value());
+		instructions.add(0,new Instruction(State.WAITING, this, tmpTime));
+		
+		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
+		/*if(tmpTime.getHour() >= 16){
+			System.err.println("ani to nezkousej");
+		}*/
+		instructions.add(1,new Instruction(State.LOADING, this, sum, tmpTime));
+	}
+	
+	private List<Instruction> deliverTomorrow(Set<Order> orders){
+	
+		int sum = checkCarCapacity(orders);
+		List<Instruction> instructions = new LinkedList<Instruction>();
+		addFirstInstructions(instructions, new Time(c.mainTime.getDay() + 1, 8, 0), sum);
+		
+//		Order order = checkTimeOfDelivery(orders, instructions);
+		
+		Order order = null;
+		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
+			Order o = it.next();
+			createTravellingInstructions(instructions,o);
+			/*if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
+				removeUnnecessaryInstr(instructions);
+				break;
+			}*/
+			order = o;
+			it.remove();
+		}
+		
+	/*	if(!orders.isEmpty()){
+			tomorrow.add(deliverTomorrow(orders));
+		}
+		
+		for(Order o:orders){
+//			System.err.println("odebiram");
+			
+			sum -= o.getAmount();
+		}
+		
+		correctTime(instructions,sum);*/
+		
+//		System.err.println("Pred pocitanim cesty domu: " + orders.size());
+		createInstructionsPathHome(instructions, order.getPub(), sum);
+		
+//		System.err.println(c.mainTime + "chci vyridit zitra: " + instructions);
+		
+		return instructions;
+	}
+	
+	
+	public List<List<Instruction>> getTomorrow() {
+		return tomorrow;
+	}
+
+	private void correctTime(List<Instruction> instructions, int sum){
+		int correct = instructions.get(1).getFinished().value() - c.mainTime.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed()).value();
+
+//		System.err.println(correct);
+		/*if(correct < 0){
+//			System.err.println("dsfsdfdsfsdfdfsdfsdfsdfdsfdfdsfsfsdf");
+		}*/
+//		System.err.println("KOREKTIM!!!!");
+		for(int i = 1; i < instructions.size(); i++){
+//			System.err.println(instructions.get(i).getFinished());
+			instructions.get(i).getFinished().subMinutes(correct);
+//			System.err.println(instructions.get(i).getFinished());
+		}
+	}
+	
+	private void removeUnnecessaryInstr(List<Instruction> instructions){
+//		System.out.println("xdfd");
+		LinkedList<Instruction> linkedInstructions = (LinkedList<Instruction>)instructions;
+		do{
+//			System.err.println(linkedInstructions.remove(instructions.size() -1));
+			linkedInstructions.remove(instructions.size() -1);
+		}while(linkedInstructions.size() != 0 && linkedInstructions.getLast().getOrder() == null);
+//		System.err.println(instructions);
 	}
 	
 	/**
@@ -172,14 +360,13 @@ public class Dock extends Stock {
 	 * @param c Auto kteremu budeme davat instrukce
 	 * @param o Objednavka, kterou musi auto vyridit
 	 */
-	public void createTravellingInstructions(Car c, Order o){
+	public void createTravellingInstructions(List<Instruction> instructions, Order o){
 
-		Instruction in = ((LinkedList<Instruction>)c.getInstructions()).getLast();
+		Instruction in = ((LinkedList<Instruction>)instructions).getLast();
 		
 		TransportNode source = in.getDestination();
 		TransportNode destination = o.getPub();
 		
-		Time t = in.getFinished();
 		
 		Stack<Integer> nodes = new Stack<Integer>();
 		
@@ -188,14 +375,16 @@ public class Dock extends Stock {
 		
 		prepareStackForPath(i, j, nodes);
 		
-		addPathInstructions(i, c, nodes);
+		addPathInstructions(i, instructions, nodes);
 		
-		int reloadingMinutes = o.getAmount()*c.getReloadingSpeed();
+		int reloadingMinutes = o.getAmount()*CarType.TRUCK.getReloadingSpeed();
+		
+		Time t = instructions.get(instructions.size() -1).getFinished();
 		
 		t = t.getTimeAfterMinutes(reloadingMinutes);
-		c.addInstruction(new Instruction(State.UNLOADING,o.getPub(), o.getAmount(), t));
+		instructions.add(new Instruction(State.UNLOADING,o.getPub(), o.getAmount(), t));
 		t = t.getTimeAfterMinutes(reloadingMinutes);
-		c.addInstruction(new Instruction(State.LOADING_EMPTY_BARRELS,o.getPub(), t, o.getAmount(), o));
+		instructions.add(new Instruction(State.LOADING_EMPTY_BARRELS,o.getPub(), t, o.getAmount(), o));
 		
 	}
 	
@@ -216,20 +405,20 @@ public class Dock extends Stock {
 		}
 	}
 	
-	public void createInstructionsPathHome(Car c, TransportNode n, int sum){
+	public void createInstructionsPathHome(List<Instruction> instructions, TransportNode n, int sum){
 		int source = n.idProv;
 		int destination = 0;
 		Stack<Integer> nodes = new Stack<Integer>();
 		
 		prepareStackForPath(source, destination, nodes);
 		
-		addPathInstructions(source, c, nodes);
+		addPathInstructions(source, instructions, nodes);
 		
-		Time t = ((LinkedList<Instruction>)c.getInstructions()).getLast().getFinished();
+		Time t = ((LinkedList<Instruction>)instructions).getLast().getFinished();
 		
-		t = t.getTimeAfterMinutes(c.getEmpty()*c.getReloadingSpeed());
+		t = t.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed());
 		
-		c.addInstruction(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, t));
+		instructions.add(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, t));
 	}
 	
 	/**
@@ -240,17 +429,17 @@ public class Dock extends Stock {
 	 * @param c Auto, kteremu dane instrukce predame
 	 * @param nodes Zasobnik, ktery obsahuje uzly, pres ktere auto pojede
 	 */
-	public void addPathInstructions(int i, Car c, Stack<Integer> nodes){
-		Time t = ((LinkedList<Instruction>)c.getInstructions()).getLast().getFinished();
+	public void addPathInstructions(int i, List<Instruction> instructions, Stack<Integer> nodes){
+		Time t = ((LinkedList<Instruction>)instructions).getLast().getFinished();
 		int x = i, y = 0;
 		while(!nodes.empty()){
 			y = nodes.pop();
 
 			float distance = d[x][y];
 			
-			t = t.getTimeAfterMinutes((int)(distance/c.getSpeed()));
+			t = t.getTimeAfterMinutes((int)(distance/CarType.TRUCK.getSpeed()));
 			
-			c.addInstruction(new Instruction(State.TRAVELLING,customers.get(y),t));
+			instructions.add(new Instruction(State.TRAVELLING,customers.get(y),t));
 			
 			x = y;
 		}

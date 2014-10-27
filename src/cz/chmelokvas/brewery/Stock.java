@@ -16,16 +16,11 @@ public abstract class Stock extends TransportNode {
 
 		@Override
 		public int compare(Order o1, Order o2) {
-			return Float.compare(d[0][o1.getPub().idProv], d[0][o2.getPub().idProv]);
-		}
-		
-	};
-	
-	protected Comparator<Order> cmp1 = new Comparator<Order>() {
-
-		@Override
-		public int compare(Order o1, Order o2) {
-			return -Float.compare(d[0][o1.getPub().idProv], d[0][o2.getPub().idProv]);
+			int cmp = Float.compare(d[0][o1.getPub().idProv], d[0][o2.getPub().idProv]);
+			if(cmp == 0){
+				return Integer.compare(o1.getTime().value(), o2.getTime().value());
+			}
+			return cmp;
 		}
 		
 	};
@@ -33,11 +28,15 @@ public abstract class Stock extends TransportNode {
 	/** Seznam prijatych objednavek */
 	protected SortedSet<Order> orders = new TreeSet<Order>(cmp);
 	
-	protected List<Order> beingPrepared = new LinkedList<Order>();
+	protected SortedSet<Order> beingPrepared = new TreeSet<Order>(cmp);
 	
 	/** Atribut konstanty auto */
 	protected List<Car> garage;
 	
+	public SortedSet<Order> getBeingPrepared() {
+		return beingPrepared;
+	}
+
 	/**Pole zakazniku daneho skladu. Na nultem indexu lezi nase instance*/
 	protected List<TransportNode> customers;
 	
@@ -73,11 +72,22 @@ public abstract class Stock extends TransportNode {
 		orders.add(o);
 	}
 	
-	public void deliverOrder(Order o){
-		if(beingPrepared.contains(o)){
-			System.out.println("Vyrizena objednavka do hospody " + o.getPub());
-			orders.remove(o);
+	public void deliverOrder(Order o, Car c){
+		/*if(o.getPub().idCont == 3266){
+			System.err.println(beingPrepared.contains(o));
+		}*/
+		if(c.getCurrentInstruction().getFinished().value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+//			System.err.println("Nestihli jsme to: " + c.getCurrentInstruction().getFinished() + " > " + o.getTime().getTimeAfterMinutes(60*24));
+			throw new IllegalArgumentException("Nestihli jsme to!!");
 		}
+		if(beingPrepared.contains(o)){
+			System.out.println("Vyrizena objednavka " + o);
+			beingPrepared.remove(o);
+			/*if(beingPrepared.contains(o)){
+				System.err.println("Neodebralo se");
+			}*/
+		}
+
 	}
 
 

@@ -3,7 +3,7 @@ package cz.chmelokvas.brewery;
 public class Instruction {
 	private final State state;
 	private final TransportNode destination;
-	private final Time finished;
+	private Time finished;
 	private final Order order;
 	private Instruction next;
 	private final int amount;
@@ -55,6 +55,10 @@ public class Instruction {
 		return finished;
 	}
 
+	public void setFinished(Time finished){
+		this.finished = finished;
+	}
+	
 	public Order getOrder() {
 		return order;
 	}
@@ -63,5 +67,11 @@ public class Instruction {
 		return amount;
 	}
 	
+	public String toString(){
+		if(order != null){
+			return order + " "  + finished;
+		}
+		else return state + " " + destination + " " + finished;
+	}
 	
 }
