@@ -76,4 +76,8 @@ public class Instruction {
 		}
 	}*/
 	
+	public String toString(){
+		return finished.getHour() + ":" + finished.getMinute();
+	}
+	
 }

@@ -191,7 +191,15 @@ public class Dock extends Stock {
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
 	 * @param orders Vsechny objednavky ktere musi cestou vyridit
 	 */
-	public void createInstructions(Set<Order> orders, int depth){		
+	public void createInstructions(Set<Order> orders, int depth){
+		/*
+		for(Order o:orders){
+			if(o.getPub().getIdCont() == 1042){
+				System.out.println("lol");
+				break;
+			}
+		}*/
+		
 		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
 		int sum = checkCarCapacity(orders);
 		List<Instruction> instructions = new LinkedList<Instruction>();
@@ -207,11 +215,21 @@ public class Dock extends Stock {
 		
 		//Reseni odebranych objednavek
 		if(!orders.isEmpty()){
-			//trikrat zkusim oriznout objednavky a pokud se to stale nestiha odevzdavam zitra
-			if(depth >= 4){
-				tomorrow.add(deliverTomorrow(orders));
-			}else {
-				createInstructions(orders, depth + 1);
+			if(c.mainTime.getHour() < 14){
+				//trikrat zkusim oriznout objednavky a pokud se to stale nestiha odevzdavam zitra
+				if(depth >= 2){
+					List<Instruction> tomorrowInst = deliverTomorrow(orders);
+					if(tomorrowInst != null){
+						tomorrow.add(tomorrowInst);
+					}
+				}else {
+					createInstructions(orders, depth + 1);
+				}
+			} else{
+				List<Instruction> tomorrowInst = deliverTomorrow(orders);
+				if(tomorrowInst != null){
+					tomorrow.add(tomorrowInst);
+				}
 			}
 		}
 		
@@ -236,7 +254,7 @@ public class Dock extends Stock {
 			
 			createTravellingInstructions(instructions,o);
 			if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
-				if(depth >= 3){
+				if(depth <= 3){
 					removeUnnecessaryInstr(instructions);
 					break;
 				}else{
@@ -259,9 +277,7 @@ public class Dock extends Stock {
 		instructions.add(0,new Instruction(State.WAITING, this, tmpTime));
 		
 		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
-		/*if(tmpTime.getHour() >= 16){
-			System.err.println("ani to nezkousej");
-		}*/
+		
 		instructions.add(1,new Instruction(State.LOADING, this, sum, tmpTime));
 	}
 	
@@ -270,38 +286,38 @@ public class Dock extends Stock {
 		int sum = checkCarCapacity(orders);
 		List<Instruction> instructions = new LinkedList<Instruction>();
 		addFirstInstructions(instructions, new Time(c.mainTime.getDay() + 1, 8, 0), sum);
-		
-//		Order order = checkTimeOfDelivery(orders, instructions);
-		
+				
 		Order order = null;
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			createTravellingInstructions(instructions,o);
-			/*if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
+			if(instructions.get(instructions.size() - 1).getFinished().value() > o.getTime().value()){
 				removeUnnecessaryInstr(instructions);
 				break;
-			}*/
+			}
 			order = o;
 			it.remove();
 		}
 		
-	/*	if(!orders.isEmpty()){
-			tomorrow.add(deliverTomorrow(orders));
-		}
-		
 		for(Order o:orders){
-//			System.err.println("odebiram");
-			
 			sum -= o.getAmount();
 		}
 		
-		correctTime(instructions,sum);*/
+		if(instructions.isEmpty()){
+			return null; 	
+		}
 		
-//		System.err.println("Pred pocitanim cesty domu: " + orders.size());
+		correctTime(instructions, sum);
+		
+		if(!orders.isEmpty()){
+			List<Instruction> tomorrowInst = deliverTomorrow(orders);
+			if(tomorrowInst != null){
+				tomorrow.add(tomorrowInst);
+			}
+		}
+		
 		createInstructionsPathHome(instructions, order.getPub(), sum);
-		
-//		System.err.println(c.mainTime + "chci vyridit zitra: " + instructions);
-		
+
 		return instructions;
 	}
 	
@@ -313,29 +329,18 @@ public class Dock extends Stock {
 	private void correctTime(List<Instruction> instructions, int sum){
 		int correct = instructions.get(1).getFinished().value() - c.mainTime.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed()).value();
 
-//		System.err.println(correct);
-		/*if(correct < 0){
-//			System.err.println("dsfsdfdsfsdfdfsdfsdfsdfdsfdfdsfsfsdf");
-		}*/
-//		System.err.println("KOREKTIM!!!!");
-		
 		if(correct != 0){
 			for(int i = 1; i < instructions.size(); i++){
-	//			System.err.println(instructions.get(i).getFinished());
 				instructions.get(i).getFinished().subMinutes(correct);
-	//			System.err.println(instructions.get(i).getFinished());
 			}
 		}
 	}
 	
 	private void removeUnnecessaryInstr(List<Instruction> instructions){
-//		System.out.println("xdfd");
 		LinkedList<Instruction> linkedInstructions = (LinkedList<Instruction>)instructions;
 		do{
-//			System.err.println(linkedInstructions.remove(instructions.size() -1));
 			linkedInstructions.remove(instructions.size() -1);
 		}while(linkedInstructions.size() != 0 && linkedInstructions.getLast().getOrder() == null);
-//		System.err.println(instructions);
 	}
 	
 	/**

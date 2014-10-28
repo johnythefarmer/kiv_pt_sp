@@ -88,7 +88,7 @@ public class Car {
 	}
 
 	public Instruction getCurrentInstruction() {
-		if(instructions.isEmpty()){
+		if(instructions == null || instructions.isEmpty()){
 			return null;
 		}
 		return ((LinkedList<Instruction>)instructions).getFirst();
