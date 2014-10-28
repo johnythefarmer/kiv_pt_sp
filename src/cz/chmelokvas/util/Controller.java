@@ -69,7 +69,7 @@ public class Controller {
 	public Time mainTime = new Time(0,0,0);
 	
 	/** cas ukonceni simulace */
-	public Time endTime = new Time(2,0,0);
+	public Time endTime = new Time(1,0,0);
 	
 	/**
 	 * Prida silnici mezi dvema dopravnimi uzly
