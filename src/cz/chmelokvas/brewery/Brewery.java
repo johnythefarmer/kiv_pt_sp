@@ -3,9 +3,6 @@ package cz.chmelokvas.brewery;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.chmelokvas.util.KeyPriorityQueue;
-import cz.chmelokvas.util.Route;
-
 
 public class Brewery extends Stock {
 
@@ -91,6 +88,7 @@ public class Brewery extends Stock {
 		return newCar;
 	}
 	
+	/*
 	
 	public void calculateShortestPathsDijkstra(){
 //		this.setD(new float[0][routes.size()]);
@@ -118,7 +116,7 @@ public class Brewery extends Stock {
 				}
 			}
 		}
-	}
+	}*/
 	
 /*	private void produceBeer()
 	{

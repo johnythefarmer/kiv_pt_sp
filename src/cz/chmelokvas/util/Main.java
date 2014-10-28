@@ -1,7 +1,5 @@
 package cz.chmelokvas.util;
 
-
-
 public class Main {
 
 	public static void main(String[] args) {
