@@ -34,6 +34,8 @@ public class Controller {
 	
 	public List<Dock> dock;
 	
+	public int minLogPriority = 6;
+	
 	public Brewery brewery;
 	
 	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){

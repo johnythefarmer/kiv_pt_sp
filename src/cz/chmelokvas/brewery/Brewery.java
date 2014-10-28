@@ -38,6 +38,7 @@ public class Brewery extends Stock {
 		this.idCont = idCont;
 		this.idProv = 0;
 		this.provider = this;
+		
 	}
 	
 	public void checkTimeEvents(){
@@ -180,10 +181,12 @@ public class Brewery extends Stock {
 		
 	
 	public void calculateShortestPathsDijkstra(){
-//		this.setD(new float[routes.size()][routes.size()]);
-//		for(int i = 0; i < d.length; i++){
-//			d[i][0] = Float.MAX_VALUE;
-//		}
+//		this.setD(new float[0][routes.size()]);
+		this.d = new float[1][c.nodes.size()];
+		this.p = new int[1][c.nodes.size()];
+		for(int i = 0; i < d[0].length; i++){
+			d[0][i] = Float.MAX_VALUE;
+		}
 		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
 		
 		d[0][0] = 0;
@@ -193,14 +196,13 @@ public class Brewery extends Stock {
 			int u = queue.poll();
 			for(Route v : c.nodes.get(u).routes){
 				int vId = v.getValue();
-
 				
-				float dist = d[c.nodes.get(u).idProv][0] + v.getDistance();
+				float dist = d[0][c.nodes.get(u).idCont] + v.getDistance();
 				
-				if(dist < d[c.nodes.get(vId).idProv][0]){
-					d[c.nodes.get(vId).idProv][0] = dist;
-					p[c.nodes.get(vId).idProv][0] = u;
-					queue.add(d[c.nodes.get(vId).idProv][0], vId);
+				if(dist < d[0][c.nodes.get(vId).idCont]){
+					d[0][c.nodes.get(vId).idCont] = dist;
+					p[0][c.nodes.get(vId).idCont] = u;
+					queue.add(d[0][c.nodes.get(vId).idCont], vId);
 				}
 			}
 		}
