@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.chmelokvas.util.Controller;
 import cz.chmelokvas.util.Logger;
 
 public abstract class Stock extends TransportNode {
@@ -78,12 +79,11 @@ public abstract class Stock extends TransportNode {
 	public void deliverOrder(Order o, Car c){
 		Time finished = c.getCurrentInstruction().getFinished();
 		if(finished.value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+			Controller.c.deliveredLate++;
 			logger.log(c.getCurrentInstruction().getFinished(), 1, c + " nestihlo dorucit vcas objednavku " + o);
-//			throw new IllegalArgumentException("Nestihli jsme to!!");
 		}
 		
 		if(beingPrepared.contains(o)){
-//			System.out.println("Vyrizena objednavka " + o);
 			logger.log(finished, 2, this + ": vyrizena " + o);
 			beingPrepared.remove(o);
 			Pub p = o.getPub();
@@ -92,9 +92,13 @@ public abstract class Stock extends TransportNode {
 			}else if(o.equals(p.getYesterdayOrder())){
 				p.setYesterdayOrder(null);
 			}
-			/*if(beingPrepared.contains(o)){
-				System.err.println("Neodebralo se");
-			}*/
+			
+			if(p.isTank()){
+				
+				this.c.deliveredHL += o.getAmount();
+			}else{
+				this.c.deliveredBarrels += o.getAmount();
+			}
 		}
 
 	}

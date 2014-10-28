@@ -47,6 +47,19 @@ public class Controller {
 	 */
 	public int minLogPriority = 2;
 	
+	public int deliveredBarrels;
+	public int deliveredHL;
+	public int deliveredLate;
+	
+	/** Vsechny objednavky pro dany den	 */
+	public List<Order> todayOrders = new ArrayList<Order>();
+	
+	/**hlavni cas cele aplikace*/
+	public Time mainTime = new Time(0,0,0);
+	
+	/** cas ukonceni simulace */
+	public Time endTime = new Time(1,0,0);
+	
 	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){
 		this.pub = pub;
 		this.dock = dock;
@@ -61,15 +74,6 @@ public class Controller {
 			n.setC(this);
 		}
 	}
-	
-	/** Vsechny objednavky pro dany den	 */
-	public List<Order> todayOrders = new ArrayList<Order>();
-	
-	/**hlavni cas cele aplikace*/
-	public Time mainTime = new Time(0,0,0);
-	
-	/** cas ukonceni simulace */
-	public Time endTime = new Time(1,0,0);
 	
 	/**
 	 * Prida silnici mezi dvema dopravnimi uzly
@@ -116,7 +120,7 @@ public class Controller {
 		
 			checkTime();
 			
-			if(mainTime.getHour() >= 8 && mainTime.getHour() < 16 && mainTime.getDay() == 0){
+			if(mainTime.getHour() >= 8 && mainTime.getHour() < 16){
 				//Rozeslani objednavek v dany cas
 				sendOrders();
 			}
@@ -125,19 +129,13 @@ public class Controller {
 			
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
-			/*try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
+			
 			System.out.println("\n\n");
 		}
-		System.out.println(mainTime);
-		/*for(Dock d :dock){
-			System.err.println(d.getBeingPrepared());
-			System.err.println(d.getGarage().size() + "\n");
-		}*/
+//		System.out.println(mainTime);
+		
+		logger.printFinalStatistics();
+		logger.close();
 	}
 	
 	/**
@@ -154,7 +152,6 @@ public class Controller {
 		for(Dock d: dock){
 			d.checkTimeEvents();
 		}
-//		dock.get(1).checkTimeEvents();
 		brewery.checkTimeEvents();
 	}
 	
@@ -166,11 +163,9 @@ public class Controller {
 			Order o = it.next();
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
 				if(o.getPub().isTank()){
-//					System.out.println(o + " byla predana prekladisti " + brewery);
 //					brewery.recieveOrder(o);
 					it.remove();
 				}else{
-//					System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
 					o.getPub().getProvider().recieveOrder(o);
 					it.remove();
 				}

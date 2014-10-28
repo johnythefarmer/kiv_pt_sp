@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.chmelokvas.brewery.Dock;
 import cz.chmelokvas.brewery.Time;
 
 public class Logger {
@@ -44,6 +45,31 @@ public class Logger {
 		}
 		
 		pw.println("\n\n\n");
+	}
+	
+	public void printFinalStatistics(){
+		StringBuffer sb = new StringBuffer("\n\n\n\n\n");
+		sb.append("-----CELKOVA STATISTIKA-----\n");
+		int trucksCount = 0;
+		for(Dock d:Controller.c.dock){
+			trucksCount += d.getGarage().size();
+		}
+		sb.append("Pocet vytvorenych aut: " + trucksCount + "\n");
+		sb.append("Pocet vytvorenych cisteren: " + 0 + "\n");//TODO dopsat!!
+		sb.append("Pocet vytvorenych kamionu: " + 0 + "\n");//TODO dopsat!!
+		sb.append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
+		sb.append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
+		sb.append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
+		sb.append("Pocet vyprodukovanych hl: " + 0);//TODO dopsat!!
+		System.out.println(sb);
+		pw.println(sb);
+	}
+	
+	
+	public void close(){
+		if(pw != null){
+			pw.close();
+		}
 	}
 	
 	private void setOutputFile(String file){
