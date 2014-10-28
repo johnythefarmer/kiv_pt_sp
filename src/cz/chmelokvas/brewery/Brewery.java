@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.plaf.SliderUI;
+import javax.xml.soap.Node;
 
 import cz.chmelokvas.util.KeyPriorityQueue;
 import cz.chmelokvas.util.Route;
@@ -73,6 +74,21 @@ public class Brewery extends Stock {
 		
 		int i = source.idProv;
 		int j = destination.idProv;
+		
+		// cesta z I do J
+		
+		int x = 0, y = 0;
+		while(!nodes.empty()){
+			y = nodes.pop();
+
+			float distance = d[x][y];
+			
+			tmpTime = tmpTime.getTimeAfterMinutes((int)(distance/CarType.CAMION.getSpeed()));
+			
+			instructions.add(new Instruction(State.TRAVELLING,customers.get(y),tmpTime));
+			
+			x = y;
+		}
 	}
 	
 	private void productionBeer(){
@@ -180,10 +196,12 @@ public class Brewery extends Stock {
 		
 	
 	public void calculateShortestPathsDijkstra(){
-//		this.setD(new float[routes.size()][routes.size()]);
-//		for(int i = 0; i < d.length; i++){
-//			d[i][0] = Float.MAX_VALUE;
-//		}
+		setD(new float[c.nodes.size()][c.nodes.size()]);
+		setP(new int[c.nodes.size()][c.nodes.size()]);
+		
+		for(int i = 0; i < d.length; i++){
+			d[i][0] = Float.MAX_VALUE;
+		}
 		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
 		
 		d[0][0] = 0;

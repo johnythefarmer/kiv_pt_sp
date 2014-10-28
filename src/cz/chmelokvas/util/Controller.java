@@ -49,7 +49,7 @@ public class Controller {
 		for(TransportNode n:nodes){
 			n.setC(this);
 		}
-		addRouteBrewery();
+	//	addRouteBrewery();
 	}
 	
 	/** Vsechny objednavky pro dany den	 */

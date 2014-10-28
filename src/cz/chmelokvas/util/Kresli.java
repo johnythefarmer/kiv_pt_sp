@@ -15,8 +15,9 @@ public class Kresli extends JFrame {
 	
 	public Kresli(Controller c){
 		this.c=c;
-		this.dijk = c.brewery.dijkstra(0);
+//		this.dijk = c.brewery.dijkstra(0);
 		this.c.brewery.calculateShortestPathsDijkstra();
+		System.out.println("test");
 
 		this.setSize(500, 500);
 		this.setVisible(true);

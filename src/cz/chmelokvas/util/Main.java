@@ -10,11 +10,11 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			PrintStream ps = new PrintStream("output.txt");
-			System.setOut(ps);
+//			System.setOut(ps);
 			ParseData pd = new ParseData("export.txt");
 			
 			Controller.c = pd.getC();			
-			Controller.c.simulate();
+//			Controller.c.simulate();
 			
 
 			Kresli kd = new Kresli(Controller.c);
