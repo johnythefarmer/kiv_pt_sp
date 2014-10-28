@@ -6,10 +6,13 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public class Kresli extends JFrame {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public Controller c;
 	public int[] dijk;
 	
@@ -44,6 +47,8 @@ public class Kresli extends JFrame {
 
 		while(c.brewery.getP()[0][i] != 0){
 			int tmp = c.brewery.getP()[0][i];
+			g2.drawString(String.valueOf(c.nodes.get(tmp).getIdCont()),(int) c.nodes.get(tmp).getX(),(int) c.nodes.get(tmp).getY());
+			g2.setColor(Color.blue);
 			g2.fill(new Ellipse2D.Double(c.nodes.get(tmp).getX(), c.nodes.get(tmp).getX(), 3, 3));
 			i = tmp;
 			System.out.println(tmp);

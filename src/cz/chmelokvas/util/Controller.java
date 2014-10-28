@@ -1,11 +1,8 @@
 package cz.chmelokvas.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
@@ -83,13 +80,6 @@ public class Controller {
 		}
 		
 		//TODO pridat vkladani hran pro pivovar
-	}
-	
-	private float lengthEdge(TransportNode a, TransportNode b)
-	{
-		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
-		return (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
-				Math.pow(a.getY()-b.getY(), 2.0));
 	}
 	
 	/**

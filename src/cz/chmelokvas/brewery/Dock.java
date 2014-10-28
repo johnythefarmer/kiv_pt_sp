@@ -44,7 +44,8 @@ public class Dock extends Stock {
 		moveCars();
 		
 		if(checkDockCapacityForCamion()){
-			c.brewery.prepareOrders(this);
+			int mn = (int)Math.floor(MAX_DOCK_CAPACITY - full)/CarType.CAMION.getCapacity();
+			c.brewery.prepareOrders(this, mn);
 		}
 	}
 	
@@ -208,6 +209,7 @@ public class Dock extends Stock {
 	public boolean checkDockCapacityForCamion(){
 		return (CarType.CAMION.getCapacity() + full) <= MAX_DOCK_CAPACITY;
 	}
+	
 	
 	/**
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
