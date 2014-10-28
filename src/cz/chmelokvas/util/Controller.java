@@ -132,7 +132,6 @@ public class Controller {
 			
 			System.out.println("\n\n");
 		}
-//		System.out.println(mainTime);
 		
 		logger.printFinalStatistics();
 		logger.close();
