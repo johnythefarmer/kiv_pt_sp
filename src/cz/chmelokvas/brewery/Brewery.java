@@ -1,8 +1,9 @@
 package cz.chmelokvas.brewery;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Stack;
 
 public class Brewery extends Stock {
 
@@ -40,8 +41,43 @@ public class Brewery extends Stock {
 		
 	}
 	
+/*<<<<<<< HEAD
 	public void prepareOrders(){
 		// TODO zpracovani objednavek
+=======*/
+	public void createInstructionsForCamion(Dock dock){
+		List<Instruction> instructions = new ArrayList<>();
+		
+		int loadingMinutes = CarType.CAMION.getCapacity() * CarType.CAMION.getReloadingSpeed();
+		
+		Time tmpTime = new Time(c.mainTime.value());
+		instructions.add(new Instruction(State.WAITING, this, tmpTime));
+			
+		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
+		instructions.add(new Instruction(State.LOADING, this, CarType.CAMION.getCapacity(), tmpTime));
+		
+		TransportNode source = this;
+		TransportNode destination = dock;
+		
+		Stack<Integer> nodes = new Stack<Integer>();
+		
+		int i = source.idProv;
+		int j = destination.idProv;
+		
+		// cesta z I do J
+		
+		int x = 0, y = 0;
+		while(!nodes.empty()){
+			y = nodes.pop();
+
+			float distance = d[x][y];
+			
+			tmpTime = tmpTime.getTimeAfterMinutes((int)(distance/CarType.CAMION.getSpeed()));
+			
+			instructions.add(new Instruction(State.TRAVELLING,customers.get(y),tmpTime));
+			
+			x = y;
+		}
 	}
 	
 	private void productionBeer(){
