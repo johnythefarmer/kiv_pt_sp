@@ -163,7 +163,8 @@ public class Controller {
 			Order o = it.next();
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
 				if(o.getPub().isTank()){
-//					brewery.recieveOrder(o);
+//					System.out.println(o + " byla predana prekladisti " + brewery);
+					brewery.recieveOrder(o);
 					it.remove();
 				}else{
 					o.getPub().getProvider().recieveOrder(o);

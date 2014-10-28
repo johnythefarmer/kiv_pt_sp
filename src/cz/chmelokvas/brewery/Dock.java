@@ -74,7 +74,7 @@ public class Dock extends Stock {
 		
 		if(checkDockCapacityForCamion()){
 			int mn = (int)Math.floor(MAX_DOCK_CAPACITY - full)/CarType.CAMION.getCapacity();
-			c.brewery.prepareOrders(this, mn);
+			c.brewery.prepareOrdersCamions(this, mn);
 		}
 	}
 
