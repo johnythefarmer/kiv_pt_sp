@@ -42,7 +42,7 @@ public class Dock extends Stock {
 			tomorrow.remove(tomorrow);
 		}
 		
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
 //			createInstructions(orders);
 			prepareOrders();
 			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
@@ -74,13 +74,13 @@ public class Dock extends Stock {
 				int i = s.pop();
 				Pub tmp = ((Pub)customers.get(i));
 				checkPub(tmp,selected);
-				checkNeighbours(tmp,selected);
+//				checkNeighbours(tmp,selected);
 				
 				
 			}
 			
 			beingPrepared.addAll(selected);
-			createInstructions(selected, 0);
+			createInstructions(selected);
 			
 			
 		}
@@ -191,46 +191,18 @@ public class Dock extends Stock {
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
 	 * @param orders Vsechny objednavky ktere musi cestou vyridit
 	 */
-	public void createInstructions(Set<Order> orders, int depth){
-		/*
-		for(Order o:orders){
-			if(o.getPub().getIdCont() == 1042){
-				System.out.println("lol");
-				break;
-			}
-		}*/
-		
+	public void createInstructions(Set<Order> orders){
 		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
 		int sum = checkCarCapacity(orders);
 		List<Instruction> instructions = new LinkedList<Instruction>();
 		addFirstInstructions(instructions,c.mainTime, sum);
 		
 		//Oriznuti objednavek ktere nestihame + a vraceni posledni objednavky
-		Order order = checkTimeOfDelivery(orders, instructions, depth);
+		Order order = checkTimeOfDelivery(orders, instructions);
 		
 		//odebrani poctu sudu od objednavek, ktere vyrizovat nebudeme
 		for(Order o:orders){
 			sum -= o.getAmount();
-		}
-		
-		//Reseni odebranych objednavek
-		if(!orders.isEmpty()){
-			if(c.mainTime.getHour() < 14){
-				//trikrat zkusim oriznout objednavky a pokud se to stale nestiha odevzdavam zitra
-				if(depth >= 2){
-					List<Instruction> tomorrowInst = deliverTomorrow(orders);
-					if(tomorrowInst != null){
-						tomorrow.add(tomorrowInst);
-					}
-				}else {
-					createInstructions(orders, depth + 1);
-				}
-			} else{
-				List<Instruction> tomorrowInst = deliverTomorrow(orders);
-				if(tomorrowInst != null){
-					tomorrow.add(tomorrowInst);
-				}
-			}
 		}
 		
 		//Pokud po odmazani nepotrebnych instrukci nezbylo nic, nema cenu podnikat cestu
@@ -247,19 +219,20 @@ public class Dock extends Stock {
 		c.setInstructions(instructions);
 	}
 	
-	private Order checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions, int depth){
+	private Order checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions){
 		Order order = null;
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			
 			createTravellingInstructions(instructions,o);
 			if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
-				if(depth <= 3){
+				SortedSet<Order> tmpOrd = new TreeSet<Order>(cmp);
+				tmpOrd.addAll(orders);
+				List<Instruction> tomorrow = deliverTomorrow(tmpOrd);
+				if(tomorrow != null){
+					this.tomorrow.add(tomorrow);
 					removeUnnecessaryInstr(instructions);
 					break;
-				}else{
-					it.remove();
-					return o;
 				}
 			}
 			
@@ -291,31 +264,13 @@ public class Dock extends Stock {
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			createTravellingInstructions(instructions,o);
-			if(instructions.get(instructions.size() - 1).getFinished().value() > o.getTime().value()){
-				removeUnnecessaryInstr(instructions);
-				break;
+			if(instructions.get(instructions.size() - 1).getFinished().value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+				//nestihame
+				return null;
 			}
 			order = o;
 			it.remove();
 		}
-		
-		for(Order o:orders){
-			sum -= o.getAmount();
-		}
-		
-		if(instructions.isEmpty()){
-			return null; 	
-		}
-		
-		correctTime(instructions, sum);
-		
-		if(!orders.isEmpty()){
-			List<Instruction> tomorrowInst = deliverTomorrow(orders);
-			if(tomorrowInst != null){
-				tomorrow.add(tomorrowInst);
-			}
-		}
-		
 		createInstructionsPathHome(instructions, order.getPub(), sum);
 
 		return instructions;
