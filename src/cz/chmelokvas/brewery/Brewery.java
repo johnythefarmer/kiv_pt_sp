@@ -3,6 +3,9 @@ package cz.chmelokvas.brewery;
 import java.util.LinkedList;
 import java.util.List;
 
+import cz.chmelokvas.util.KeyPriorityQueue;
+import cz.chmelokvas.util.Route;
+
 
 public class Brewery extends Stock {
 
@@ -88,11 +91,14 @@ public class Brewery extends Stock {
 		return newCar;
 	}
 	
-	/*public void calculateShortestPathsDijkstra(){
-		for(int i = 0; i < d.length; i++){
-			d[i] = Float.MAX_VALUE;
+	
+	public void calculateShortestPathsDijkstra(){
+//		this.setD(new float[0][routes.size()]);
+		this.d = new float[1][c.nodes.size()];
+		this.p = new int[1][c.nodes.size()];
+		for(int i = 0; i < d[0].length; i++){
+			d[0][i] = Float.MAX_VALUE;
 		}
-		
 		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
 		
 		d[0] = 0;
@@ -102,20 +108,17 @@ public class Brewery extends Stock {
 			int u = queue.poll();
 			for(Route v : c.nodes[u].routes){
 				int vId = v.getValue();
-				if(c.nodes[vId].provider != null && !c.nodes[vId].provider.equals(this) && !c.nodes[vId].equals(this)){
-					continue;
-				}
 				
-				float dist = d[c.nodes[u].idProv] + v.getDistance();
+				float dist = d[0][c.nodes.get(u).idCont] + v.getDistance();
 				
-				if(dist < d[c.nodes[vId].idProv]){
-					d[c.nodes[vId].idProv] = dist;
-					p[c.nodes[vId].idProv] = u;
-					queue.add(d[c.nodes[vId].idProv], vId);
+				if(dist < d[0][c.nodes.get(vId).idCont]){
+					d[0][c.nodes.get(vId).idCont] = dist;
+					p[0][c.nodes.get(vId).idCont] = u;
+					queue.add(d[0][c.nodes.get(vId).idCont], vId);
 				}
 			}
 		}
-	}*/
+	}
 	
 /*	private void produceBeer()
 	{
