@@ -1,8 +1,11 @@
 package cz.chmelokvas.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
@@ -46,6 +49,7 @@ public class Controller {
 		for(TransportNode n:nodes){
 			n.setC(this);
 		}
+		addRouteBrewery();
 	}
 	
 	/** Vsechny objednavky pro dany den	 */
@@ -78,6 +82,31 @@ public class Controller {
 		}
 		
 		//TODO pridat vkladani hran pro pivovar
+	}
+	
+	public void addRouteBrewery(){
+
+		int n = nodes.size();
+		brewery.setD(new float[n][n]);
+		brewery.setP(new int[n][n]);
+		
+		for(TransportNode nodeA : nodes){
+			for(TransportNode nodeB : nodes){
+				if(nodeA.equals(nodeB)){ continue; }
+				float leng = lengthEdge(nodeA, nodeB);
+				int tmpA = nodeA.getIdCont();
+				int tmpB = nodeB.getIdCont();
+				brewery.getD()[tmpA][tmpB] = leng;
+				brewery.getD()[tmpB][tmpA] = leng;
+			}
+		}	
+	}
+	
+	private float lengthEdge(TransportNode a, TransportNode b)
+	{
+		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
+		return (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
+				Math.pow(a.getY()-b.getY(), 2.0));
 	}
 	
 	/**

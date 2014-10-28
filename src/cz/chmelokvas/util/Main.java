@@ -2,6 +2,7 @@ package cz.chmelokvas.util;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 
 public class Main {
@@ -12,9 +13,11 @@ public class Main {
 			System.setOut(ps);
 			ParseData pd = new ParseData("export.txt");
 			
-			Controller.c = pd.getC();
+			Controller.c = pd.getC();			
 			Controller.c.simulate();
 			
+
+			Kresli kd = new Kresli(Controller.c);
 			ps.close();
 			
 		} catch (FileNotFoundException e) {

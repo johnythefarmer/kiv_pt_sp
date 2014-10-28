@@ -269,11 +269,4 @@ public class ParseData {
 	public Controller getC(){
 		return c; 
 	}
-
-//	public static void main(String [] arg){
-//		ParseData pd = new ParseData("export.txt");
-//		long t = System.currentTimeMillis();
-//		pd.importData();
-//		System.out.println("Cas generovani: "+(System.currentTimeMillis()-t));
-//	}
 }

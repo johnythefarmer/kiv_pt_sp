@@ -44,13 +44,8 @@ public class Dock extends Stock {
 		moveCars();
 		
 		if(checkDockCapacityForCamion()){
-			//TODO makeOrder() pro pivovar
+			c.brewery.prepareOrders(this);
 		}
-	}
-	
-	public Order makeOrder(){
-		return null;
-		
 	}
 	
 	public void prepareOrders(){
@@ -102,7 +97,7 @@ public class Dock extends Stock {
 				switch(i.getState()){
 					case LOADING: 
 						car.load(i.getAmount());
-						if(isCarInDock(car)){checkDockCapacity(-i.getAmount());}
+						if(isCarInDock(car)){unload(i.getAmount());}
 						break;
 					case UNLOADING: 
 						car.unload(i.getAmount());
@@ -112,7 +107,7 @@ public class Dock extends Stock {
 						break;
 					case UNLOADING_EMPTY_BARRELS: 
 						car.unloadEmpty(i.getAmount());
-						if(isCarInDock(car)){checkDockCapacity(i.getAmount());}
+						if(isCarInDock(car)){loadEmpty(i.getAmount());}
 						break;
 					default: 
 						break;
@@ -168,27 +163,39 @@ public class Dock extends Stock {
 		
 		return sum;
 	}
+		
+	/**
+	 * Prida sudy do prekladiste (kamion priveze varku)
+	 * @param n mnozstvi piva
+	 */
+	public void load(int n){
+		this.full += n;
+	}
 	
 	/**
-	 * Kontrola stavu sudu v prekladisti
-	 * @param count kladne cislo pridava prazdne sudy, zaporne odebira plne sudy
-	 * @return	true - pri objednavce mohou byt sudy nalozeny, pri vraceni vraceny
-	 * 			false - pri objednavce neni dostatek sudu v prekladisti, prekladiste je plne sudu
+	 * Odebere plne sudy (nalozi na nakladak)
+	 * @param n mnozstvi piva
 	 */
-	public boolean checkDockCapacity(int count){
-		int tmpFull = full;
-		int tmpEmpty = empty;
-
-		if(count < 0 && (tmpFull += count) >= 0){
-			full += count;
-			return true;
-		}
-		if(count > 0 && (tmpEmpty += count) <= MAX_DOCK_CAPACITY){
-			empty += count;
-			return true;
-		}
-		return false;
+	public void unload(int n){
+		this.full -= n;
 	}
+	
+	/**
+	 * Vylozi prazdne sudy (nakladak je vylozi)
+	 * @param n mnozstvi piva
+	 */
+	public void loadEmpty(int n){
+		this.empty += n;
+	}
+	
+	/**
+	 * Odebere prazdne sudy (kamion si je odveze)
+	 * @param n mnozstvi piva
+	 */
+	public void unloadEmpty(int n){
+		this.empty -= n;
+	}
+	
 	
 	/**
 	 * Kontrola zda se cely naklad kamionu vejde do prekladiste
