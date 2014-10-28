@@ -147,7 +147,7 @@ public class Controller {
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
 				if(o.getPub().isTank()){
 //					System.out.println(o + " byla predana prekladisti " + brewery);
-//					brewery.recieveOrder(o);
+					brewery.recieveOrder(o);
 					it.remove();
 				}else{
 //					System.out.println(o + " byla predana prekladisti " + o.getPub().getProvider());
