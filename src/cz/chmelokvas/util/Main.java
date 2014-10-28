@@ -11,6 +11,9 @@ public class Main {
 		try {
 			PrintStream ps = new PrintStream("output.txt");
 //			System.setOut(ps);
+//		try {
+			/*PrintStream ps = new PrintStream("output.txt");
+			System.setOut(ps);*/
 			ParseData pd = new ParseData("export.txt");
 			
 			Controller.c = pd.getC();			
@@ -18,7 +21,7 @@ public class Main {
 			
 
 			Kresli kd = new Kresli(Controller.c);
-			ps.close();
+//			ps.close();
 			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

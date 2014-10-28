@@ -1,5 +1,6 @@
 package cz.chmelokvas.brewery;
 
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,6 +40,7 @@ public class Brewery extends Stock {
 		this.idCont = idCont;
 		this.idProv = 0;
 		this.provider = this;
+		
 	}
 	
 	public void checkTimeEvents(){
@@ -70,25 +72,49 @@ public class Brewery extends Stock {
 		TransportNode source = this;
 		TransportNode destination = dock;
 		
-		Stack<Integer> nodes = new Stack<Integer>();
-		
-		int i = source.idProv;
 		int j = destination.idProv;
 		
-		// cesta z I do J
-		
-		int x = 0, y = 0;
-		while(!nodes.empty()){
-			y = nodes.pop();
-
-			float distance = d[x][y];
+		// cesta z I(pivovar) do J
+		int idN, idB = j;
+		while((idN = getP()[0][idB]) != 0){
+			
+//			float distance = dock.getP()[idB][idN];
+			float distance = lengthEdge(c.nodes.get(idB), c.nodes.get(idN));
 			
 			tmpTime = tmpTime.getTimeAfterMinutes((int)(distance/CarType.CAMION.getSpeed()));
 			
-			instructions.add(new Instruction(State.TRAVELLING,customers.get(y),tmpTime));
-			
-			x = y;
+			instructions.add(new Instruction(State.TRAVELLING,c.nodes.get(idN),tmpTime));
+			idB = idN;
 		}
+		
+				
+		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
+		instructions.add(new Instruction(State.UNLOADING, dock, CarType.CAMION.getCapacity(), tmpTime));
+		
+		int sum = dock.getEmpty();
+		if(sum >= CarType.CAMION.getCapacity()){
+			sum = CarType.CAMION.getCapacity();
+			tmpTime = tmpTime.getTimeAfterMinutes(sum*CarType.CAMION.getReloadingSpeed());
+			
+		}else{
+			tmpTime = tmpTime.getTimeAfterMinutes(dock.getEmpty()*CarType.CAMION.getReloadingSpeed());
+		}
+		
+		instructions.add(new Instruction(State.LOADING_EMPTY_BARRELS,dock, sum, tmpTime));
+		
+		
+		
+		instructions.add(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, tmpTime));
+		
+				
+		
+	}
+	
+	private float lengthEdge(TransportNode a, TransportNode b)
+	{
+		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
+		return (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
+				Math.pow(a.getY()-b.getY(), 2.0));
 	}
 	
 	private void productionBeer(){
@@ -146,61 +172,17 @@ public class Brewery extends Stock {
 		System.out.println("Vytvarim novy kamion!");
 		return newCar;
 	}
-	
-	public int[] dijkstra(int id_from){
-		Set<Integer> set = new HashSet<Integer>();
-
-		int size = d.length;
-		boolean[] closed = new boolean[size];
-		float [] distances = new float[size];
-		
-		set.add(id_from);
-		
-		for (int i = 0; i < size; i++) {
-			if (i != id_from){
-				distances[i] = Integer.MAX_VALUE;
-			}else{
-				distances[i] = 0;
-			}
-		}
-		
-		int[] predecessors = new int[size];
-		predecessors[id_from] = -1;
-		
-		while(!set.isEmpty()){
-			float minDistance = Float.MAX_VALUE;
-			int node = -1;
 			
-			for(Integer i : set){
-				if(distances[i] < minDistance){
-					minDistance = distances[i];
-					node = i;
-				}
-			}
-			
-			set.remove(node);
-			closed[node] = true;
-			
-			for(int i = 0; i < size; i++){
-				if(d[node][i] != Float.MAX_VALUE && !closed[i] &&
-						distances[node] + d[node][i] < distances[i]){
-					distances[i] = distances[node] + d[node][i];
-					predecessors[i] = node;
-					set.add(i);
-				}
-			}
-			
-		}
-		return predecessors;
-	}
-		
 	
 	public void calculateShortestPathsDijkstra(){
-		setD(new float[c.nodes.size()][c.nodes.size()]);
-		setP(new int[c.nodes.size()][c.nodes.size()]);
+		this.d = new float[1][c.nodes.size()];
+		this.p = new int[1][c.nodes.size()];
 		
 		for(int i = 0; i < d.length; i++){
 			d[i][0] = Float.MAX_VALUE;
+		}
+		for(int i = 0; i < d[0].length; i++){
+			d[0][i] = Float.MAX_VALUE;
 		}
 		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
 		
@@ -211,14 +193,13 @@ public class Brewery extends Stock {
 			int u = queue.poll();
 			for(Route v : c.nodes.get(u).routes){
 				int vId = v.getValue();
-
 				
-				float dist = d[c.nodes.get(u).idProv][0] + v.getDistance();
+				float dist = d[0][c.nodes.get(u).idCont] + v.getDistance();
 				
-				if(dist < d[c.nodes.get(vId).idProv][0]){
-					d[c.nodes.get(vId).idProv][0] = dist;
-					p[c.nodes.get(vId).idProv][0] = u;
-					queue.add(d[c.nodes.get(vId).idProv][0], vId);
+				if(dist < d[0][c.nodes.get(vId).idCont]){
+					d[0][c.nodes.get(vId).idCont] = dist;
+					p[0][c.nodes.get(vId).idCont] = u;
+					queue.add(d[0][c.nodes.get(vId).idCont], vId);
 				}
 			}
 		}

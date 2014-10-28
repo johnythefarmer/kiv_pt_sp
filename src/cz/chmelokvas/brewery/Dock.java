@@ -196,6 +196,10 @@ public class Dock extends Stock {
 		this.empty -= n;
 	}
 	
+	public int getEmpty(){
+		return empty;
+	}
+	
 	
 	/**
 	 * Kontrola zda se cely naklad kamionu vejde do prekladiste

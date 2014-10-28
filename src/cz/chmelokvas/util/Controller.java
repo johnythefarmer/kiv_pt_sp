@@ -34,6 +34,8 @@ public class Controller {
 	
 	public List<Dock> dock;
 	
+	public int minLogPriority = 6;
+	
 	public Brewery brewery;
 	
 	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){
@@ -49,7 +51,6 @@ public class Controller {
 		for(TransportNode n:nodes){
 			n.setC(this);
 		}
-	//	addRouteBrewery();
 	}
 	
 	/** Vsechny objednavky pro dany den	 */
@@ -82,24 +83,6 @@ public class Controller {
 		}
 		
 		//TODO pridat vkladani hran pro pivovar
-	}
-	
-	public void addRouteBrewery(){
-
-		int n = nodes.size();
-		brewery.setD(new float[n][n]);
-		brewery.setP(new int[n][n]);
-		
-		for(TransportNode nodeA : nodes){
-			for(TransportNode nodeB : nodes){
-				if(nodeA.equals(nodeB)){ continue; }
-				float leng = lengthEdge(nodeA, nodeB);
-				int tmpA = nodeA.getIdCont();
-				int tmpB = nodeB.getIdCont();
-				brewery.getD()[tmpA][tmpB] = leng;
-				brewery.getD()[tmpB][tmpA] = leng;
-			}
-		}	
 	}
 	
 	private float lengthEdge(TransportNode a, TransportNode b)

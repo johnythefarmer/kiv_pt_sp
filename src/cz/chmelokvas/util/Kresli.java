@@ -17,7 +17,6 @@ public class Kresli extends JFrame {
 		this.c=c;
 //		this.dijk = c.brewery.dijkstra(0);
 		this.c.brewery.calculateShortestPathsDijkstra();
-		System.out.println("test");
 
 		this.setSize(500, 500);
 		this.setVisible(true);
@@ -37,9 +36,17 @@ public class Kresli extends JFrame {
 //			g2.fill(new Ellipse2D.Double(c.nodes.get(i).getX(), c.nodes.get(i).getX(), 3, 3));
 //		}
 
-		for(int i = 0; i < c.brewery.getP().length; i++){
-			int id = c.brewery.getP()[i][0];
+		/*for(int i = 0; i < c.brewery.getP()[0].length; i++){
+			int id = c.brewery.getP()[0][i];
 			g2.fill(new Ellipse2D.Double(c.nodes.get(id).getX(), c.nodes.get(id).getX(), 3, 3));
+		}*/
+		int i = c.dock.get(2).getIdCont();
+
+		while(c.brewery.getP()[0][i] != 0){
+			int tmp = c.brewery.getP()[0][i];
+			g2.fill(new Ellipse2D.Double(c.nodes.get(tmp).getX(), c.nodes.get(tmp).getX(), 3, 3));
+			i = tmp;
+			System.out.println(tmp);
 		}
 	}
 }
