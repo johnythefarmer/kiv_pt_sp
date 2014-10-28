@@ -67,13 +67,13 @@ public class Instruction {
 		return amount;
 	}
 	
-	public String toString(){
+/*	public String toString(){
 		if(order != null){
 			return order + " "  + finished;
 		}
 		else{
 			return state + " " + destination + " " + finished;
 		}
-	}
+	}*/
 	
 }

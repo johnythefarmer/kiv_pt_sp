@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.chmelokvas.util.Logger;
+
 public abstract class Stock extends TransportNode {
 	
 	/** Atribut konstanty stavu skladu */
 	protected int state;
+	protected Logger logger = Logger.getInstance();
 	
 	protected Comparator<Order> cmp = new Comparator<Order>() {
 
@@ -68,19 +71,20 @@ public abstract class Stock extends TransportNode {
 
 	public void recieveOrder(Order o){
 //		System.out.println("Prijata objednavka od hospody " + o.getPub());
+		logger.log(o.getTime(), 3, this + ": prijata objednavka od hospody " + o.getPub());
 		orders.add(o);
 	}
 	
 	public void deliverOrder(Order o, Car c){
-		/*if(o.getPub().idCont == 3266){
-			System.err.println(beingPrepared.contains(o));
-		}*/
-		if(c.getCurrentInstruction().getFinished().value() > o.getTime().getTimeAfterMinutes(60*24).value()){
-//			System.err.println("Nestihli jsme to: " + c.getCurrentInstruction().getFinished() + " > " + o.getTime().getTimeAfterMinutes(60*24));
-			throw new IllegalArgumentException("Nestihli jsme to!!");
+		Time finished = c.getCurrentInstruction().getFinished();
+		if(finished.value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+			logger.log(c.getCurrentInstruction().getFinished(), 1, c + " nestihlo dorucit vcas objednavku " + o);
+//			throw new IllegalArgumentException("Nestihli jsme to!!");
 		}
+		
 		if(beingPrepared.contains(o)){
-			System.out.println("Vyrizena objednavka " + o);
+//			System.out.println("Vyrizena objednavka " + o);
+			logger.log(finished, 2, this + ": vyrizena " + o);
 			beingPrepared.remove(o);
 			Pub p = o.getPub();
 			if(o.equals(p.getTodayOrder())){

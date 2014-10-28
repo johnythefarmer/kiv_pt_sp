@@ -11,8 +11,9 @@ import java.util.TreeSet;
 import cz.chmelokvas.util.Route;
 
 public class Dock extends Stock {
-	
+//	private Logger logger = Logger.getInstance();
 	private final List<List<Instruction>> tomorrow = new LinkedList<List<Instruction>>();
+	private int createdCars = 0;
 	
 	public Dock(int idCont, float x, float y){
 		this.provider = this;
@@ -44,7 +45,11 @@ public class Dock extends Stock {
 		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
 //			createInstructions(orders);
 			prepareOrders();
+			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
+			createdCars = 0;
 		}
+		
+		
 		
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
@@ -61,7 +66,6 @@ public class Dock extends Stock {
 			
 			checkNeighbours(p,selected);
 			
-//			System.out.println(p + " " + d[0][p.idProv]);
 			Stack<Integer> s = new Stack<Integer>();
 			
 			prepareStackForPath(0, p.idProv, s);
@@ -70,13 +74,12 @@ public class Dock extends Stock {
 				int i = s.pop();
 				Pub tmp = ((Pub)customers.get(i));
 				checkPub(tmp,selected);
-//				checkNeighbours(tmp,selected);
+				checkNeighbours(tmp,selected);
 				
 				
 			}
 			
 			beingPrepared.addAll(selected);
-			System.out.println(selected);
 			createInstructions(selected, 0);
 			
 			
@@ -107,58 +110,23 @@ public class Dock extends Stock {
 	}
 	
 	/**
-	 * Pokud dane auto za dany krok casu neco udelalo, je tento krok vypsan a je zadana nova instrukce
+	 * Pokud dane auto za dany krok casu neco udelalo, jsou vypsany vykonane instrukce a je zadana nova instrukce
 	 */
 	public void moveCars(){
 		for(Car car : garage){
 			
 			Instruction i = car.getCurrentInstruction();
-//			System.out.println(car + " " + car.getInstructions() + (i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)));
-//			System.out.println((i.getFinished().value() >= c.mainTime.value()) + " " + (i.getFinished().value() < (c.mainTime.value() + 60)) + " " + i.getFinished());
 			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)){
 				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
-				finishInstructions(car, i);
-				/*car.setPosition(i.getDestination());
-				
-				
-				switch(i.getState()){
-					case LOADING: car.load(i.getAmount());break;
-					case UNLOADING: car.unload(i.getAmount());break;
-					case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
-					case UNLOADING_EMPTY_BARRELS: car.unloadEmpty(i.getAmount());break;
-					default: break;
-				}
-				
-				System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination() + "\t" + car.getInstructions());
-				
-				if(i.getOrder() != null){
-//					System.out.println("----" + i.getOrder());
-					deliverOrder(i.getOrder(),car);
-				}*/
+				finishInstruction(car, i);
 				
 				//prechod na dalsi instrukci
-//				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
-				
 				i = startNewInstructions(car);
-				
-				/*car.getInstructions().remove(0);
-				
-				i = car.getCurrentInstruction();
-				String position;
-				if(i != null){
-					car.setState(i.getState());
-					position = i.getDestination() + "";
-				}else{
-					car.setState(State.WAITING);
-					position = car.getPosition() + "";
-				}
-				
-				System.out.println(car + " " +car.getState().getStrStart() + " " + position);*/
 			}
 		}
 	}
 	
-	private void finishInstructions(Car car, Instruction i){
+	private void finishInstruction(Car car, Instruction i){
 		car.setPosition(i.getDestination());
 		
 		
@@ -170,15 +138,15 @@ public class Dock extends Stock {
 			default: break;
 		}
 		
-		System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination() + "\t" + car.getInstructions());
+		logger.log(i.getFinished(), 4, car + " " + i.getState().getStrFin() + " " + i.getDestination());
 		
 		if(i.getOrder() != null){
-//			System.out.println("----" + i.getOrder());
 			deliverOrder(i.getOrder(),car);
 		}
 	}
 	
 	private Instruction startNewInstructions(Car car){
+		Time time = car.getCurrentInstruction().getFinished();
 		car.getInstructions().remove(0);
 		
 		Instruction i = car.getCurrentInstruction();
@@ -191,7 +159,7 @@ public class Dock extends Stock {
 			position = car.getPosition() + "";
 		}
 		
-		System.out.println(car + " " +car.getState().getStrStart() + " " + position);
+		logger.log(time, 4, car + " " +car.getState().getStrStart() + " " + position);
 		
 		return i;
 	}
@@ -223,72 +191,42 @@ public class Dock extends Stock {
 	 * Priradi prvnimu volnemu autu posloupnost instrukci, ktere ma provezt cestou do hospod
 	 * @param orders Vsechny objednavky ktere musi cestou vyridit
 	 */
-	public void createInstructions(Set<Order> orders, int depth){
-//		Car car = getFirstWaitingTruck();
-		
+	public void createInstructions(Set<Order> orders, int depth){		
 		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
 		int sum = checkCarCapacity(orders);
-//		int loadingMinutes = sum*CarType.TRUCK.getReloadingSpeed();
-		
 		List<Instruction> instructions = new LinkedList<Instruction>();
-		
 		addFirstInstructions(instructions,c.mainTime, sum);
-		/*
-		Time tmpTime = new Time(c.mainTime.value());
-		instructions.add(0,new Instruction(State.WAITING, this, tmpTime));
 		
-		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
-		instructions.add(0,new Instruction(State.LOADING, this, sum, tmpTime));
-	*/	
+		//Oriznuti objednavek ktere nestihame + a vraceni posledni objednavky
 		Order order = checkTimeOfDelivery(orders, instructions, depth);
-//		System.out.println(orders.isEmpty());
 		
-//		System.err.println(orders.size());
-//		boolean deliverTomorrow = car.getLastInstruction().getFinished().getHour() >= 16;
-		
-		
-//		System.err.println(orders);
-		
+		//odebrani poctu sudu od objednavek, ktere vyrizovat nebudeme
 		for(Order o:orders){
-//			System.err.println("odebiram");
-			
 			sum -= o.getAmount();
 		}
 		
+		//Reseni odebranych objednavek
 		if(!orders.isEmpty()){
-			/*if(depth == 3){
-				System.err.println("dsfd");
-			}*/
+			//trikrat zkusim oriznout objednavky a pokud se to stale nestiha odevzdavam zitra
 			if(depth >= 4){
-//				System.err.println(orders);
 				tomorrow.add(deliverTomorrow(orders));
 			}else {
-//				System.err.println(orders);
 				createInstructions(orders, depth + 1);
 			}
 		}
 		
+		//Pokud po odmazani nepotrebnych instrukci nezbylo nic, nema cenu podnikat cestu
 		if(instructions.size() == 0){
 			return;
 		}
-//		System.err.println(instructions);
+
 		correctTime(instructions,sum);
-//		System.err.println(instructions + "\n\n");
-//		System.out.println(instructions.get(instructions.size()-1));
 		
 		createInstructionsPathHome(instructions, order.getPub(), sum);
 		
 		
 		Car c = getFirstWaitingTruck();
-//		System.out.println(instructions);
 		c.setInstructions(instructions);
-		/*if(deliverTomorrow){
-			Time eightTomorrow = new Time(c.mainTime.getDay() + 1, 8, 0);
-			int delay = eightTomorrow.value() - car.getCurrentInstruction().getFinished().value();
-			for(Instruction i : car.getInstructions()){
-				i.getFinished().addMinutes(delay);
-			}
-		}*/
 	}
 	
 	private Order checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions, int depth){
@@ -502,7 +440,8 @@ public class Dock extends Stock {
 		}
 		Car newCar = Car.getTruck(this, garage.size());
 		garage.add(newCar);
-		System.out.println("Vytvarim nove auto!");
+//		System.out.println("Vytvarim nove auto!");
+		createdCars++;
 		return newCar;
 	}
 	

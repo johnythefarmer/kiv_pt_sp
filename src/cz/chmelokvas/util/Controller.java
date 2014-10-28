@@ -33,6 +33,20 @@ public class Controller {
 	
 	public Brewery brewery;
 	
+	private Logger logger = Logger.getInstance("output.txt");
+	
+	//TODO bude se nacitat z prikazovy radky
+	/**
+	 * Minimalni priorita vystupu:<br>
+	 * <li>1 = CHYBY
+	 * <li>2 = VYRIZENI OBJEDNAVKY
+	 * <li>3 = PODANI OBJEDNAVKY
+	 * <li>4 = POHYB AUT
+	 * <li>5 = ZASOBOVANI DO PREKLADIST
+	 * <li>6 = PRODUKCE, VYTVARENI AUT
+	 */
+	public int minLogPriority = 2;
+	
 	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){
 		this.pub = pub;
 		this.dock = dock;
@@ -96,6 +110,7 @@ public class Controller {
 			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
+				logger.log(mainTime, 6, "Novy den, cas na generovani objednavek.");
 				generateOrders();
 			}
 		
@@ -105,6 +120,8 @@ public class Controller {
 				//Rozeslani objednavek v dany cas
 				sendOrders();
 			}
+			
+			logger.printEvents();
 			
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
@@ -117,10 +134,10 @@ public class Controller {
 			System.out.println("\n\n");
 		}
 		System.out.println(mainTime);
-		for(Dock d :dock){
+		/*for(Dock d :dock){
 			System.err.println(d.getBeingPrepared());
 			System.err.println(d.getGarage().size() + "\n");
-		}
+		}*/
 	}
 	
 	/**
