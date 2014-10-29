@@ -45,7 +45,7 @@ public class Controller {
 	 * <li>5 = ZASOBOVANI DO PREKLADIST
 	 * <li>6 = PRODUKCE, VYTVARENI AUT
 	 */
-	public int minLogPriority = 2;
+	public int minLogPriority = 6;
 	
 	public int deliveredBarrels;
 	public int deliveredHL;

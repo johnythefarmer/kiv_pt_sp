@@ -169,6 +169,10 @@ public class Car {
 		return type + " " + stock.idCont +"_" + id + "(empty:" + empty + ", full:" + full + ")";
 	}
 
+	/**
+	 * Vrati seznam instrukci
+	 * @return seznam instrukci
+	 */
 	public List<Instruction> getInstructions() {
 		return instructions;
 	}
