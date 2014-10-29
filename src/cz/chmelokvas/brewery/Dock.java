@@ -8,6 +8,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import cz.chmelokvas.util.Controller;
 import cz.chmelokvas.util.Route;
 
 public class Dock extends Stock {
@@ -21,6 +22,8 @@ public class Dock extends Stock {
 	 * Pocet vytvorenych aut v dane hodine
 	 */
 	private int createdCars = 0;
+	
+	private int imaginaryBarrels = 0;
 
 	private static final int MAX_DOCK_CAPACITY = 2000;
 
@@ -53,6 +56,7 @@ public class Dock extends Stock {
 	 * <li>Posune auta o dany casovy usek
 	 */
 	public void checkTimeEvents(){
+		
 		//Predani instrukci ze vcerejska
 		if(c.mainTime.getHour() == 8){
 			for(List<Instruction> inst:tomorrow){
@@ -72,10 +76,15 @@ public class Dock extends Stock {
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
 		
-		if(checkDockCapacityForCamion()){
-			int mn = (int)Math.floor(MAX_DOCK_CAPACITY - full)/CarType.CAMION.getCapacity();
-			c.brewery.prepareOrdersCamions(this, mn);
-		}
+		c.brewery.prepareOrdersCamions(this,1);
+	}
+	
+	public void addImaginaryBarrels(int amount){
+		this.imaginaryBarrels += amount;
+	}
+	
+	public void subImaginaryBarrels(int amount){
+		this.imaginaryBarrels -= amount;
 	}
 
 	/**
@@ -154,9 +163,8 @@ public class Dock extends Stock {
 	 */
 	private void moveCars(){
 		for(Car car : garage){
-			
 			Instruction i = car.getCurrentInstruction();
-			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + 60)){
+			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + Controller.STEP)){
 				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
 				finishInstruction(car, i);
 				
@@ -166,8 +174,8 @@ public class Dock extends Stock {
 		}
 	}
 	
-	private boolean isCarInDock(Car car){
-		return car.getStock().equals(car.getPosition());
+	public boolean canLoad(int amount){
+		return full + amount + imaginaryBarrels <= MAX_DOCK_CAPACITY;
 	}
 	
 	/**
@@ -182,13 +190,15 @@ public class Dock extends Stock {
 		switch(i.getState()){
 			case LOADING: 
 				car.load(i.getAmount());
-				if(isCarInDock(car)){unload(i.getAmount());}
+				if(car.getPosition().equals(this)){unload(i.getAmount());}
 				break;
 			case UNLOADING: car.unload(i.getAmount());break;
 			case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
 			case UNLOADING_EMPTY_BARRELS:
 				car.unloadEmpty(i.getAmount());
-				if(isCarInDock(car)){loadEmpty(i.getAmount());}
+				if(car.getPosition().equals(this)){
+					loadEmpty(i.getAmount());
+				}
 				break;
 			default: break;
 		}
@@ -330,8 +340,7 @@ public class Dock extends Stock {
 	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
 	 * @return Posledni objednavka, ktera bude dnes vyrizena
 	 */
-	private Order checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions){
-		Order order = null;
+	private void checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions){
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			
@@ -351,12 +360,9 @@ public class Dock extends Stock {
 				}
 			}
 			
-			order = o;
 			//Pokud bude cesta realizovana, odstranime tuto objednavku z mnoziny
 			it.remove();
 		}
-		
-		return order;
 	}
 	
 	
@@ -413,10 +419,6 @@ public class Dock extends Stock {
 	 */
 	public List<List<Instruction>> getTomorrow() {
 		return tomorrow;
-/*=======
-
-		createInstructionsPathHome(car, order.getPub(), sum);
->>>>>>> Kontrola stavu zasob v prekladisti*/
 	}
 	
 	
@@ -470,7 +472,7 @@ public class Dock extends Stock {
 		
 		prepareStackForPath(i, j, nodes);
 		
-		addPathInstructions(i, instructions, nodes);
+		addPathInstructions(i, instructions, nodes,CarType.TRUCK);
 		
 		int reloadingMinutes = o.getAmount()*CarType.TRUCK.getReloadingSpeed();
 		
@@ -494,7 +496,7 @@ public class Dock extends Stock {
 	 * @param destination id ciloveho bodu
 	 * @param nodes zasobnik kde budeme ukladat uzly
 	 */
-	private void prepareStackForPath(int source, int destination, Stack<Integer> nodes){
+	public void prepareStackForPath(int source, int destination, Stack<Integer> nodes){
 		int i = destination;
 		nodes.push(i);
 		//poradi je treba prohodit, proto se uziva zasobniku
@@ -518,15 +520,16 @@ public class Dock extends Stock {
 		int source = last.getDestination().idProv;
 		int destination = 0;
 		
-		Time t = last.getFinished();
+		
 		
 		Stack<Integer> nodes = new Stack<Integer>();
 		
 		prepareStackForPath(source, destination, nodes);
 		
-		addPathInstructions(source, instructions, nodes);
-				
-		t = t.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed());
+		addPathInstructions(source, instructions, nodes,CarType.TRUCK);
+		last = ((LinkedList<Instruction>)instructions).getLast();
+		
+		Time t = last.getFinished().getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed());
 		
 		instructions.add(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, t));
 
@@ -540,7 +543,7 @@ public class Dock extends Stock {
 	 * @param c Auto, kteremu dane instrukce predame
 	 * @param nodes Zasobnik, ktery obsahuje uzly, pres ktere auto pojede
 	 */
-	private void addPathInstructions(int i, List<Instruction> instructions, Stack<Integer> nodes){
+	public void addPathInstructions(int i, List<Instruction> instructions, Stack<Integer> nodes, CarType ct){
 		Time t = ((LinkedList<Instruction>)instructions).getLast().getFinished();
 		int x = i, y = 0;
 		while(!nodes.empty()){
@@ -548,11 +551,39 @@ public class Dock extends Stock {
 
 			float distance = d[x][y];
 			
-			t = t.getTimeAfterMinutes((int)(distance/CarType.TRUCK.getSpeed()));
+			t = t.getTimeAfterMinutes((int)(distance/ct.getSpeed()));
 			
 			instructions.add(new Instruction(State.TRAVELLING,customers.get(y),t));
 			
 			x = y;
+		}
+	}
+
+	/**
+	 * Vypocte vzdalenosti mezi vsemi uzly v sektoru pomoci Floyd Warshalova algoritmu
+	 * @param distance	distancni matice
+	 * @param pred	matice predchudcu
+	 * @param n	rozmery danych matic
+	 */
+	public void floydWarshal(float[][] distance, int[][] pred, int n){
+		for(int k = 0; k < n; k++){
+			for(int i = 0; i < n; i++){
+				float aji = distance[i][k];
+				
+				//nepocitej kdyz neexistuje cesta
+				if(aji == Float.MAX_VALUE){
+					continue;
+				}
+				
+				for(int j = 0; j < n; j++){
+					float c = aji + distance[k][j];
+				
+					if(c < distance[i][j]){
+						distance[i][j] = c;
+						pred[i][j] = k;
+					}
+				}
+			}
 		}
 	}
 	
@@ -572,6 +603,12 @@ public class Dock extends Stock {
 		createdCars++;
 		return newCar;
 	}
+	
+	
+	public int getEmpty(){
+		return empty;
+	}
+	
 	
 	@Override
 	public String toString(){

@@ -10,10 +10,18 @@ public enum State {
 		this.strFin = strFin;
 	}
 
+	/**
+	 * Vrati retezec reprezentujici stav, kdyz ho zaciname
+	 * @return nazev stavu
+	 */
 	public String getStrStart() {
 		return strStart;
 	}
-
+	
+	/**
+	 * Vrati retezec reprezentujici stav, kdyz ho koncime
+	 * @return	nazev stavu
+	 */
 	public String getStrFin() {
 		return strFin;
 	}

@@ -2,6 +2,9 @@ package cz.chmelokvas.util;
 
 import java.util.PriorityQueue;
 
+/**
+ * Prioritni fronta
+ */
 public class KeyPriorityQueue<E> {
 	
 	private final class Item<E> implements Comparable<Item<E>>{

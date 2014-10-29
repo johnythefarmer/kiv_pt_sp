@@ -2,6 +2,11 @@ package cz.chmelokvas.util;
 
 import cz.chmelokvas.brewery.Time;
 
+/**
+ * Pomocna trida pro tridu {@code Logger}
+ * Jedna se o samostatnou udalost, ktera je potreba vypsat
+ *
+ */
 public class Event implements Comparable<Event>{
 	private final Time time;
 	private final int priority;

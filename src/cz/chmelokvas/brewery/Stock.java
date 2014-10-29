@@ -13,8 +13,13 @@ public abstract class Stock extends TransportNode {
 	
 	/** Atribut konstanty stavu skladu */
 	protected int state;
+	
+	/** Utilita pro obstarani vystupu do souboru a prikazove radky */
 	protected Logger logger = Logger.getInstance();
 	
+	/**
+	 * Komparator podle vzdalenosti k nam
+	 */
 	protected Comparator<Order> cmp = new Comparator<Order>() {
 
 		@Override
@@ -31,11 +36,13 @@ public abstract class Stock extends TransportNode {
 	/** Seznam prijatych objednavek */
 	protected SortedSet<Order> orders = new TreeSet<Order>(cmp);
 	
+	/** Seznam zpracovavanych objednavek */
 	protected SortedSet<Order> beingPrepared = new TreeSet<Order>(cmp);
 	
 	/** Atribut konstanty auto */
 	protected List<Car> garage;
 	
+	/** Vrati seznam zpracovavanych objednavek */
 	public SortedSet<Order> getBeingPrepared() {
 		return beingPrepared;
 	}
@@ -80,13 +87,20 @@ public abstract class Stock extends TransportNode {
 		this.state = state;
 	}
 
-
+	/**
+	 * Prijme objednavku
+	 * @param o	objednavka
+	 */
 	public void recieveOrder(Order o){
-//		System.out.println("Prijata objednavka od hospody " + o.getPub());
 		logger.log(o.getTime(), 3, this + ": prijata objednavka od hospody " + o.getPub());
 		orders.add(o);
 	}
 	
+	/**
+	 * Doruci objednavku
+	 * @param o	objednavka
+	 * @param c	auto, ktere objednavku dorucilo
+	 */
 	public void deliverOrder(Order o, Car c){
 		Time finished = c.getCurrentInstruction().getFinished();
 		if(finished.value() > o.getTime().getTimeAfterMinutes(60*24).value()){
@@ -105,7 +119,6 @@ public abstract class Stock extends TransportNode {
 			}
 			
 			if(p.isTank()){
-				
 				this.c.deliveredHL += o.getAmount();
 			}else{
 				this.c.deliveredBarrels += o.getAmount();
@@ -138,13 +151,18 @@ public abstract class Stock extends TransportNode {
 	}
 
 
-
+	/**
+	 * Vrati distancni matici
+	 * @return	distancni matice
+	 */
 	public float[][] getD() {
 		return d;
 	}
 
-
-
+	/**
+	 * Nastavi distancni matici
+	 * @param d	distancni matice
+	 */
 	public void setD(float[][] d) {
 		for(int i = 0; i < d.length; i++){
 			for(int j = 0; j < d.length; j++){
@@ -158,41 +176,26 @@ public abstract class Stock extends TransportNode {
 	}
 
 
-
+	/**
+	 * Vrati matici predchudcu
+	 * @return	matice predchudcu
+	 */
 	public int[][] getP() {
 		return p;
 	}
 
 
-
+	/**
+	 * Nastavi matici predchudcu
+	 * @param p	matice predchudcu
+	 */
 	public void setP(int[][] p) {
 		this.p = p;
 	}
-
-
-
-	public void floydWarshal(float[][] distance, int[][] pred, int n){
-		for(int k = 0; k < n; k++){
-			for(int i = 0; i < n; i++){
-				float aji = distance[i][k];
-				
-				//nepocitej kdyz neexistuje cesta
-				if(aji == Float.MAX_VALUE){
-					continue;
-				}
-				
-				for(int j = 0; j < n; j++){
-					float c = aji + distance[k][j];
-				
-					if(c < distance[i][j]){
-						distance[i][j] = c;
-						pred[i][j] = k;
-					}
-				}
-			}
-		}
-	}
 	
+	/**
+	 * Provede mnozinu operaci, ktere se za dany krok udelaly
+	 */
 	public abstract void checkTimeEvents();
 	
 }

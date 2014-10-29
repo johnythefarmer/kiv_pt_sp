@@ -11,7 +11,6 @@ public class Order implements Comparable<Order>{
 	/** Objednane zbozi */
 	private final int amount;
 	
-	private boolean isBeingDelivered = false;
 	
 	public Order(Time t, Pub p, int amount){
 		this.time = t;
@@ -33,14 +32,6 @@ public class Order implements Comparable<Order>{
 	
 	public String toString(){
 		return "Objednavka(" + time + "): " + amount + " sudu do hospody " + ((TransportNode)pub).idCont;
-	}
-
-	public boolean isBeingDelivered() {
-		return isBeingDelivered;
-	}
-
-	public void setBeingDelivered(boolean isBeingDelivered) {
-		this.isBeingDelivered = isBeingDelivered;
 	}
 
 	@Override

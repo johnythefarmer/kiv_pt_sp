@@ -67,17 +67,4 @@ public class Instruction {
 		return amount;
 	}
 	
-/*	public String toString(){
-		if(order != null){
-			return order + " "  + finished;
-		}
-		else{
-			return state + " " + destination + " " + finished;
-		}
-	}*/
-	
-	public String toString(){
-		return finished.getHour() + ":" + finished.getMinute();
-	}
-	
 }

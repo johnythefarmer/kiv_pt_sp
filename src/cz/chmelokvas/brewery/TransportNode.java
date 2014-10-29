@@ -20,12 +20,13 @@ public class TransportNode {
 	/**Cesty mezi uzly*/
 	protected List<Route> routes = new ArrayList<Route>();
 	
-	/** Atribut konstanty X souradnice */
+	/** X souradnice */
 	protected float x;
 	
-	/** Atribut konstanty Y souradnice */
+	/** =Y souradnice */
 	protected float y;
 	
+	/** Vrati sousedy daneho dopravniho uzlu */
 	public List<Route> getRoutes(){
 		return routes;
 	}

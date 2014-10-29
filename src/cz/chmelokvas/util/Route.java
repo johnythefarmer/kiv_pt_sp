@@ -1,5 +1,8 @@
 package cz.chmelokvas.util;
 
+/**
+ * Hrana grafu
+ */
 public class Route {
 	private final int v;
 	

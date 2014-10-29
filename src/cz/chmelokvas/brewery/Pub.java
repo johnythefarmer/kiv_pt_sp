@@ -7,10 +7,13 @@ import cz.chmelokvas.util.Controller;
 public class Pub extends TransportNode {	
 	private static Random r = new Random();
 	
+	/** Dnesni objednavka */
 	private Order todayOrder;
-
+	
+	/** Vcerejsi objednavka */
 	private Order yesterdayOrder;
 	
+	/** Znaci, zda je hospoda tankova */
 	private boolean isTank;
 	
 	public Pub(int idProv, int idCont, boolean isTank){
@@ -28,6 +31,10 @@ public class Pub extends TransportNode {
 		this.provider = provider;
 	}
 	
+	/**
+	 * Vytvori objednavku
+	 * @return	objednavka
+	 */
 	public Order makeOrder(){
 		if(todayOrder != null){
 			yesterdayOrder = todayOrder;
@@ -52,6 +59,11 @@ public class Pub extends TransportNode {
 		this.yesterdayOrder = yesterdayOrder;
 	}
 	
+	/**
+	 * Vytvori cas pomoci gaussova rozlozeni mezi 8h - 16h.
+	 * S nejvetsi pravdepodobnosti kolem 10h.
+	 * @return	cas objednavky
+	 */
 	private Time generateTime(){
 		double d;
 		do{
@@ -64,6 +76,10 @@ public class Pub extends TransportNode {
 		return new Time(Controller.c.mainTime.getDay(), h, m);
 	}
 	
+	/**
+	 * Vygeneruje mnozstvi objednanych sudu/hl
+	 * @return	mnozsti sudu/hl
+	 */
 	private int generateAmount(){
 		int hod = r.nextInt(100), amount = 0;
 		if(hod <= 25){

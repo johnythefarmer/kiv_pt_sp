@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.chmelokvas.brewery.Brewery;
 import cz.chmelokvas.brewery.Dock;
 import cz.chmelokvas.brewery.Time;
 
@@ -32,6 +33,10 @@ public class Logger {
 		events.add(new Event(t, priority, message));
 	}
 	
+	/**
+	 * Vypise vsechny udalosti, ktere se u neho nashromazdily
+	 * Seradi je podle casu
+	 */
 	public void printEvents(){
 		pw.println("---" + Controller.c.mainTime + "---");
 		for(Iterator<Event> it = events.iterator(); it.hasNext();){
@@ -47,6 +52,9 @@ public class Logger {
 		pw.println("\n\n\n");
 	}
 	
+	/**
+	 * Vypise konecnou statistiku
+	 */
 	public void printFinalStatistics(){
 		StringBuffer sb = new StringBuffer("\n\n\n\n\n");
 		sb.append("-----CELKOVA STATISTIKA-----\n");
@@ -54,13 +62,15 @@ public class Logger {
 		for(Dock d:Controller.c.dock){
 			trucksCount += d.getGarage().size();
 		}
+		
+		Brewery b = Controller.c.brewery;
 		sb.append("Pocet vytvorenych aut: " + trucksCount + "\n");
-		sb.append("Pocet vytvorenych cisteren: " + 0 + "\n");//TODO dopsat!!
-		sb.append("Pocet vytvorenych kamionu: " + 0 + "\n");//TODO dopsat!!
+		sb.append("Pocet vytvorenych cisteren: " + b.getCisternCount() + "\n");
+		sb.append("Pocet vytvorenych kamionu: " + b.getCamionCount() + "\n");
 		sb.append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
 		sb.append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
 		sb.append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
-		sb.append("Pocet vyprodukovanych hl: " + 0);//TODO dopsat!!
+		sb.append("Pocet vyprodukovanych hl: " + b.getCountBeers() + "");
 		System.out.println(sb);
 		pw.println(sb);
 	}

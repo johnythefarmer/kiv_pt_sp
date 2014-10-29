@@ -1,6 +1,5 @@
 package cz.chmelokvas.brewery;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,33 +10,38 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 import cz.chmelokvas.util.Controller;
+import cz.chmelokvas.util.KeyPriorityQueue;
 import cz.chmelokvas.util.Route;
 
 
 public class Brewery extends Stock {
-
-//	/** Atribut mnozstvi vyrobeneho piva za den *//*
-//	private final static int PRODUCTION_PER_DAY = 7000;
 	
-	/** Atribut mnostvi camionu */
-	protected List<Car> garage_for_camions = new LinkedList<Car>();
+	/** Mnozstvi kamionu*/
+	private final List<Car> garageCamion = new LinkedList<Car>();
 	
-	/** Atribut mnostvi cisteren */
-	protected List<Car> garage_for_cisterns = new LinkedList<Car>(); 
+	/** Mnostvi cisteren */
+	private final List<Car> garageCistern = new LinkedList<Car>(); 
 	
-//	/** Pripravene instrukce pro prekladiste */
-//	private List<List<Instruction>> instruction_for_dock = new LinkedList<List<Instruction>>();
+	/**
+	 * Seznam instrukci, ktere autum predame zitra v osm
+	 */
+	private final List<List<Instruction>> tomorrow = new LinkedList<List<Instruction>>();
+	
 	
 	/** Celkova produkce piva */
 	private int countBeers = 0;
-
 	
-	/** Atribut mnostvi cisteren a camionu */
-	protected List<Car> garage_for_cars;
 	
 	/** Atribut nazev pivovaru */
 	private final String name;
 	
+	/**
+	 * Vytvori pivovar s danym jmenem na danych souradnicich
+	 * @param name Nazev pivovaru
+	 * @param idCont Id u kontroleru
+	 * @param x x-ova souradnice
+	 * @param y y-ova souradnice
+	 */
 	public Brewery(String name, int idCont, float x, float y){
 		this.name = name;
 		this.x = x;
@@ -45,125 +49,374 @@ public class Brewery extends Stock {
 		this.idCont = idCont;
 		this.idProv = 0;
 		this.provider = this;
-		this.garage_for_cars = new LinkedList<Car>();
+		
 	}
 	
+	/**
+	 * Provede vsechny udalosti, co se staly za dany krok v case to jest:
+	 * <li>Urci cestu aut
+	 * <li>Vysle dalsi auta na cestu
+	 * <li>Posune auta o dany casovy usek
+	 * <li>Produkce piva
+	 */
 	public void checkTimeEvents(){
 		
-		productionBeer();
-		
-		
-
-		
+		//Predani instrukci ze vcerejska
+		if(c.mainTime.getHour() == 8){
+			for(List<Instruction> inst:tomorrow){
+				Car c = getFirstWaitingCistern();
+				c.setInstructions(inst);
+			}
+			tomorrow.remove(tomorrow);
+		}
+	
 		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
-			 prepareOrders();
+			prepareOrdersCisterns();
 		}
 		
-		/* TODO 
-		 * kamion -> full - 2*100 hl
-		 * cisterna -> full - hl
-		 */
+		produceBeer();
 		
+		moveCamions();
+		
+		moveCisterns();
+
 	}
-
-	public void createInstructionsForCamion(Dock dock){
-		List<Instruction> instructions = new ArrayList<>();
-
+	
+	/**
+	 * Posouva cisterny
+	 */
+	private void moveCisterns(){
+		for(Car car : garageCistern){
+			
+			Instruction i = car.getCurrentInstruction();
+			while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + Controller.STEP)){
+				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
+				finishInstructionCistern(car, i);
+				
+				//prechod na dalsi instrukci
+				i = startNewInstructionsCistern(car);
+			}
+		}
+	}
+	
+	/**
+	 * Predane auto dokonci danou instrukci
+	 * @param car Predane auto
+	 * @param i Instrukce, kterou ma auto vykonat
+	 */
+	private void finishInstructionCistern(Car car, Instruction i){
+		car.setPosition(i.getDestination());
+		
+		
+		switch(i.getState()){
+			case LOADING: 
+				car.load(i.getAmount());
+				if(car.getPosition().equals(this)){unload(i.getAmount());}
+				break;
+			case UNLOADING: car.unload(i.getAmount());break;
+			default: break;
+		}
+		
+		logger.log(i.getFinished(), 4, car + " " + i.getState().getStrFin() + " " + i.getDestination());
+		
+		//pokud byla u instrukce prilozena objednavka tak ji vyrid
+		if(i.getOrder() != null){
+			deliverOrder(i.getOrder(),car);
+		}
+	}
+	
+	/**
+	 * Prechod daneho auta na dalsi instrukci
+	 * @param car Auto, kteremu zaridime prechod na dalsi instrukci
+	 * @return Instrukci kterou ma auto provest dale
+	 */
+	private Instruction startNewInstructionsCistern(Car car){
+		Time time = car.getCurrentInstruction().getFinished();
+		car.getInstructions().remove(0);
+		
+		Instruction i = car.getCurrentInstruction();
+		String position;
+		if(i != null){
+			car.setState(i.getState());
+			position = i.getDestination() + "";
+		}else{
+			car.setState(State.WAITING);
+			position = car.getPosition() + "";
+		}
+		
+		logger.log(time, 4, car + " " +car.getState().getStrStart() + " " + position);
+		
+		return i;
 	}
 	
 	/**
 	 * Zpracuj vsechny objednavky z tankovek
 	 */
-	public void prepareOrdersCisterns(){
+	private void prepareOrdersCisterns(){
 		while(!orders.isEmpty()){
-			SortedSet<Order> selected = new TreeSet<Order>(cmp);
-			Order o = orders.last();
-			selected.add(o);
-			orders.remove(o);
-			Pub p = o.getPub();
-			
-			checkNeighbours(p,selected);
-			
-//			System.out.println(p + " " + d[0][p.idProv]);
-			
-			/* Zasobnik uzlu prujezdu */
-			Stack<Integer> s = new Stack<Integer>();
-			
-			prepareStackForPath(0, p.idProv, s);
-			
-			while(!s.isEmpty()){
-				int i = s.pop();
-				Pub tmp = ((Pub)customers.get(i));
-				checkPub(tmp,selected);
-//				checkNeighbours(tmp,selected);
-				
-				
+			int n = Controller.c.dock.size();
+			//resime pro kazdy sektor zvlast
+			List<Order>[] selected = new List[n];
+			for(int i = 0; i < n; i++){
+				selected[i] = new ArrayList<Order>();
+			}
+			for(Iterator<Order> it = orders.iterator(); it.hasNext();){
+				Order o = it.next();
+				selected[o.getPub().getProvider().idCont - 1].add(o);
+				beingPrepared.add(o);
+				it.remove();
 			}
 			
-			beingPrepared.addAll(selected);
-			System.out.println(selected);
-			createInstructionsForCisterns(selected, c.mainTime, 0);
-			
-			
+			for(int i = 0; i < n; i++){
+				List<Order> tmp = selected[i];
+				if(!tmp.isEmpty()){
+					SortedSet<Order> tmpSet = new TreeSet<Order>(cmp);
+						//rozdeleni objednavek po trech
+						while(tmp.size() > 3){
+							List<Order> tmpList = tmp.subList(0, 2);
+							tmpSet.addAll(tmpList);
+							tmp.removeAll(tmpList);
+							prepareOrderForSector(tmpSet);
+							tmpSet = new TreeSet<Order>(cmp);
+							
+						}
+						tmpSet.addAll(tmp);
+						prepareOrderForSector(tmpSet);
+				}
+			}
 		}
 	}
 	
 	/**
-	 * Vezme sousedy hospody a proveri:
-	 * 	je to hospoda, maji stejne prekladiste, je to tank
-	 * @param p	vybrana hospoda
-	 * @param selected	seznam vybranych objednavek
+	 * Pripravi cesty pro cisterny nad danou mnozinou objednavek ze stejneho sektoru
+	 * @param selected mnozina objednavek
 	 */
-	private void checkNeighbours(Pub p, Set<Order> selected){
-		for(Route r: p.routes){
-			TransportNode neighbourN = c.nodes.get(r.getValue());
-			if(neighbourN instanceof Pub && neighbourN.provider.equals(this) && ((Pub) neighbourN).isTank()){
-				Pub neighbour = (Pub)neighbourN;
-				checkPub(neighbour, selected);
+	private void prepareOrderForSector(SortedSet<Order> selected){
+		Order first = selected.first();
+		
+		//pocet hl ktere budeme cerpat
+		int sum = checkCarCapacity(selected, CarType.CISTERN);
+		
+		//vytvoreni pocatecnich instrukci
+		List<Instruction> instructions = addFirstInstructions(c.mainTime, sum, CarType.CISTERN);
+		
+		Stack<Integer> nodes = new Stack<Integer>();
+		
+		
+		
+		//pocitani cesty do nejblizsi hospody z mnoziny
+		Pub p = first.getPub();
+		Dock d = (Dock) p.getProvider();
+		
+		prepareStackForPath(p.getIdCont(), nodes);
+		
+		addPathInstructions(nodes, instructions, CarType.CISTERN);
+		
+		
+		//Pocitani cest do dalsi hospod a kontrola jestli to stihneme
+		checkTimeOfDelivery(d, instructions, selected);
+		
+		//Odebrani mnozstvi hl ktere dovezeme zitra
+		for(Order o :selected){
+			sum -= o.getAmount();
+		}
+		
+		//pokud nam jiz nic nezbylo nema cenu cestu dal resit
+		if(instructions.isEmpty()){
+			return;
+		}
+		
+		//jelikoz bylo zmeneno mnozstvi hl je treba urcit novou dobu cest
+		correctTimeCistern(instructions, sum);
+		
+		TransportNode node = instructions.get(instructions.size() - 1).getDestination();
+		
+		createPathToHome(node,instructions, sum, CarType.CISTERN);
+	
+		Car c = getFirstWaitingCistern();
+		c.setInstructions(instructions);
+	}
+	
+	/**
+	 * Projde mnozinu objednavek, a zkusi pro kazdy prvek vypocitat cestu.<br>
+	 * Pokud zjisti, ze se to neda stihnout, zkusi to naplanovat na zitra.<br>
+	 * Pokud bychom to ani zitra nestihli, doruci to jeste dnes ale opozdene
+	 * @param d Prekladiste v jehoz sektoru se budeme pohybovat
+	 * @param orders Mnozina vyrizovanych objednavek
+	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
+	 * @return Posledni objednavka, ktera bude dnes vyrizena
+	 */
+	private void checkTimeOfDelivery(Dock d, List<Instruction> instructions, Set<Order> selected){
+		for(Iterator<Order> it = selected.iterator(); it.hasNext();){
+			Order o = it.next();
+			
+			createTravellingInstructions(d,instructions,o);
+			if(instructions.get(instructions.size()-1).getFinished().getHour() >= 16){
+				SortedSet<Order> tmpOrd = new TreeSet<Order>(cmp);
+				tmpOrd.addAll(selected);
+//				
+//				//Zkus odeslat zitra
+				List<Instruction> tomorrow = deliverTomorrow(tmpOrd, d);
+//				
+//				//Pokud bychom to nestihli, udelej to dnes ale dorazis pozdeji
+				if(tomorrow != null){
+					this.tomorrow.add(tomorrow);
+					removeUnnecessaryInstr(instructions);
+					break;
+				}
+			}
+			
+			//Pokud bude cesta realizovana, odstranime tuto objednavku z mnoziny
+			it.remove();
+		}
+	}
+	
+	/**
+	 * Zkusi naplanovat doruceni danych objednavek pristi den
+	 * @param orders Mnozina vyrizovanych objednavek
+	 * @return Seznam  Instrukci pro cestu zitra, nebo null, pokud bychom to zitra nestihli
+	 */
+	private List<Instruction> deliverTomorrow(SortedSet<Order> orders, Dock d){
+		int sum = checkCarCapacity(orders, CarType.CISTERN);
+		List<Instruction> instructions = addFirstInstructions(new Time(c.mainTime.getDay() + 1, 8, 0), sum,CarType.CISTERN);
+				
+		Stack<Integer> nodes = new Stack<Integer>();
+		
+		
+		
+		Pub p = orders.first().getPub();
+
+		
+		prepareStackForPath(p.getIdCont(), nodes);
+		
+		addPathInstructions(nodes, instructions, CarType.CISTERN);
+		
+		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
+			Order o = it.next();
+			createTravellingInstructions(d,instructions,o);
+			if(instructions.get(instructions.size() - 1).getFinished().value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+				//nestihame
+				return null;
+			}
+			it.remove();
+		}
+		
+		TransportNode node = instructions.get(instructions.size() - 1).getDestination();
+		
+		createPathToHome(node,instructions, sum, CarType.CISTERN);
+		
+
+		return instructions;
+	}
+	
+	/**
+	 * Pokud jsme modifikovali mnozstvi objednavek, ktere chceme dorucit,
+	 * musime posunout instrukce v case, jelikoz se nam timpadem zmenila doba nakladani
+	 * @param instructions Seznam instrukci ktery chceme modifikovat
+	 * @param sum Nove mnozstvi sudu, ktere je treba nalozit
+	 */
+	private void correctTimeCistern(List<Instruction> instructions, int sum){
+		int correct = instructions.get(1).getFinished().value() - c.mainTime.getTimeAfterMinutes(sum*CarType.CISTERN.getReloadingSpeed()).value();
+
+		if(correct != 0){
+			for(int i = 1; i < instructions.size(); i++){
+				instructions.get(i).getFinished().subMinutes(correct);
 			}
 		}
+	}
+	
+	/**
+	 * Z daneho seznamu odstrani nepotrebne instrukce,
+	 * ktere slouzily k obslouzeni posledni objednavky, ktera jiz vyrizovana nebude
+	 * @param instructions seznam instrukci pro auto
+	 */
+	private void removeUnnecessaryInstr(List<Instruction> instructions){
+		LinkedList<Instruction> linkedInstructions = (LinkedList<Instruction>)instructions;
+		do{
+			linkedInstructions.remove(instructions.size() -1);
+		}while(linkedInstructions.size() != 0 && linkedInstructions.getLast().getOrder() == null);
+	}
+	
+	/**
+	 * Urci instrukce pro cestu v danem sektoru
+	 * @param d Prekladiste v jehoz sektoru se pohybujeme
+	 * @param instructions seznam isntrukci pro auto
+	 * @param o Objednavka, kterou na konci dane cesty chceme vyridit
+	 */
+	private void createTravellingInstructions(Dock d, List<Instruction> instructions, Order o){
+		Stack<Integer> nodes = new Stack<Integer>();
+		Instruction in = instructions.get(instructions.size() - 1);
+		
+		int oId = o.getPub().idProv, inId = in.getDestination().idProv;
+		
+		d.prepareStackForPath(inId,oId, nodes);
+		d.addPathInstructions(inId, instructions, nodes, CarType.CISTERN);
+		
+		int reloadingMinutes = o.getAmount()*CarType.CISTERN.getReloadingSpeed();
+		
+		Time t = instructions.get(instructions.size() -1).getFinished();
+		
+		/* Instrukce vyrizovani objednavky.
+		 * U posledni instrukce (nakladani prazdnych sudu) je dana i objednavka.
+		 * Auto tak vi, ze po vykonani teto instrukce je objednavka vyrizena
+		 */
+		t = t.getTimeAfterMinutes(reloadingMinutes);
+		instructions.add(new Instruction(State.UNLOADING,o.getPub(), t, o.getAmount(), o));
+	}
+	
+	/**
+	 * Vytvori pocatecni instrukce zacinajici v case t.<br>
+	 * Prvni instrukce bude, ze bude cekat do daneho casu<br>
+	 * Dale bude nakladat sum*(rychlost nakladani) minut
+	 * @param t Cas kdy ma byt ukoncena prvni instrukce
+	 * @param sum Mnozstvi, ktere ma auto pomoci druhe instrukce nalozit
+	 * @param ct Typ auta
+	 * @return Spojovy seznam instrukci
+	 */
+	private List<Instruction> addFirstInstructions(Time t, int sum, CarType ct){
+		List<Instruction> instructions = new LinkedList<Instruction>();
+		int loadingMinutes = sum*ct.getReloadingSpeed();
+		
+		//vytvareni uplne prvni instrukce
+		Time tmpTime = new Time(t.value());
+		instructions.add(0,new Instruction(State.WAITING, this, tmpTime));
+		
+		//vytvareni instrukce nakladani
+		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
+		instructions.add(1,new Instruction(State.LOADING, this, sum, tmpTime));
+		
+		return instructions;
 	}
 	
 	/**
 	 * Naplni zasobnik id bodu, ktere musi auto navstivit, pokud chce dorazit z bodu {@code source} do bodu {@code destination}
-	 * @param source id pocatecniho bodu(pivovar)
 	 * @param destination id ciloveho bodu
 	 * @param nodes zasobnik kde budeme ukladat uzly
 	 */
-	public void prepareStackForPath(int source, int destination, Stack<Integer> nodes){
-		// TODO cesta a ulozit do nodes
-	}
-	
-	/**
-	 * Overi, zda vybrany soused hospody ma vytvorenou objednavku
-	 * @param p	soused(hospoda)
-	 * @param selected	seznam vybranych objednavek
-	 */
-	private void checkPub(Pub p, Set<Order> selected){
-		Order today = p.getTodayOrder();
-		Order yesterday = p.getYesterdayOrder();
-		if(today != null && orders.contains(today)){
-			selected.add(today);
-			orders.remove(today);
-		}
-		if(yesterday != null && orders.contains(yesterday)){
-			selected.add(yesterday);
-			orders.remove(yesterday);
+	private void prepareStackForPath(int destination, Stack<Integer> nodes){
+		int i = destination;
+		nodes.push(i);
+		//poradi je treba prohodit, proto se uziva zasobniku
+		while(p[0][i] != 0){
+			int tmp = p[0][i];
+			nodes.push(tmp);
+			i = tmp;
 		}
 	}
 	
 	/**
 	 * Zkontroluje, zda se dane objednavky vejdou do auta a pokud ne, vrati je zpet pro zpracovani dalsich objednavek
-	 * @param car Auto, do ktereho budeme chti nakladat
 	 * @param orders Objednavky, ktere ma dane auto stihnout
+	 * @param ct typ auta
 	 * @return Celkovy pocet, ktery mame do auta nalozit
 	 */
-	public int checkCarCapacity(Set<Order> orders){
+	private int checkCarCapacity(Set<Order> orders, CarType ct){
 		int sum = 0;
+		float k = (ct == CarType.CAMION)? 1 : 0.75f;
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
 			
-			if((sum + o.getAmount()) < (CarType.CISTERN.getCapacity()*3)/4){
+			if((sum + o.getAmount()) < ct.getCapacity()*k){
 				sum += o.getAmount();
 			}else{
 				beingPrepared.remove(o);
@@ -175,114 +428,125 @@ public class Brewery extends Stock {
 		return sum;
 	}
 	
-	private void createInstructionsForCisterns(SortedSet<Order> selected, Time time, int i){
-		
-		LinkedList<Instruction> instructions = new LinkedList<>();
-	
-		/* Vyber nejblizsi objednavku */
-		//TODO overit comparator, zda radi podle vzdalenosti od pivovaru
-		Order order = selected.first();
-		
-		int sum = checkCarCapacity(selected);
-		
-		/* Predej aktualni cas */
-		Time tmpTime = time;
-		
-		/* Cas nakladu plneho camionu */
-		int loadingMinutes = sum * CarType.CISTERN.getReloadingSpeed();
-		
-		/* 1. instrukce - cekej v case vytvoreni v pivovaru */
-		instructions.add(new Instruction(State.WAITING, this, tmpTime));
-		
-		/* Posun cas o cas nakladu cisterny */
-		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
-		
-		/* 2. instrukce - naloz cisternu */
-		instructions.add(new Instruction(State.LOADING, this, sum, tmpTime));
-		
-	}
-	
-	private void createPathForCamions(){
-		
-	}
-	
-	
-	
-	
-	/*
-	 *  vemeš všechny objednávky z danýho sektoru v danou hodinu a seřadíš je podle vzdálenosti od pivovaru  
-	 *  pak pojedeš do nejbližší. z tý najdeš cestu do tý druhý nejbližší (pomocí d v danym sektoru) 
-	 *  a z tý do další (zase pomocí d v danym sektoru) až dojedeš do poslední... 
-	 *  no a odtud pojedeš rovnou domů (pomocí d z pivovaru - tentokrát nepřevráceně)
+	/**
+	 * Vrati pocet kamionu
+	 * @return pocet kamionu
 	 */
+	public int getCamionCount(){
+		return garageCamion.size();
+	}
 	
-	
-	
-	
-	
-	
+	/**
+	 * Vrati pocet cisteren
+	 * @return pocet cisteren
+	 */
+	public int getCisternCount(){
+		return garageCistern.size();
+	}
 	
 	/** Realizace objednavek
-	 * 
 	 * @param dock	prekladiste, ktere objednava
 	 * @param mn	kolik plnych aut ma poslat
 	 */
 	public void prepareOrdersCamions(Dock dock, int mn){
-		LinkedList<Instruction> instructions;
+		List<Instruction> instructions;
 		for(int i = 0; i  < mn; i++){
 			instructions = createInstructionsForCamion(dock, c.mainTime);
 			Car camion = getFirstWaitingCamion();
-			camion.getInstructions().addAll(instructions);
-			garage_for_camions.add(camion);
+			camion.setInstructions(instructions);
 		}
 	}	
 	
-	public void moveCamions(){
-		for(Car car : garage_for_camions){
+	/**
+	 * Presun kamionu
+	 */
+	private void moveCamions(){
+		for(Car car : garageCamion){
+
 			Instruction i = car.getCurrentInstruction();
-			while(i != null && Math.abs(i.getFinished().value() - c.mainTime.value()) < Controller.STEP){
-				//vykonani potrebne aktivity pred prechodem na dalsi instrukci
-				car.setPosition(i.getDestination());
-				
-				
-				switch(i.getState()){
-					case LOADING: 
-						car.load(i.getAmount());
-						unload(car.getCapacity()/2);
-						break;
-					case UNLOADING: 
-						car.unload(i.getAmount());
-						((Dock) car.getPosition()).load(car.getCapacity());
-						break;
-					case LOADING_EMPTY_BARRELS: 
-						car.loadEmpty(i.getAmount());
-						((Dock) car.getPosition()).load(car.getCapacity());
-						break;
-					case UNLOADING_EMPTY_BARRELS: 
-						car.unloadEmpty(i.getAmount());
-						break;
-					default: 
-						break;
-				}
-				
-				System.out.println(i.getFinished() + " " + car + " " + i.getState().getStrFin() + " " + i.getDestination());
-				
-			
+			if(!car.isWaitingForUnload()){
+				while(i != null && i.getFinished().value() >= c.mainTime.value() && i.getFinished().value() < (c.mainTime.value() + Controller.STEP)){
+					finishInstruction(car, i);
 					
-				//prechod na dalsi instrukci
-				((LinkedList<Instruction>)car.getInstructions()).removeFirst();
-				i = car.getCurrentInstruction();
-				String position;
-				if(i != null){
-					car.setState(i.getState());
-					position = i.getDestination() + "";
-				}else{
-					car.setState(State.WAITING);
-					position = car.getPosition() + "";
+					// kamion ceka v prekladisti, az bude misot na vylozeni sudu
+					if(car.isWaitingForUnload()){
+						break;
+					}
+					logger.log(i.getFinished(), 4, car + " " + i.getState().getStrFin() + " " + i.getDestination());
+					
+					Time time = i.getFinished();
+						
+					//prechod na dalsi instrukci
+					((LinkedList<Instruction>)car.getInstructions()).removeFirst();
+					i = car.getCurrentInstruction();
+					String position;
+					if(i != null){
+						car.setState(i.getState());
+						position = i.getDestination() + "";
+					}else{
+						car.setState(State.WAITING);
+						position = car.getPosition() + "";
+					}
+					
+					logger.log(time, 4, car + " " +car.getState().getStrStart() + " " + position);
 				}
-				
-				System.out.println(car + " " +car.getState().getStrStart() + " " + position);
+			}else if(((Dock)car.getPosition()).canLoad(i.getAmount())){
+				correctTime(c.mainTime,car.getInstructions());
+				car.setWaitingForUnload(false);
 			}
+			
+		}
+	}
+	
+	/**
+	 * Predany kamion dokonci danou instrukci
+	 * @param car Predane auto
+	 * @param i Instrukce, kterou ma auto vykonat
+	 */
+	private void finishInstruction(Car car, Instruction i){
+		car.setPosition(i.getDestination());
+		
+		
+		switch(i.getState()){
+			case LOADING: 
+				car.load(i.getAmount());
+				unload(car.getCapacity()/2);
+				break;
+			case UNLOADING:
+				Dock d = ((Dock) car.getPosition());
+				
+				if(d.canLoad(i.getAmount())){
+					d.addImaginaryBarrels(i.getAmount());
+					car.unload(i.getAmount());
+					d.load(car.getCapacity());
+				}else {
+					
+					car.setWaitingForUnload(true);
+				}
+				break;
+			case LOADING_EMPTY_BARRELS:
+				((Dock) car.getPosition()).subImaginaryBarrels(i.getAmount());
+//						System.err.println("nakladam prazdne");
+				car.loadEmpty(i.getAmount());
+				((Dock) car.getPosition()).load(car.getCapacity());
+				break;
+			case UNLOADING_EMPTY_BARRELS: 
+				car.unloadEmpty(i.getAmount());
+				break;
+			default: 
+				break;
+		}
+	}
+	
+	/**
+	 * Protoze kamion cekal, musime pozmenit jeho casy prijezdu
+	 * @param t	Cas, kdy prestal cekat
+	 * @param instructions Seznam instrukci ktery chceme modifikovat
+	 */
+	private void correctTime(Time t, List<Instruction> instructions){
+		int delay = t.value() - instructions.get(0).getFinished().value(); 
+		for(Instruction i:instructions){
+			i.getFinished().addMinutes(delay);
 		}
 	}
 	
@@ -292,25 +556,9 @@ public class Brewery extends Stock {
 	 * @param time	aktualni cas objednavky
 	 * @return	instructions	instrukce pro camion
 	 */
-	public LinkedList<Instruction> createInstructionsForCamion(Dock dock, Time time){
-		LinkedList<Instruction> instructions = new LinkedList<>();
-		
-		/* Predej aktualni cas */
-		Time tmpTime = time;
-		
-		/* Cas nakladu plneho camionu */
-		int loadingMinutes = CarType.CAMION.getCapacity() * CarType.CAMION.getReloadingSpeed();
-		
-		/* 1. instrukce - cekej v case vytvoreni v pivovaru */
-		instructions.add(new Instruction(State.WAITING, this, tmpTime));
-		
-		/* Posun cas o cas nakladu camionu */
-		tmpTime = tmpTime.getTimeAfterMinutes(loadingMinutes);
-		
-		/* 2. instrukce - naloz plny camion */
-		instructions.add(new Instruction(State.LOADING, this, CarType.CAMION.getCapacity(), tmpTime));
-		
-		/* Vytvor cestu camionu k prekladisti */
+	private List<Instruction> createInstructionsForCamion(Dock dock, Time time){
+		List<Instruction> instructions = addFirstInstructions(time, CarType.CAMION.getCapacity(),CarType.CAMION);
+
 		createPathForCamions(dock, instructions);
 				
 		return instructions;
@@ -321,19 +569,22 @@ public class Brewery extends Stock {
 	 * @param dock	cil cesty
 	 * @param instructions	sada instrukci
 	 */
-	public void createPathForCamions(Dock dock, LinkedList<Instruction> instructions){
+	private void createPathForCamions(Dock dock, List<Instruction> instructions){
 		
 		/* Cil cesty */
 		TransportNode destination = dock;
 		
 		/* Cas konce nakladu */
-		Time tmpTime = instructions.getLast().getFinished();
+		Time tmpTime = instructions.get(instructions.size() - 1).getFinished();
 		
 		/* Mnozina uzlu prujezdu */
 		Stack<Integer> nodes = new Stack<Integer>();
 		
+		//priprava zasobniku
+		prepareStackForPath(destination.idCont,nodes);
+		
 		/* Pridej do nodes uzly prujezdu */
-		addPathInstructions(destination.idCont, nodes, instructions);
+		addPathInstructions(nodes, instructions, CarType.CAMION);
 		
 				
 		/* Cas vylozeni plneho camionu */
@@ -355,7 +606,7 @@ public class Brewery extends Stock {
 		instructions.add(new Instruction(State.LOADING_EMPTY_BARRELS,dock, sum, tmpTime));
 		
 		/* Vytvor cestu camionu zpatky do pivovaru */
-		createPathToHomeForCamions(dock, instructions, sum);
+		createPathToHome(dock, instructions, sum, CarType.CAMION);
 		
 	}
 	
@@ -365,22 +616,30 @@ public class Brewery extends Stock {
 	 * @param instructions	sada instrukci
 	 * @param sum	mnozstvi nalozenych prazdnych sudu
 	 */
-	public void createPathToHomeForCamions(Dock dock, LinkedList<Instruction> instructions, int sum){
+	public void createPathToHome(TransportNode node, List<Instruction> instructions, int sum, CarType ct){
 
-		/* Cil cesty */
-		int destination = dock.getIdProv();
-				
-		/* Mnozina uzlu prujezdu */
-		Stack<Integer> nodes = new Stack<Integer>();
-		
-		/* Pridej do nodes uzly prujezdu */
-		addPathInstructions(destination, nodes, instructions);
+		/* Id prekladiste*/
+		int destination = node.getIdCont();
 		
 		/* Cas po prijezdu do pivovaru */
-		Time tmpTime = instructions.getLast().getFinished();
+		Time tmpTime = instructions.get(instructions.size() - 1).getFinished();
+		
+		int i = destination;
+		
+		while(p[0][i] != 0){
+			int tmp = p[0][i];
+			float distance = d[0][i] - d[0][tmp];
+			
+			tmpTime = tmpTime.getTimeAfterMinutes((int)(distance/ct.getSpeed()));
+			
+			instructions.add(new Instruction(State.TRAVELLING,Controller.c.nodes.get(tmp),tmpTime));
+			
+			
+			i = tmp;
+		}
 		
 		/* Cas vylozeni prazdnych sudu */
-		tmpTime = tmpTime.getTimeAfterMinutes(sum*CarType.CAMION.getReloadingSpeed());
+		tmpTime = tmpTime.getTimeAfterMinutes(sum*ct.getReloadingSpeed());
 		
 		/* 7. instrukce - vylozeni prazdnych sudu v pivovaru */
 		instructions.add(new Instruction(State.UNLOADING_EMPTY_BARRELS, this, sum, tmpTime));
@@ -392,59 +651,51 @@ public class Brewery extends Stock {
 	 * @param nodes			mnozina uzlu
 	 * @param instructions	sada instrukci
 	 */
-	public void addPathInstructions(int i, Stack<Integer> nodes, LinkedList<Instruction> instructions){
+	public void addPathInstructions(Stack<Integer> nodes, List<Instruction> instructions, CarType ct){
 		
 		/* Cas konce nakladu */
-		Time tmpTime = instructions.getLast().getFinished();
+		Time t = instructions.get(instructions.size() - 1).getFinished();
 		
-		/* idN = id aktualni, idB = id predchozi */
-		int idN, idB = i;
-		
-		// TODO otoc cestu
-		while((idN = getP()[0][idB]) != 0){
+		int y = 0;
+		float oldDistance = 0;
+		while(!nodes.empty()){
+			y = nodes.pop();
+
+			float distance = d[0][y] - oldDistance;
 			
-//			float distance = dock.getP()[idB][idN];
-			float distance = lengthEdge(c.nodes.get(idB), c.nodes.get(idN));
+			t = t.getTimeAfterMinutes((int)(distance/ct.getSpeed()));
 			
-			/* Cas prujezdu mezi uzly */
-			tmpTime = tmpTime.getTimeAfterMinutes((int)(distance/CarType.CAMION.getSpeed()));
-			
-			/* 3. || 6. instrukce - cestuj z uzlu idB do idN */
-			instructions.add(new Instruction(State.TRAVELLING,c.nodes.get(idN),tmpTime));
-			idB = idN;
+			instructions.add(new Instruction(State.TRAVELLING,Controller.c.nodes.get(y),t));
+			oldDistance = d[0][y];
 		}
 	}
 	
 	/**
-	 * Vzdalenost 2 uzlu
-	 * @param a	uzel 1
-	 * @param b	uzel 2
-	 * @return	vzdalenost
+	 * Prudukce piva
 	 */
-	private float lengthEdge(TransportNode a, TransportNode b)
-	{
-		/* Vzorec sqrt( (a1-b1)^2 + (a2-b2)^2 ) */
-		return (float) Math.sqrt(Math.pow(a.getX()-b.getX(), 2.0) +
-				Math.pow(a.getY()-b.getY(), 2.0));
-	}
-	
-	private void productionBeer(){
+	private void produceBeer(){
 		if(c.mainTime.getHour() == 13){
 			full += 307;
+			logger.log(c.mainTime, 6, this + ": vyprodukovano 307 hl");
 			countBeers += 307;
 		}
 		else{
-			full += 291;
+			full += 291; 
+			logger.log(c.mainTime, 6, this + ": vyprodukovano 291 hl");
 			countBeers += 291;
 		}
 	}
 	
+	/**
+	 * Vrati nazev pivovaru
+	 * @return	nazev pivovaru
+	 */
 	public String getName(){
 		return name;
 	}
 	
 	/**
-	 * kamion -> full - 2*100 hl
+	 * kamion -> full - 100/2 hl
 	 * cisterna -> full - x hl
 	 * @param n
 	 */
@@ -453,7 +704,10 @@ public class Brewery extends Stock {
 	}
 	
 	
-	
+	/**
+	 * Vrati celkovou produkci piva
+	 * @return	produkce piva
+	 */
 	public int getCountBeers() {
 		return countBeers;
 	}
@@ -462,41 +716,55 @@ public class Brewery extends Stock {
 	 * Vrati prvni cekajici cisternu
 	 * @return prvni cekajici cisterna
 	 */
-	public Car getFirstWaitingCistern(CarType type){
-		for(Car c: garage_for_cars){
-			if(c.getCurrentInstruction() == null && c.getPosition().equals(this) && c.getType() == type){
+	private Car getFirstWaitingCistern(){
+		for(Car c: garageCistern){
+			if(c.getCurrentInstruction() == null && c.getPosition().equals(this)){
 				return c;
 			}
 		}
-		Car newCar = null;
-		if(type == CarType.CISTERN){
-			Car.getCistern(this, garage_for_cars.size());
-		}else if(type == CarType.CAMION){
-			Car.getCamion(this, garage_for_cars.size());
-		}
+		Car newCar = Car.getCistern(this, garageCistern.size());
 		
-		garage_for_cars.add(newCar);
-		System.out.println("Vytvarim nove auto!");
+		garageCistern.add(newCar);
 		return newCar;
 	}
 	
-	/*
-	
+	/**
+	 * Vrati prvni cekajici camion
+	 * @return prvni cekajici camion
+	 */
+	private Car getFirstWaitingCamion(){
+		for(Car c: garageCamion){
+			if(c.getCurrentInstruction() == null && c.getPosition().equals(this)){
+				return c;
+			}
+		}
+		Car newCar = Car.getCamion(this, garageCamion.size());
+		
+		garageCamion.add(newCar);
+		return newCar;
+	}
+			
+	/**
+	 * Pomoci dijkstrova algoritmu vypocte nejkratsi cesty v grafu
+	 */
 	public void calculateShortestPathsDijkstra(){
-//		this.setD(new float[0][routes.size()]);
 		this.d = new float[1][c.nodes.size()];
 		this.p = new int[1][c.nodes.size()];
+		
+		for(int i = 0; i < d.length; i++){
+			d[i][0] = Float.MAX_VALUE;
+		}
 		for(int i = 0; i < d[0].length; i++){
 			d[0][i] = Float.MAX_VALUE;
 		}
 		KeyPriorityQueue<Integer> queue = new KeyPriorityQueue<Integer>();
 		
-		d[0] = 0;
-		queue.add(d[0],idCont);
+		d[0][0] = 0;
+		queue.add(d[0][0],idCont);
 		
 		while(!queue.isEmpty()){
 			int u = queue.poll();
-			for(Route v : c.nodes[u].routes){
+			for(Route v : c.nodes.get(u).routes){
 				int vId = v.getValue();
 				
 				float dist = d[0][c.nodes.get(u).idCont] + v.getDistance();
@@ -508,10 +776,10 @@ public class Brewery extends Stock {
 				}
 			}
 		}
-	}*/
+	}
 	
-/*	private void produceBeer()
-	{
-		
-	}*/
+	@Override
+	public String toString(){
+		return "Pivovar " + name;
+	}
 }

@@ -19,23 +19,21 @@ public class Controller {
 	/** Casovy krok*/
 	public static final int STEP = 60;
 	
-	/**Nko v konecnem programu zmizi. je to jen pomocna promena pro generovani zkusebnich dat */
-//	public static final int N = 10;
-	
-	/** Vsechny dopravni uzly simulace */
-//	public TransportNode[] nodes = new TransportNode[N+1];
-	
+	/** Seznam vsech dopravnich uzlu */
 	public List<TransportNode> nodes;
 	
+	/** Seznam vsech hospod */
 	public List<Pub> pub;
 	
+	/** Seznam vsech prekladist */
 	public List<Dock> dock;
 	
+	/** Pivovar */
 	public Brewery brewery;
 	
+	/** Nastroj pro osetrovani vystupu do souboru a do cli */
 	private final Logger logger = Logger.getInstance("output.txt");
 	
-	//TODO bude se nacitat z prikazovy radky
 	/**
 	 * Minimalni priorita vystupu:<br>
 	 * <li>1 = CHYBY
@@ -45,10 +43,21 @@ public class Controller {
 	 * <li>5 = ZASOBOVANI DO PREKLADIST
 	 * <li>6 = PRODUKCE, VYTVARENI AUT
 	 */
-	public int minLogPriority = 6;
+	public int minLogPriority = 2;
 	
+	/**
+	 * Pocet dorucenych sudu celkem
+	 */
 	public int deliveredBarrels;
+	
+	/**
+	 * Pocet dorucenych hl celkem
+	 */
 	public int deliveredHL;
+	
+	/**
+	 * Pocet objednavek dorucenych po 24 hodinach
+	 */
 	public int deliveredLate;
 	
 	/** Vsechny objednavky pro dany den	 */
@@ -73,7 +82,6 @@ public class Controller {
 		for(TransportNode n:nodes){
 			n.setC(this);
 		}
-	//	addRouteBrewery();
 	}
 	
 	/**
@@ -95,8 +103,6 @@ public class Controller {
 			s.getD()[tmpA][tmpB] = d;
 			s.getD()[tmpB][tmpA] = d;
 		}
-		
-		//TODO pridat vkladani hran pro pivovar
 	}
 	
 
@@ -104,9 +110,16 @@ public class Controller {
 	 * Metoda ktera bude obstaravat celou simulaci
 	 */
 	public void simulate(){
+		System.out.println("Pocitam vzdalenosti mezi dopravnimi uzly...");
 		for(Dock d:dock){
 			d.floydWarshal(d.getD(), d.getP(), d.getD().length);
 		}
+		brewery.calculateShortestPathsDijkstra();
+		
+		System.out.println("Vzdalenosti vypocitany.");
+		System.out.println("Pro spusteni simulace zmacknete enter.");
+		Main.sc.nextLine();
+		Main.sc.nextLine();
 		
 		int oldDay = -1;
 		while(mainTime.value() < endTime.value()){
@@ -135,6 +148,7 @@ public class Controller {
 			System.out.println("\n\n");
 		}
 		
+		
 		logger.printFinalStatistics();
 		logger.close();
 	}
@@ -148,6 +162,9 @@ public class Controller {
 		}
 	}
 	
+	/**
+	 * Vsem prikaze, at vykonaji casove operace
+	 */
 	private void checkTime(){
 		for(Dock d: dock){
 			d.checkTimeEvents();
@@ -163,7 +180,6 @@ public class Controller {
 			Order o = it.next();
 			if(Math.abs(o.getTime().value() - mainTime.value()) < STEP){
 				if(o.getPub().isTank()){
-//					System.out.println(o + " byla predana prekladisti " + brewery);
 					brewery.recieveOrder(o);
 					it.remove();
 				}else{

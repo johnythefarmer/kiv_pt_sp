@@ -30,7 +30,11 @@ public class Car {
 	 */
 	private int full;
 	
+	/** Identifikacni cislo auta u daneho skladu */
 	private final int id;
+	
+	/** Znaci, zda cekame, az bude misto v prekladisti */
+	private boolean isWaitingForUnload;
 	
 	/**
 	 * Privatni konstruktor. Vytvori auto na danem miste s danymi specifikacemi.<br>
@@ -38,9 +42,8 @@ public class Car {
 	 * do atributu jako je kapacita nebo rychlost. Instance se ziskavaji pres metody
 	 * {@code getCamion(TransportNode pozice)}, {@code getCistern(TransportNode pozice)} a {@code getTruck(TransportNode pozice)}
 	 * @param position Misto kde se instance vytvori. Pozice daneho auta
-	 * @param capacity Kapacita ulozneho prostoru auta
-	 * @param speed Rychlost jakou auto cestuje silnici
-	 * @param reloadingSpeed Pocet minut kolik zabere naklad/vyklad sudu nebo nacerpani/precerpani hl piva
+	 * @param type Typ auta
+	 * @param id ID u daneho skladu
 	 */
 	private Car(TransportNode position, CarType type, int id){
 		this.state = State.WAITING;
@@ -55,6 +58,7 @@ public class Car {
 	/**
 	 * Tovarni metoda pro vytvareni kamionu
 	 * @param position Misto kde se kamion vytvori
+	 * @param id ID u daneho skladu
 	 * @return Instance s vlastnostmi kamionu
 	 */
 	public static Car getCamion(TransportNode position, int id){
@@ -64,6 +68,7 @@ public class Car {
 	/**
 	 * Tovarni metoda pro vytvareni cisterny
 	 * @param position Misto kde se cisterna vytvori
+	 * @param id ID u daneho skladu
 	 * @return Instance s vlastnostmi cisterny
 	 */
 	public static Car getCistern(TransportNode position, int id){
@@ -73,6 +78,7 @@ public class Car {
 	/**
 	 * Tovarni metoda pro vytvareni nakladaku
 	 * @param position Misto kde se nakladak vytvori
+	 * @param id ID u daneho skladu
 	 * @return Instance s vlastnostmi nakladaku
 	 */
 	public static Car getTruck(TransportNode position, int id){
@@ -87,6 +93,10 @@ public class Car {
 		this.state = state;
 	}
 
+	/**
+	 * Vrati prave provadenou instrukci
+	 * @return	provadena instrukce
+	 */
 	public Instruction getCurrentInstruction() {
 		if(instructions == null || instructions.isEmpty()){
 			return null;
@@ -94,6 +104,10 @@ public class Car {
 		return ((LinkedList<Instruction>)instructions).getFirst();
 	}
 	
+	/**
+	 * Vrati posledni instrukci, ktera mu byla prirazena
+	 * @return	posledni prirazena instrukce
+	 */
 	public Instruction getLastInstruction(){
 		if(instructions.isEmpty()){
 			return null;
@@ -101,10 +115,7 @@ public class Car {
 		return ((LinkedList<Instruction>)instructions).getLast();
 	}
 
-	public void addInstruction(Instruction instruction) {
-		((LinkedList<Instruction>)instructions).addLast(instruction);
-	}
-
+	
 	public TransportNode getPosition() {
 		return position;
 	}
@@ -162,6 +173,14 @@ public class Car {
 		this.empty += n;
 	}
 	
+	public boolean isWaitingForUnload() {
+		return isWaitingForUnload;
+	}
+
+	public void setWaitingForUnload(boolean isWaitingForUnload) {
+		this.isWaitingForUnload = isWaitingForUnload;
+	}
+
 	/**
 	 * Vylozi n prazdnych sudu (resp. hl) piva
 	 * @param n mnozstvi piva
@@ -185,9 +204,7 @@ public class Car {
 	public Stock getStock() {
 		return stock;
 	}
-	
-	
-	
+
 	public void setInstructions(List<Instruction> instructions){
 		this.instructions = instructions;
 	}
