@@ -11,7 +11,7 @@ import cz.chmelokvas.brewery.Time;
 
 public class Logger {
 	private PrintWriter pw;
-	private SortedSet<Event> events = new TreeSet<Event>();
+	private final SortedSet<Event> events = new TreeSet<Event>();
 	
 	private static final Logger INSTANCE = new Logger();
 	

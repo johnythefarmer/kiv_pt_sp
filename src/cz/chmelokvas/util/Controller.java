@@ -33,7 +33,7 @@ public class Controller {
 	
 	public Brewery brewery;
 	
-	private Logger logger = Logger.getInstance("output.txt");
+	private final Logger logger = Logger.getInstance("output.txt");
 	
 	//TODO bude se nacitat z prikazovy radky
 	/**

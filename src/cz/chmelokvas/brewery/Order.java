@@ -73,18 +73,10 @@ public class Order implements Comparable<Order>{
 		if (amount != other.amount){
 			return false;
 		}
-		if (pub == null) {
-			if (other.pub != null){
-				return false;
-			}
-		} else if (!pub.equals(other.pub)){
+		if (!pub.equals(other.pub)){
 			return false;
 		}
-		if (time == null) {
-			if (other.time != null){
-				return false;
-			}
-		} else if (!time.equals(other.time)){
+		if (!time.equals(other.time)){
 			return false;
 		}
 		return true;

@@ -7,12 +7,12 @@ public class Event implements Comparable<Event>{
 	private final int priority;
 	private final String message;
 	
-	public static int ERRORS = 1;
-	public static int ORDER_DELIVERY = 2;
-	public static int ORDER_RECEIVED = 3;
-	public static int CAR_MOVEMENT = 4;
-	public static int DOCK_SUPLY = 5;
-	public static int PROUDUCTION = 6;
+	public static final int ERRORS = 1;
+	public static final int ORDER_DELIVERY = 2;
+	public static final int ORDER_RECEIVED = 3;
+	public static final int CAR_MOVEMENT = 4;
+	public static final int DOCK_SUPLY = 5;
+	public static final int PROUDUCTION = 6;
 	
 	public Event(Time time, int priority, String message) {
 		this.time = time;
