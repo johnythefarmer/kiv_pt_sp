@@ -44,6 +44,7 @@ public class Dock extends Stock {
 	 * <li>Vysle dalsi auta na cestu
 	 * <li>Posune auta o dany casovy usek
 	 */
+	@Override
 	public void checkTimeEvents(){
 		//Predani instrukci ze vcerejska
 		if(c.mainTime.getHour() == 8){
@@ -505,6 +506,7 @@ public class Dock extends Stock {
 		return newCar;
 	}
 	
+	@Override
 	public String toString(){
 		return "Prekladiste " + idCont;
 	}

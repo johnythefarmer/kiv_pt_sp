@@ -10,11 +10,12 @@ import cz.chmelokvas.util.Controller;
 import cz.chmelokvas.util.Logger;
 
 public abstract class Stock extends TransportNode {
-	
-	/** Atribut konstanty stavu skladu */
-	protected int state;
 	protected Logger logger = Logger.getInstance();
 	
+	/**
+	 * Komparator ktery seradi objednavky podle vzdalenosti mista kam je mame dorucit.
+	 * Pokud jsou v mnozine dve objednavky ze stejne hospody sou razeny podle casu prijeti
+	 */
 	protected Comparator<Order> cmp = new Comparator<Order>() {
 
 		@Override
@@ -49,33 +50,29 @@ public abstract class Stock extends TransportNode {
 	/**pole predchudcu*/
 	protected int[][] p;
 	
-	
+	/**
+	 * Konstruktor skladu
+	 */
 	public Stock(){
 		this.provider = this;
 		this.customers = new ArrayList<TransportNode>();
 		this.garage = new ArrayList<Car>();
 	}
-	
 
-
-
-	public int getState() {
-		return state;
-	}
-
-
-
-	public void setState(int state) {
-		this.state = state;
-	}
-
-
+	/**
+	 * Prijme objednvaku o
+	 * @param o Predana objednavka
+	 */
 	public void recieveOrder(Order o){
-//		System.out.println("Prijata objednavka od hospody " + o.getPub());
 		logger.log(o.getTime(), 3, this + ": prijata objednavka od hospody " + o.getPub());
 		orders.add(o);
 	}
 	
+	/**
+	 * Doruci objednavku o pomoci auta c
+	 * @param o
+	 * @param c
+	 */
 	public void deliverOrder(Order o, Car c){
 		Time finished = c.getCurrentInstruction().getFinished();
 		if(finished.value() > o.getTime().getTimeAfterMinutes(60*24).value()){
