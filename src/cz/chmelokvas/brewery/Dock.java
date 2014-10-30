@@ -46,7 +46,7 @@ public class Dock extends Stock {
 	 */
 	@Override
 	public void checkTimeEvents(){
-		//Predani instrukci ze vcerejska
+		//Predani instrukci  ze vcerejska
 		if(c.mainTime.getHour() == 8){
 			for(List<Instruction> inst:tomorrow){
 				Car c = getFirstWaitingTruck();
