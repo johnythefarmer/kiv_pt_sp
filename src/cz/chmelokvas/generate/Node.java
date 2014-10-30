@@ -12,26 +12,24 @@ public class Node {
 	 * 		9 - 200 -> hospody z tanku
 	 * 		201 - 4000 -> hospody ze sudu
 	*/
-	private int id;
+	private final int id;
 	
 	/** Nazev pivovaru */
 	private String name;
 	
 	/** X souradnice bodu */
-	private float x;
+	private final float x;
 	
 	/** Y souradnice bodu */
-	private float y;
-	
-	/** Vzdalenost 2 bodu */
-	private float d;
+	private final float y;
+
 	
 	/** Instance nejblizsiho prekladiste/pivovaru */
 	private Node dock;
 	private Color color;
 	
 	/** List nejblizsich sousedu */
-	private List<Route> neighbours;
+	private final List<Route> neighbours;
 	
 	/** Konstruktor souradnice X a Y, ID */
 	public Node(float x, float y, int id){
