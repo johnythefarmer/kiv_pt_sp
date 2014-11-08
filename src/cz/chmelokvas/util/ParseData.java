@@ -36,10 +36,10 @@ public class ParseData {
 	private Brewery brewery;
 	
 	/** Atribut pole instanci prekladiste */
-	private final List<Dock> dock = new ArrayList<>();
+	private final List<Dock> dock = new ArrayList<Dock>();
 	
 	/** Atribut pole instance hospod */
-	private final List<Pub> pub = new ArrayList<>();
+	private final List<Pub> pub = new ArrayList<Pub>();
 	
 	/** Atribut poctu tankovych hospod */
 	private int tankCount;

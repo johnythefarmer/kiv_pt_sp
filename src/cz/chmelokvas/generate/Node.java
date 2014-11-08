@@ -23,9 +23,6 @@ public class Node {
 	/** Y souradnice bodu */
 	private float y;
 	
-	/** Vzdalenost 2 bodu */
-	private float d;
-	
 	/** Instance nejblizsiho prekladiste/pivovaru */
 	private Node dock;
 	private Color color;
@@ -42,14 +39,6 @@ public class Node {
 		this.neighbours = new ArrayList<Route>();
 		this.id = id;
 	}
-	
-//	/** Konstruktor pro TreeSet
-//	 * Uklada uzel hospody a vzdalenost
-//	 */
-//	public Node(Node dock, float d){
-//		this.dock = dock;
-//		this.d = d;
-//	}
 	
 	public String toString(){
 		return x+"\t"+y;
