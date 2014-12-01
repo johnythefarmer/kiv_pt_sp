@@ -3,12 +3,19 @@ package cz.chmelokvas.util;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -18,8 +25,12 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Gui extends JFrame {
+	
+	private static final Gui INSTANCE = new Gui();
 
 	private static final long serialVersionUID = 1L;
 	private boolean stopAndPlay = true;
@@ -58,10 +69,16 @@ public class Gui extends JFrame {
     private JTextArea jTextArea7;
     private JTextField jTextField1;
     private JTextField jTextField2;
+    private JMenuBar menuBar;
+    private JFileChooser fileChooser;
     
     public Gui() {
         initComponents();
     }
+    
+    public static Gui getInstance(){
+		return INSTANCE;
+	}
 
     private void initComponents() {
 
@@ -99,9 +116,53 @@ public class Gui extends JFrame {
         jButton2 = new JButton();
         jLabel6 = new JLabel();
         jLabel8 = new JLabel();
-
+        menuBar = new JMenuBar();
+        
+        
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
+
+        JMenu fileMenu = new JMenu("Soubor");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        menuBar.add(fileMenu);
+
+        JMenuItem newMenuItemOpen = new JMenuItem("Otevrit", KeyEvent.VK_N);
+        newMenuItemOpen.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	
+            	fileChooser = new JFileChooser();
+
+                FileFilter filter = new FileNameExtensionFilter("TXT soubory", "txt");
+                fileChooser.setFileFilter(filter);
+            	
+            	 int returnValue = fileChooser.showOpenDialog(null);
+                 if (returnValue == JFileChooser.APPROVE_OPTION) {
+                 	File f = fileChooser.getSelectedFile();
+                 	try{
+                 		Controller.c.fileName = f.getAbsolutePath();
+ 	                }catch(IllegalArgumentException e1){
+ 	                	JOptionPane.showMessageDialog(null, e1.getMessage(), "Chyba souboru", JOptionPane.INFORMATION_MESSAGE);
+ 	                }
+                 }
+            }
+          });
+        fileMenu.add(newMenuItemOpen);
+        
+        JMenuItem newMenuItemGen = new JMenuItem("Generovat", KeyEvent.VK_N);
+        fileMenu.add(newMenuItemGen);
+        
+        JMenuItem exit = new JMenuItem("Zavrit", KeyEvent.VK_N);
+        fileMenu.add(exit);
+        
+        exit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+              System.exit(0);
+            }
+          });
+
+        setJMenuBar(menuBar);
+
+        
 
         jTextArea2.setEditable(false);
         jTextArea2.setColumns(20);
@@ -414,6 +475,9 @@ public class Gui extends JFrame {
     public JTextArea getArea6(){
     	return jTextArea7;
     }
+    public void setName(String name){
+    	jLabel1.setText(name);
+    }
 
     private void addToArea(){
         // zmena dnu
@@ -431,8 +495,8 @@ public class Gui extends JFrame {
     }
     
 
-    public static void main(String args[]) {
-    	Gui nf = new Gui();
-    	nf.addToArea();
-    }
+//    public static void main(String args[]) {
+//    	Gui nf = new Gui();
+//    	nf.addToArea();
+//    }
 }
