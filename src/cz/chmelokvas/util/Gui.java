@@ -19,7 +19,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class NewJFrame extends JFrame {
+public class Gui extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private boolean stopAndPlay = true;
@@ -59,7 +59,7 @@ public class NewJFrame extends JFrame {
     private JTextField jTextField1;
     private JTextField jTextField2;
     
-    public NewJFrame() {
+    public Gui() {
         initComponents();
     }
 
@@ -392,6 +392,28 @@ public class NewJFrame extends JFrame {
             stopAndPlay = true;
         }
     }
+    
+    public JTextArea getAreaStatistika(){
+    	return jTextArea1;
+    }
+    public JTextArea getArea1(){
+    	return jTextArea2;
+    }
+    public JTextArea getArea2(){
+    	return jTextArea3;
+    }
+    public JTextArea getArea3(){
+    	return jTextArea4;
+    }
+    public JTextArea getArea4(){
+    	return jTextArea5;
+    }
+    public JTextArea getArea5(){
+    	return jTextArea6;
+    }
+    public JTextArea getArea6(){
+    	return jTextArea7;
+    }
 
     private void addToArea(){
         // zmena dnu
@@ -410,7 +432,7 @@ public class NewJFrame extends JFrame {
     
 
     public static void main(String args[]) {
-    	NewJFrame nf = new NewJFrame();
+    	Gui nf = new Gui();
     	nf.addToArea();
     }
 }
