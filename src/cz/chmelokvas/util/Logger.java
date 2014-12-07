@@ -42,9 +42,20 @@ public class Logger {
 		for(Iterator<Event> it = events.iterator(); it.hasNext();){
 			Event e = it.next();
 			
-			if(e.getPriority() <= Controller.c.minLogPriority){
-				System.out.println(e);
+			switch (e.getPriority()) {
+				case 1: Controller.c.gui.getArea1().append(e+"\n"); break;
+				case 2: Controller.c.gui.getArea2().append(e+"\n"); break;
+				case 3: Controller.c.gui.getArea3().append(e+"\n"); break;
+				case 4: Controller.c.gui.getArea4().append(e+"\n"); break;
+				case 5: Controller.c.gui.getArea5().append(e+"\n"); break;
+				case 6: Controller.c.gui.getArea6().append(e+"\n"); break;
+				default: break;
 			}
+
+//			
+//			if(e.getPriority() <= Controller.c.minLogPriority){
+//				System.out.println(e);
+//			}
 			pw.println(e);
 			it.remove();
 		}
@@ -64,13 +75,13 @@ public class Logger {
 		}
 		
 		Brewery b = Controller.c.brewery;
-		sb.append("Pocet vytvorenych aut: " + trucksCount + "\n");
-		sb.append("Pocet vytvorenych cisteren: " + b.getCisternCount() + "\n");
-		sb.append("Pocet vytvorenych kamionu: " + b.getCamionCount() + "\n");
-		sb.append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
-		sb.append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
-		sb.append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
-		sb.append("Pocet vyprodukovanych hl: " + b.getCountBeers() + "");
+		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych aut: " + trucksCount + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych cisteren: " + b.getCisternCount() + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych kamionu: " + b.getCamionCount() + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
+		Controller.c.gui.getAreaStatistika().append("Pocet vyprodukovanych hl: " + b.getCountBeers() + "");
 		System.out.println(sb);
 		pw.println(sb);
 	}

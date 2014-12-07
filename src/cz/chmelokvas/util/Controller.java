@@ -15,6 +15,7 @@ import cz.chmelokvas.brewery.TransportNode;
 public class Controller {
 	public static Controller c;
 
+	public static String fileName;
 	
 	/** Casovy krok*/
 	public static final int STEP = 60;
@@ -33,6 +34,8 @@ public class Controller {
 	
 	/** Nastroj pro osetrovani vystupu do souboru a do cli */
 	private final Logger logger = Logger.getInstance("output.txt");
+	
+	final Gui gui = Gui.getInstance();
 	
 	/**
 	 * Minimalni priorita vystupu:<br>
@@ -117,9 +120,9 @@ public class Controller {
 		brewery.calculateShortestPathsDijkstra();
 		
 		System.out.println("Vzdalenosti vypocitany.");
-		System.out.println("Pro spusteni simulace zmacknete enter.");
-		Main.sc.nextLine();
-		Main.sc.nextLine();
+//		System.out.println("Pro spusteni simulace zmacknete enter.");
+//		Main.sc.nextLine();
+//		Main.sc.nextLine();
 		
 		int oldDay = -1;
 		while(mainTime.value() < endTime.value()){
