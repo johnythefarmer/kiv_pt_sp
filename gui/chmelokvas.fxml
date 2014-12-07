@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <VBox prefHeight="27.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Načti soubor" />
+                        <MenuItem mnemonicParsing="false" text="Znovu generovat" />
+                        <MenuItem mnemonicParsing="false" text="Zavřít" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+         </children>
+      </VBox>
+   </top>
+   <left>
+      <TabPane prefHeight="373.0" prefWidth="268.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="Chyby">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="344.0" prefWidth="288.0" />
+            </content>
+          </Tab>
+          <Tab text="Objednávky">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+            <Tab text="Pohyb aut">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+               </content>
+            </Tab>
+            <Tab text="Produkce">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </left>
+   <right>
+      <Pane prefHeight="373.0" prefWidth="332.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="TOP_CENTER" layoutX="27.0" layoutY="14.0" prefHeight="53.0" prefWidth="271.0" text="Chmelokvas">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Label>
+            <Slider layoutX="142.0" layoutY="82.0" />
+            <ImageView fitHeight="24.0" fitWidth="32.0" layoutX="81.0" layoutY="77.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@media-play-pause.png" />
+               </image>
+            </ImageView>
+            <TitledPane animated="false" collapsible="false" layoutX="65.0" layoutY="213.0" prefHeight="146.0" prefWidth="221.0" text="Statistika">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="85.0" prefWidth="219.0">
+                     <children>
+                        <TextArea editable="false" prefHeight="120.0" prefWidth="219.0">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </TextArea>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
+            <Label layoutX="109.0" layoutY="122.0" text="Vytvořit objednávku" />
+            <Separator layoutX="62.0" layoutY="148.0" prefWidth="200.0" />
+            <Button layoutX="236.0" layoutY="171.0" mnemonicParsing="false" text="OK" />
+            <TextField layoutX="75.0" layoutY="171.0" prefHeight="25.0" prefWidth="38.0" />
+            <Label layoutX="70.0" layoutY="151.0" text="Hospoda" />
+            <Label layoutX="138.0" layoutY="152.0" text="Množství" />
+            <TextField layoutX="142.0" layoutY="171.0" prefHeight="25.0" prefWidth="38.0" />
+            <Label layoutX="186.0" layoutY="175.0" text="sudů/hl" />
+         </children>
+      </Pane>
+   </right>
+</BorderPane>
