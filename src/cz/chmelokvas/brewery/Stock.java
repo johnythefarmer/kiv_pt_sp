@@ -26,7 +26,10 @@ public abstract class Stock extends TransportNode {
 		public int compare(Order o1, Order o2) {
 			int cmp = Float.compare(d[0][o1.getPub().idProv], d[0][o2.getPub().idProv]);
 			if(cmp == 0){
-				return Integer.compare(o1.getTime().value(), o2.getTime().value());
+				cmp = Integer.compare(o1.getTime().value(), o2.getTime().value());
+			}
+			if(cmp == 0){
+				cmp = Integer.compare(o1.getPub().idCont, o2.getPub().idCont);
 			}
 			return cmp;
 		}

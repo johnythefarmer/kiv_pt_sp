@@ -46,7 +46,7 @@ public class Controller {
 	 * <li>5 = ZASOBOVANI DO PREKLADIST
 	 * <li>6 = PRODUKCE, VYTVARENI AUT
 	 */
-	public int minLogPriority = 2;
+	public int minLogPriority = 1;
 	
 	/**
 	 * Pocet dorucenych sudu celkem
@@ -70,7 +70,7 @@ public class Controller {
 	public Time mainTime = new Time(0,0,0);
 	
 	/** cas ukonceni simulace */
-	public Time endTime = new Time(1,0,0);
+	public Time endTime = new Time(7,0,0);
 	
 	public Controller(List<Pub> pub, List<Dock> dock, Brewery brewery){
 		this.pub = pub;
@@ -132,6 +132,13 @@ public class Controller {
 			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
+				for(Pub p:pub){
+					
+					if(p.getYesterdayOrder() != null && mainTime.value() > p.getYesterdayOrder().getTime().getTimeAfterMinutes(60*24).value()){
+						System.err.println("Nestihlo se");
+						System.err.println(p.getYesterdayOrder() + "" + p.getProvider());
+					}
+				}
 				logger.log(mainTime, 6, "Novy den, cas na generovani objednavek.");
 				generateOrders();
 			}

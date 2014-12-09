@@ -70,7 +70,7 @@ public class Brewery extends Stock {
 			tomorrow.remove(tomorrow);
 		}
 	
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
 			prepareOrdersCisterns();
 		}
 		
@@ -153,6 +153,11 @@ public class Brewery extends Stock {
 	 * Zpracuj vsechny objednavky z tankovek
 	 */
 	private void prepareOrdersCisterns(){
+		for(Order o:orders){
+			if(c.mainTime.getDay() == 5 && o.getPub().idCont == 40){
+				System.out.print("");
+			}
+		}
 		while(!orders.isEmpty()){
 			int n = Controller.c.dock.size();
 			//resime pro kazdy sektor zvlast
@@ -169,22 +174,101 @@ public class Brewery extends Stock {
 			
 			for(int i = 0; i < n; i++){
 				List<Order> tmp = selected[i];
+				
 				if(!tmp.isEmpty()){
+//					Dock d = (Dock)tmp.get(0).getPub().getProvider();
 					SortedSet<Order> tmpSet = new TreeSet<Order>(cmp);
 						//rozdeleni objednavek po trech
 						while(tmp.size() > 3){
 							List<Order> tmpList = tmp.subList(0, 2);
 							tmpSet.addAll(tmpList);
 							tmp.removeAll(tmpList);
-							prepareOrderForSector(tmpSet);
+							if(c.mainTime.getHour() == 16){
+								prepareOrderForSectorLate(tmpSet);
+							}else {
+								prepareOrderForSector(tmpSet);
+							}
 							tmpSet = new TreeSet<Order>(cmp);
 							
 						}
 						tmpSet.addAll(tmp);
-						prepareOrderForSector(tmpSet);
+						if(c.mainTime.getHour() == 16){
+							prepareOrderForSectorLate(tmpSet);
+						}else {
+							prepareOrderForSector(tmpSet);
+						}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Projde mnozinu objednavek, a zkusi pro kazdy prvek vypocitat cestu.<br>
+	 * Pokud zjisti, ze se to neda stihnout, zkusi to naplanovat na zitra.<br>
+	 * Pokud bychom to ani zitra nestihli, doruci to jeste dnes ale opozdene
+	 * @param d Prekladiste v jehoz sektoru se budeme pohybovat
+	 * @param orders Mnozina vyrizovanych objednavek
+	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
+	 * @return Posledni objednavka, ktera bude dnes vyrizena
+	 */
+	private void checkTimeOfDeliveryLate(Dock d, List<Instruction> instructions, Set<Order> selected){
+		for(Iterator<Order> it = selected.iterator(); it.hasNext();){
+			Order o = it.next();
+			
+			createTravellingInstructions(d,instructions,o);
+			if(instructions.get(instructions.size()-1).getFinished().value() >= o.getTime().getTimeAfterMinutes(60*24).value()){
+					removeUnnecessaryInstr(instructions);
+					break;
+			}
+			
+			//Pokud bude cesta realizovana, odstranime tuto objednavku z mnoziny
+			it.remove();
+		}
+	}
+	
+	private void prepareOrderForSectorLate(SortedSet<Order> selected){
+		Order first = selected.first();
+		
+		//pocet hl ktere budeme cerpat
+		int sum = checkCarCapacity(selected, CarType.CISTERN);
+		
+		Time t = new Time(c.mainTime.getDay() + 1, 8,0);
+		
+		//vytvoreni pocatecnich instrukci
+		List<Instruction> instructions = addFirstInstructions(t, sum, CarType.CISTERN);
+		
+		Stack<Integer> nodes = new Stack<Integer>();
+		
+		
+		
+		//pocitani cesty do nejblizsi hospody z mnoziny
+		Pub p = first.getPub();
+		Dock d = (Dock) p.getProvider();
+		
+		prepareStackForPath(p.getIdCont(), nodes);
+		
+		addPathInstructions(nodes, instructions, CarType.CISTERN);
+		
+		
+		//Pocitani cest do dalsi hospod a kontrola jestli to stihneme
+		checkTimeOfDeliveryLate(d, instructions, selected);
+		
+		//Odebrani mnozstvi hl ktere dovezeme zitra
+		for(Order o :selected){
+			sum -= o.getAmount();
+		}
+		orders.addAll(selected);
+		//pokud nam jiz nic nezbylo nema cenu cestu dal resit
+		if(instructions.isEmpty()){
+			return;
+		}
+		
+		TransportNode node = instructions.get(instructions.size() - 1).getDestination();
+		
+		createPathToHome(node,instructions, sum, CarType.CISTERN);
+	
+		Car c = getFirstWaitingCistern();
+		c.setInstructions(instructions);
 	}
 	
 	/**
@@ -227,7 +311,7 @@ public class Brewery extends Stock {
 		}
 		
 		//jelikoz bylo zmeneno mnozstvi hl je treba urcit novou dobu cest
-		correctTimeCistern(instructions, sum);
+		correctTimeCistern(instructions, sum, c.mainTime);
 		
 		TransportNode node = instructions.get(instructions.size() - 1).getDestination();
 		
@@ -315,8 +399,8 @@ public class Brewery extends Stock {
 	 * @param instructions Seznam instrukci ktery chceme modifikovat
 	 * @param sum Nove mnozstvi sudu, ktere je treba nalozit
 	 */
-	private void correctTimeCistern(List<Instruction> instructions, int sum){
-		int correct = instructions.get(1).getFinished().value() - c.mainTime.getTimeAfterMinutes(sum*CarType.CISTERN.getReloadingSpeed()).value();
+	private void correctTimeCistern(List<Instruction> instructions, int sum, Time t){
+		int correct = instructions.get(1).getFinished().value() - t.getTimeAfterMinutes(sum*CarType.CISTERN.getReloadingSpeed()).value();
 
 		if(correct != 0){
 			for(int i = 1; i < instructions.size(); i++){

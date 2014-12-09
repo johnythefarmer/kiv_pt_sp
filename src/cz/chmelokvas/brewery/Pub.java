@@ -5,7 +5,7 @@ import java.util.Random;
 import cz.chmelokvas.util.Controller;
 
 public class Pub extends TransportNode {	
-	private static Random r = new Random();
+	private static Random r = new Random(10);
 	
 	/** Dnesni objednavka */
 	private Order todayOrder;

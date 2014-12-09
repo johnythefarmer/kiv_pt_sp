@@ -67,4 +67,7 @@ public class Instruction {
 		return amount;
 	}
 	
+	public String toString(){
+		return finished.toString();
+	}
 }

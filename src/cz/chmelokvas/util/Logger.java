@@ -52,10 +52,10 @@ public class Logger {
 				default: break;
 			}
 
-//			
-//			if(e.getPriority() <= Controller.c.minLogPriority){
-//				System.out.println(e);
-//			}
+			
+			if(e.getPriority() <= Controller.c.minLogPriority){
+				System.out.println(e);
+			}
 			pw.println(e);
 			it.remove();
 		}

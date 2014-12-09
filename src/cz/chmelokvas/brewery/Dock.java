@@ -56,7 +56,6 @@ public class Dock extends Stock {
 	 * <li>Posune auta o dany casovy usek
 	 */
 	public void checkTimeEvents(){
-		
 		//Predani instrukci ze vcerejska
 		if(c.mainTime.getHour() == 8){
 			for(List<Instruction> inst:tomorrow){
@@ -67,7 +66,7 @@ public class Dock extends Stock {
 		}
 		
 		//vyrizovani objednavek
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() < 16){
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
 			prepareOrders();
 			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
 			createdCars = 0;
@@ -100,6 +99,8 @@ public class Dock extends Stock {
 			orders.remove(o);
 			Pub p = o.getPub();
 			
+			
+			
 			//pokud sou u nejvzdalenejsi hospody sousedi, kteri jiz objednali zahrn je take do cesty
 			checkNeighbours(p,selected);
 			
@@ -114,12 +115,55 @@ public class Dock extends Stock {
 				checkPub(tmp,selected);		
 			}
 			
+/*			Time search = new Time(0,11,40);
+			for(Order ord:selected){
+				if(ord.getTime().value() == search.value()){
+					System.out.println("sdfdsf");
+				}
+			}*/
+			
 			//vybrane objednavky oznaci jako za pripravovane a zacne pripravovat instrukce pro cestu auta
 			beingPrepared.addAll(selected);
-			createInstructions(selected);
+			if(c.mainTime.getHour() == 16){
+				prepareForTomorrow(selected);
+			}else{
+				createInstructions(selected);
+			}
+			
 			
 			
 		}
+	}
+	
+	private void prepareForTomorrow(Set<Order> orders){
+		//Urceni kolik ma auto nalozit sudu a pridani odpovidajicich instrukci
+				int sum = checkCarCapacity(orders);
+				Time t = new Time(c.mainTime.getDay() + 1, 8,0);
+				 List<Instruction> instructions = addFirstInstructions(t, sum);
+				
+
+				//Oriznuti objednavek ktere nestihame
+				checkTimeOfDeliveryLate(orders, instructions);
+				
+				//odebrani poctu sudu od objednavek, ktere vyrizovat nebudeme 
+				//(vyrizovane byly z mnoziny odebrany)
+				for(Order o:orders){
+					sum -= o.getAmount();
+				}
+				this.orders.addAll(orders);
+				
+				//Pokud po odmazani nepotrebnych instrukci nezbylo nic, nema cenu podnikat cestu
+				if(instructions.size() == 0){
+					return;
+				}
+
+				correctTime(instructions,sum, t);
+				
+				createInstructionsPathHome(instructions, sum);
+				
+				
+				Car c = getFirstWaitingTruck();
+				c.setInstructions(instructions);
 	}
 	
 	/**
@@ -245,7 +289,8 @@ public class Dock extends Stock {
 		int sum = 0;
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
-			
+
+			 
 			if((sum + o.getAmount()) < (CarType.TRUCK.getCapacity()*3)/4){
 				sum += o.getAmount();
 			}else{
@@ -309,6 +354,7 @@ public class Dock extends Stock {
 		int sum = checkCarCapacity(orders);
 		 List<Instruction> instructions = addFirstInstructions(c.mainTime, sum);
 		
+
 		//Oriznuti objednavek ktere nestihame
 		checkTimeOfDelivery(orders, instructions);
 		
@@ -323,13 +369,36 @@ public class Dock extends Stock {
 			return;
 		}
 
-		correctTime(instructions,sum);
+		correctTime(instructions,sum,c.mainTime);
 		
 		createInstructionsPathHome(instructions, sum);
 		
 		
 		Car c = getFirstWaitingTruck();
 		c.setInstructions(instructions);
+	}
+	
+	/**
+	 * Projde mnozinu objednavek, a zkusi pro kazdy prvek vypocitat cestu.<br>
+	 * Pokud zjisti, ze se to neda stihnout, zkusi to naplanovat na zitra.<br>
+	 * Pokud bychom to ani zitra nestihli, doruci to jeste dnes ale opozdene
+	 * @param orders Mnozina vyrizovanych objednavek
+	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
+	 * @return Posledni objednavka, ktera bude dnes vyrizena
+	 */
+	private void checkTimeOfDeliveryLate(Set<Order> orders, List<Instruction> instructions){
+		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
+			Order o = it.next();
+			
+			createTravellingInstructions(instructions,o);
+			if(instructions.get(instructions.size()-1).getFinished().value() >= o.getTime().getTimeAfterMinutes(60*24).value()){
+				removeUnnecessaryInstr(instructions);
+				break;
+			}
+			
+			//Pokud bude cesta realizovana, odstranime tuto objednavku z mnoziny
+			it.remove();
+		}
 	}
 	
 	/**
@@ -401,8 +470,11 @@ public class Dock extends Stock {
 				
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
 			Order o = it.next();
+			
 			createTravellingInstructions(instructions,o);
 			if(instructions.get(instructions.size() - 1).getFinished().value() > o.getTime().getTimeAfterMinutes(60*24).value()){
+				
+				
 				//nestihame
 				return null;
 			}
@@ -428,8 +500,8 @@ public class Dock extends Stock {
 	 * @param instructions Seznam instrukci ktery chceme modifikovat
 	 * @param sum Nove mnozstvi sudu, ktere je treba nalozit
 	 */
-	private void correctTime(List<Instruction> instructions, int sum){
-		int correct = instructions.get(1).getFinished().value() - c.mainTime.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed()).value();
+	private void correctTime(List<Instruction> instructions, int sum, Time t){
+		int correct = instructions.get(1).getFinished().value() - t.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed()).value();
 
 		if(correct != 0){
 			for(int i = 1; i < instructions.size(); i++){
