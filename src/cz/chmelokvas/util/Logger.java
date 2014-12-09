@@ -53,9 +53,9 @@ public class Logger {
 			}
 
 			
-			if(e.getPriority() <= Controller.c.minLogPriority){
-				System.out.println(e);
-			}
+//			if(e.getPriority() <= Controller.c.minLogPriority){
+//				System.out.println(e);
+//			}
 			pw.println(e);
 			it.remove();
 		}
@@ -66,22 +66,22 @@ public class Logger {
 	/**
 	 * Vypise konecnou statistiku
 	 */
-	public void printFinalStatistics(){
-		StringBuffer sb = new StringBuffer("\n\n\n\n\n");
-		sb.append("-----CELKOVA STATISTIKA-----\n");
+	public void printStatistics(){
+		StringBuffer sb = new StringBuffer("-----"+ Controller.c.mainTime +"-----\n");
 		int trucksCount = 0;
 		for(Dock d:Controller.c.dock){
 			trucksCount += d.getGarage().size();
 		}
 		
 		Brewery b = Controller.c.brewery;
-		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych aut: " + trucksCount + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych cisteren: " + b.getCisternCount() + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet vytvorenych kamionu: " + b.getCamionCount() + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
-		Controller.c.gui.getAreaStatistika().append("Pocet vyprodukovanych hl: " + b.getCountBeers() + "");
+		sb.append("Pocet vytvorenych aut: " + trucksCount + "\n");
+		sb.append("Pocet vytvorenych cisteren: " + b.getCisternCount() + "\n");
+		sb.append("Pocet vytvorenych kamionu: " + b.getCamionCount() + "\n");
+		sb.append("Pocet rozvozenych sudu: " + Controller.c.deliveredBarrels + "\n");
+		sb.append("Pocet rozvozenych hl: " + Controller.c.deliveredHL + "\n");
+		sb.append("Pocet nestihnutych objednavek: " + Controller.c.deliveredLate + "\n");
+		sb.append("Pocet vyprodukovanych hl: " + b.getCountBeers() + "");
+		Controller.c.gui.getAreaStatistika().setText(sb.toString());
 		System.out.println(sb);
 		pw.println(sb);
 	}

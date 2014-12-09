@@ -33,7 +33,7 @@ public class Gui extends JFrame {
 	private static final Gui INSTANCE = new Gui();
 
 	private static final long serialVersionUID = 1L;
-	private boolean stopAndPlay = true;
+	public boolean stopAndPlay = true;
 	
 	private JButton jButton1;
     private JButton jButton2;
@@ -58,7 +58,7 @@ public class Gui extends JFrame {
     private JScrollPane jScrollPane5;
     private JScrollPane jScrollPane6;
     private JScrollPane jScrollPane7;
-    private JSlider jSlider1;
+    public JSlider jSlider1;
     private JTabbedPane jTabbedPane1;
     private JTextArea jTextArea1;
     private JTextArea jTextArea2;
@@ -111,7 +111,7 @@ public class Gui extends JFrame {
         jLabel4 = new JLabel();
         jLabel5 = new JLabel();
         jButton1 = new JButton();
-        jSlider1 = new JSlider(0, 50);
+        jSlider1 = new JSlider(0, 500);
         jLabel7 = new JLabel();
         jButton2 = new JButton();
         jLabel6 = new JLabel();
@@ -139,7 +139,7 @@ public class Gui extends JFrame {
                  if (returnValue == JFileChooser.APPROVE_OPTION) {
                  	File f = fileChooser.getSelectedFile();
                  	try{
-                 		Controller.c.fileName = f.getAbsolutePath();
+                 		Controller.fileName = f.getAbsolutePath();
  	                }catch(IllegalArgumentException e1){
  	                	JOptionPane.showMessageDialog(null, e1.getMessage(), "Chyba souboru", JOptionPane.INFORMATION_MESSAGE);
  	                }
@@ -309,17 +309,17 @@ public class Gui extends JFrame {
             }
         });
         
-        jSlider1.setLabelTable(jSlider1.createStandardLabels(10));
+/*        jSlider1.setLabelTable(jSlider1.createStandardLabels(10));
         jSlider1.setMinorTickSpacing(2);
         jSlider1.setMajorTickSpacing(10);
         jSlider1.setPaintTicks(true);
-        jSlider1.setPaintLabels(true);
-        
+        jSlider1.setPaintLabels(true);*/
+/*        
         jSlider1.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent event) {
             	slider(event);
             }
-        });
+        });*/
 
         jLabel7.setText("Rychlost simulace");
 
@@ -438,20 +438,14 @@ public class Gui extends JFrame {
         String mnozstvi = jTextField1.getText();
         jTextArea1.append("Hospoda: "+hospoda+" mnozstvi: " + mnozstvi +" sudu/hl.");
     }
-
-    private void slider(ChangeEvent event){
-    	 int value_pom = jSlider1.getValue();
-         jTextArea1.append(value_pom+"\n");
-    }
     
     private void stopAndPlay(ActionEvent evt) {
         if(stopAndPlay){
-            jTextArea1.append("Stop\n");
             stopAndPlay = false;
         }else{
-            jTextArea1.append("Start\n");
             stopAndPlay = true;
         }
+        jButton1.setEnabled(stopAndPlay);
     }
     
     public JTextArea getAreaStatistika(){

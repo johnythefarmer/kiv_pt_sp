@@ -70,7 +70,7 @@ public class Brewery extends Stock {
 			tomorrow.remove(tomorrow);
 		}
 	
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16 && c.mainTime.getMinute() == 0){
 			prepareOrdersCisterns();
 		}
 		

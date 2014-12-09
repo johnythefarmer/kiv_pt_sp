@@ -18,7 +18,7 @@ public class Controller {
 	public static String fileName;
 	
 	/** Casovy krok*/
-	public static final int STEP = 60;
+	public static final int STEP = 15;
 	
 	/** Seznam vsech dopravnich uzlu */
 	public List<TransportNode> nodes;
@@ -40,8 +40,7 @@ public class Controller {
 	/**
 	 * Minimalni priorita vystupu:<br>
 	 * <li>1 = CHYBY
-	 * <li>2 = VYRIZENI OBJEDNAVKY
-	 * <li>3 = PODANI OBJEDNAVKY
+	 * <li>2 = OBJEDNAVKY
 	 * <li>4 = POHYB AUT
 	 * <li>5 = ZASOBOVANI DO PREKLADIST
 	 * <li>6 = PRODUKCE, VYTVARENI AUT
@@ -155,11 +154,27 @@ public class Controller {
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
 			
+			logger.printStatistics();
 			System.out.println("\n\n");
+			try {
+				Thread.sleep(gui.jSlider1.getValue());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			while(gui.stopAndPlay){
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		
-		logger.printFinalStatistics();
+		
 		logger.close();
 	}
 	

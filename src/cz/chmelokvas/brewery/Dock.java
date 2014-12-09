@@ -66,7 +66,7 @@ public class Dock extends Stock {
 		}
 		
 		//vyrizovani objednavek
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
+		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16 && c.mainTime.getMinute() == 0){
 			prepareOrders();
 			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
 			createdCars = 0;
