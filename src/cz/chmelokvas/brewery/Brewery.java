@@ -15,7 +15,7 @@ import cz.chmelokvas.util.Route;
 
 /**
  * Trida reprezentujici pivovar
- * @author Lukas Cerny A13B0293P, Jan Dvorak A13B0293P
+ * @author Lukas Cerny A13B0286P, Jan Dvorak A13B0293P
  *
  */
 public class Brewery extends Stock {

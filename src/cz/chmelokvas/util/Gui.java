@@ -507,21 +507,21 @@ public class Gui extends JFrame {
         	pub = Integer.parseInt(pubS);
         	amount = Integer.parseInt(amountS);
         }catch(Exception e){
-        	JOptionPane.showMessageDialog(this, "Musíte zadat èíslo", "Chybný vstup", JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(this, "Musï¿½te zadat ï¿½ï¿½slo", "Chybnï¿½ vstup", JOptionPane.ERROR_MESSAGE);
         	return;
         }
         
         //kontrola mnozstvi
         if(amount < 1 || amount > 6){
-        	JOptionPane.showMessageDialog(this, "Neplatné množství sudù/hl", "Chybný vstup", JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(this, "Neplatnï¿½ mnoï¿½stvï¿½ sudï¿½/hl", "Chybnï¿½ vstup", JOptionPane.ERROR_MESSAGE);
         	return;
         }
         
         Controller c = Controller.c;
         
         //kontrola id
-        if(pub <= (c.dock.size() + 1) || pub >= c.nodes.size()){
-        	JOptionPane.showMessageDialog(this, "Neplatné id hospody", "Chybný vstup", JOptionPane.ERROR_MESSAGE);
+        if(pub < (c.dock.size() + 1) || pub >= c.nodes.size()){
+        	JOptionPane.showMessageDialog(this, "Neplatnï¿½ id hospody", "Chybnï¿½ vstup", JOptionPane.ERROR_MESSAGE);
         	return;
         }
         
@@ -536,7 +536,7 @@ public class Gui extends JFrame {
         		p.getProvider().recieveOrder(o);
         	}
         }else {
-        	JOptionPane.showMessageDialog(this, "Tato hospoda již ruènì zadanou objednávku má.", "Objednávka už existuje", JOptionPane.WARNING_MESSAGE);
+        	JOptionPane.showMessageDialog(this, "Tato hospoda jiï¿½ ruï¿½nï¿½ zadanou objednï¿½vku mï¿½.", "Objednï¿½vka uï¿½ existuje", JOptionPane.WARNING_MESSAGE);
         	return;
         }
         
