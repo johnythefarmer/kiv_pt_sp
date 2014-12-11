@@ -13,6 +13,11 @@ import cz.chmelokvas.brewery.Pub;
 import cz.chmelokvas.brewery.Stock;
 
 
+/**
+ * Nastroj pro cteni ze souboru
+ * @author Lukas Cerny A13B0286P
+ *
+ */
 public class ParseData {
 	
 	/*
@@ -124,7 +129,7 @@ public class ParseData {
 	/**
 	 * Format dat:
 	 * 	ID:ID,d;ID,d;...
-	 * @param line
+	 * @param line data ze kterych parsujeme
 	 */
 	private void loadNeighbours(String line){
 		String parse[], tmpParse[];
@@ -179,7 +184,6 @@ public class ParseData {
 	 * Format dat:
 	 * 	ID	X	Y
 	 * @param line nactena radka
-	 * @param i	index do pole
 	 */
 	private void loadDock(String line){
 		String parse[];

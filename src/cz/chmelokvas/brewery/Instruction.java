@@ -1,5 +1,10 @@
 package cz.chmelokvas.brewery;
 
+/**
+ * Prepravka pro instrukce pro auta
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public class Instruction {
 	private final State state;
 	private final TransportNode destination;
@@ -68,6 +73,6 @@ public class Instruction {
 	}
 	
 	public String toString(){
-		return finished.toString();
+		return finished + " " + destination + " " + state;
 	}
 }

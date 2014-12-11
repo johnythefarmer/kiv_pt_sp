@@ -3,7 +3,17 @@ package cz.chmelokvas.brewery;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Car {
+import cz.chmelokvas.util.Loggable;
+
+/**
+ * Auto
+ * @author Jan Dvorak A13B0293P
+ *
+ */
+public class Car implements Loggable{
+	/**
+	 * Sklad pod ktery dane auto patri
+	 */
 	private final Stock stock;
 	
 	/** Typ auta */
@@ -17,6 +27,8 @@ public class Car {
 	
 	/**Dopravni uzel ve kterem se prave nachazi*/
 	private TransportNode position;
+	
+	private final StringBuilder sb = new StringBuilder("");
 	
 	/**
 	 * Pocet prazdnych sudu.<br>
@@ -32,9 +44,6 @@ public class Car {
 	
 	/** Identifikacni cislo auta u daneho skladu */
 	private final int id;
-	
-	/** Znaci, zda cekame, az bude misto v prekladisti */
-	private boolean isWaitingForUnload;
 	
 	/**
 	 * Privatni konstruktor. Vytvori auto na danem miste s danymi specifikacemi.<br>
@@ -141,10 +150,18 @@ public class Car {
 		return type;
 	}
 
+	public void setEmpty(int empty){
+		this.empty = empty;
+	}
+	
 	public int getEmpty() {
 		return empty;
 	}
 
+	public void setFull(int full){
+		this.full = full;
+	}
+	
 	public int getFull() {
 		return full;
 	}
@@ -162,7 +179,9 @@ public class Car {
 	 * @param n mnozstvi piva
 	 */
 	public void unload(int n){
-		this.full -= n;
+//		if(n <= this.full){
+			this.full -= n;
+//		}
 	}
 	
 	/**
@@ -171,14 +190,6 @@ public class Car {
 	 */
 	public void loadEmpty(int n){
 		this.empty += n;
-	}
-	
-	public boolean isWaitingForUnload() {
-		return isWaitingForUnload;
-	}
-
-	public void setWaitingForUnload(boolean isWaitingForUnload) {
-		this.isWaitingForUnload = isWaitingForUnload;
 	}
 
 	/**
@@ -205,8 +216,47 @@ public class Car {
 		return stock;
 	}
 
+	/**
+	 * Nastavi autu instrukce pro cestu
+	 * @param instructions instrukce pro cestu
+	 */
 	public void setInstructions(List<Instruction> instructions){
 		this.instructions = instructions;
+		if(!instructions.isEmpty()){
+			sb.append("\t").append(instructions).append("\n");
+		}
+		
 	}
 	
+	/**
+	 * Vrati id auta
+	 * @return id auta
+	 */
+	public final int getId(){
+		return id;
+	}
+	
+	@Override
+	public String tempInfo() {
+		StringBuilder sb = new StringBuilder(type + " " + stock.idCont +"_" + id + "\n");
+		sb.append("Stav : " + getState() + "\n");
+		sb.append("Pozice: " + getPosition() + "\n");
+		if(!instructions.isEmpty()){
+			sb.append("Smer: " + instructions.get(0).getDestination() + "\n");
+		}else{
+			sb.append("Smer: Zadny\n");
+		}
+		
+		sb.append("Prazdnych sudu: " + getEmpty() + "\n");
+		sb.append("Plnych sudu: " + getFull() + "\n");
+		sb.append("instrukce: " + instructions + "\n");
+		return sb.toString();
+	}
+
+	@Override
+	public String finalInfo() {
+		StringBuilder sb = new StringBuilder(type + " " + stock.idCont +"_" + id + "\n");
+		sb.append(this.sb);
+		return "-------------------\n" + sb.toString() + "-------------------\n";
+	}
 }

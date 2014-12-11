@@ -11,6 +11,11 @@ import java.util.TreeSet;
 import cz.chmelokvas.util.Controller;
 import cz.chmelokvas.util.Route;
 
+/**
+ * Prekladiste
+ * @author Lukas Cerny A13B0286P, Jan Dvorak A13B0293P
+ *
+ */
 public class Dock extends Stock {
 	
 	/**
@@ -22,8 +27,6 @@ public class Dock extends Stock {
 	 * Pocet vytvorenych aut v dane hodine
 	 */
 	private int createdCars = 0;
-	
-	private int imaginaryBarrels = 0;
 
 	private static final int MAX_DOCK_CAPACITY = 2000;
 
@@ -50,41 +53,49 @@ public class Dock extends Stock {
 	}
 	
 	/**
-	 * Provede vsechny udalosti, co se staly za dany krok v case to jest:
-	 * <li>Urci cestu nakladniho automobilu
-	 * <li>Vysle dalsi auta na cestu
-	 * <li>Posune auta o dany casovy usek
+	 * Provede vsechny udalosti, co se staly za dany krok v case to jest:<br>
+	 * Urci cestu nakladniho automobilu<br>
+	 * Vysle dalsi auta na cestu<br>
+	 * Posune auta o dany casovy usek<br>
 	 */
 	public void checkTimeEvents(){
-		//Predani instrukci ze vcerejska
-		if(c.mainTime.getHour() == 8){
-			for(List<Instruction> inst:tomorrow){
-				Car c = getFirstWaitingTruck();
-				c.setInstructions(inst);
-			}
-			tomorrow.remove(tomorrow);
-		}
 		
-		//vyrizovani objednavek
-		if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16 && c.mainTime.getMinute() == 0){
-			prepareOrders();
-			logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
-			createdCars = 0;
+		
+		
+		//rutiny ktere se vykonavaji v celou
+		if(c.mainTime.getMinute() == 0){
+			
+			
+			//Predani instrukci ze vcerejska
+			if(c.mainTime.getHour() == 8){
+				for(List<Instruction> inst:tomorrow){
+					Car c = getFirstWaitingTruck();
+					c.setInstructions(inst);
+				}
+				tomorrow.remove(tomorrow);
+			}
+			
+			//vyrizovani objednavek
+			if(c.mainTime.getHour() > 8 && c.mainTime.getHour() <= 16){
+				prepareOrders();
+				logger.log(c.mainTime, 6, this + " vytvorilo " + createdCars + " novych aut");
+				createdCars = 0;
+				
+			}else {
+				c.brewery.prepareOrdersCamions(this,1);
+			}
 		}
 
+		
+		if(this.full < 0){
+			System.err.println(this);
+		}
 		//Konani pohybu uz zamestnanych aut
 		moveCars();
 		
-		c.brewery.prepareOrdersCamions(this,1);
+		
 	}
 	
-	public void addImaginaryBarrels(int amount){
-		this.imaginaryBarrels += amount;
-	}
-	
-	public void subImaginaryBarrels(int amount){
-		this.imaginaryBarrels -= amount;
-	}
 
 	/**
 	 * Pro vsechny jiz prijmute objednavky urci cesty, kterymi budou reseny
@@ -174,6 +185,8 @@ public class Dock extends Stock {
 	private void checkPub(Pub p, Set<Order> selected){
 		Order today = p.getTodayOrder();
 		Order yesterday = p.getYesterdayOrder();
+		Order custom = p.getCustomOrder();
+		
 		//zkontroluje zda jiz neobjednala dnes
 		if(today != null && orders.contains(today)){
 			selected.add(today);
@@ -183,6 +196,11 @@ public class Dock extends Stock {
 		if(yesterday != null && orders.contains(yesterday)){
 			selected.add(yesterday);
 			orders.remove(yesterday);
+		}
+		
+		if(custom != null && orders.contains(custom)){
+			selected.add(custom);
+			orders.remove(custom);
 		}
 	}
 	
@@ -218,9 +236,9 @@ public class Dock extends Stock {
 		}
 	}
 	
-	public boolean canLoad(int amount){
+/*	public boolean canLoad(int amount){
 		return full + amount + imaginaryBarrels <= MAX_DOCK_CAPACITY;
-	}
+	}*/
 	
 	/**
 	 * Predane auto dokonci danou instrukci
@@ -230,13 +248,16 @@ public class Dock extends Stock {
 	private void finishInstruction(Car car, Instruction i){
 		car.setPosition(i.getDestination());
 		
-		
 		switch(i.getState()){
 			case LOADING: 
 				car.load(i.getAmount());
 				if(car.getPosition().equals(this)){unload(i.getAmount());}
 				break;
-			case UNLOADING: car.unload(i.getAmount());break;
+			case UNLOADING: 
+//				if(i.getOrder() != null){
+					car.unload(i.getAmount());
+					break;
+//				}
 			case LOADING_EMPTY_BARRELS: car.loadEmpty(i.getAmount());break;
 			case UNLOADING_EMPTY_BARRELS:
 				car.unloadEmpty(i.getAmount());
@@ -281,7 +302,6 @@ public class Dock extends Stock {
 	
 	/**
 	 * Zkontroluje, zda se dane objednavky vejdou do auta a pokud ne, vrati je zpet pro zpracovani dalsich objednavek
-	 * @param car Auto, do ktereho budeme chti nakladat
 	 * @param orders Objednavky, ktere ma dane auto stihnout
 	 * @return Celkovy pocet, ktery mame do auta nalozit
 	 */
@@ -308,7 +328,11 @@ public class Dock extends Stock {
 	 * @param n mnozstvi piva
 	 */
 	public void load(int n){
-		this.full += n;
+		if((this.full + n) > MAX_DOCK_CAPACITY){
+			this.full += (MAX_DOCK_CAPACITY-this.full);
+		}else{
+			this.full += n;
+		}
 	}
 	
 	/**
@@ -332,7 +356,12 @@ public class Dock extends Stock {
 	 * @param n mnozstvi piva
 	 */
 	public void unloadEmpty(int n){
-		this.empty -= n;
+		if(this.empty < n){
+			this.empty = 0;
+		}else {
+			this.empty -= n;
+		}
+		
 	}
 	
 	
@@ -384,7 +413,6 @@ public class Dock extends Stock {
 	 * Pokud bychom to ani zitra nestihli, doruci to jeste dnes ale opozdene
 	 * @param orders Mnozina vyrizovanych objednavek
 	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
-	 * @return Posledni objednavka, ktera bude dnes vyrizena
 	 */
 	private void checkTimeOfDeliveryLate(Set<Order> orders, List<Instruction> instructions){
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
@@ -407,7 +435,6 @@ public class Dock extends Stock {
 	 * Pokud bychom to ani zitra nestihli, doruci to jeste dnes ale opozdene
 	 * @param orders Mnozina vyrizovanych objednavek
 	 * @param instructions Instrukce, ktere budeme modifikovat pro cesty k vyrizeni danych objednavek
-	 * @return Posledni objednavka, ktera bude dnes vyrizena
 	 */
 	private void checkTimeOfDelivery(Set<Order> orders, List<Instruction> instructions){
 		for(Iterator<Order> it = orders.iterator(); it.hasNext();){
@@ -499,6 +526,7 @@ public class Dock extends Stock {
 	 * musime posunout instrukce v case, jelikoz se nam timpadem zmenila doba nakladani
 	 * @param instructions Seznam instrukci ktery chceme modifikovat
 	 * @param sum Nove mnozstvi sudu, ktere je treba nalozit
+	 * @param t cas podle ktereho upravujeme
 	 */
 	private void correctTime(List<Instruction> instructions, int sum, Time t){
 		int correct = instructions.get(1).getFinished().value() - t.getTimeAfterMinutes(sum*CarType.TRUCK.getReloadingSpeed()).value();
@@ -513,7 +541,7 @@ public class Dock extends Stock {
 	/**
 	 * Z daneho seznamu odstrani nepotrebne instrukce,
 	 * ktere slouzily k obslouzeni posledni objednavky, ktera jiz vyrizovana nebude
-	 * @param instructions
+	 * @param instructions seznam instrukci ze ktereho budeme mazat
 	 */
 	private void removeUnnecessaryInstr(List<Instruction> instructions){
 		LinkedList<Instruction> linkedInstructions = (LinkedList<Instruction>)instructions;
@@ -612,7 +640,8 @@ public class Dock extends Stock {
 	 * @param i uzel ve kterem se auto nachazi slo by ho zjistit pomoci
 	 *  {@code ((LinkedList<Instruction>)c.getInstructions()).getLast().getDestination().idProv},
 	 *   coz ale uznejme je hodne slozite a stejne jsme jiz hodnotu jednou ziskali
-	 * @param c Auto, kteremu dane instrukce predame
+	 * @param ct typ auta
+	 * @param instructions instrukce
 	 * @param nodes Zasobnik, ktery obsahuje uzly, pres ktere auto pojede
 	 */
 	public void addPathInstructions(int i, List<Instruction> instructions, Stack<Integer> nodes, CarType ct){
@@ -681,9 +710,34 @@ public class Dock extends Stock {
 		return empty;
 	}
 	
+	public int getFull(){
+		return full;
+	}
+	
 	
 	@Override
 	public String toString(){
 		return "Prekladiste " + idCont;
+	}
+
+	@Override
+	public String tempInfo() {
+		StringBuilder sb = new StringBuilder("Prekladiste ").append(idCont).append("\n");
+		sb.append("Pocet aut: ").append(garage.size()).append("\n");
+		sb.append("Pocet plnych sudu: ").append(full).append("\n");
+		sb.append("Pocet prazdnych sudu: ").append(empty).append("\n");
+		sb.append("Pocet resenych objednavek: ").append(beingPrepared.size()).append("\n");
+		return sb.toString();
+	}
+
+	@Override
+	public String finalInfo() {
+		StringBuilder sb = new StringBuilder(toString()).append("\n");
+		
+		for(Car c : garage){
+			sb.append(c.finalInfo()).append("\n");
+		}
+		
+		return "-------------------\n" + sb.toString() + "-------------------\n";
 	}
 }

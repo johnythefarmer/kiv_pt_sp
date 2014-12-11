@@ -1,15 +1,20 @@
 package cz.chmelokvas.brewery;
 
 
+/**
+ * Trida reprezentujici cas
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public class Time {
 
-	/** Atribut konstanty den */
+	/** Den */
 	private int day;
 	
-	/** Atribut konstanty hodina */
+	/** Hodina */
 	private int  hour;
 	
-	/** Atribut konstanty minuta */
+	/** Minuta */
 	private int minute;
 	
 	public Time(int day, int hour, int minute){
@@ -18,10 +23,19 @@ public class Time {
 		this.minute = minute;
 	}
 	
+	/**
+	 * Vytvori cas, ktery je vzdaleny n zadanych minut od pocatecniho casu
+	 * @param minutes minuty
+	 */
 	public Time(int minutes){
 		addMinutes(minutes);
 	}
 	
+	/**
+	 * Vrati cas, ktery se lisi od tohoto o zadane minuty
+	 * @param minutes minuty
+	 * @return rozdilny cas
+	 */
 	public Time getTimeAfterMinutes(int minutes){
 		return new Time(value() + minutes);
 	}

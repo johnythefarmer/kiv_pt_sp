@@ -6,10 +6,19 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.swing.JOptionPane;
+
 import cz.chmelokvas.util.Controller;
+import cz.chmelokvas.util.Loggable;
 import cz.chmelokvas.util.Logger;
 
-public abstract class Stock extends TransportNode {
+/**
+ * Skladiste<br>
+ * Od teto tridy dedi Pivovar a Prekladiste
+ * @author Jan Dvorak A13B0293P
+ *
+ */
+public abstract class Stock extends TransportNode implements Loggable{
 	
 	/** Atribut konstanty stavu skladu */
 	protected int state;
@@ -45,7 +54,9 @@ public abstract class Stock extends TransportNode {
 	/** Atribut konstanty auto */
 	protected List<Car> garage;
 	
-	/** Vrati seznam zpracovavanych objednavek */
+	/** Vrati seznam zpracovavanych objednavek 
+	 * @return mnozina pripravovanych objednavek
+	 */
 	public SortedSet<Order> getBeingPrepared() {
 		return beingPrepared;
 	}
@@ -117,8 +128,15 @@ public abstract class Stock extends TransportNode {
 			Pub p = o.getPub();
 			if(o.equals(p.getTodayOrder())){
 				p.setTodayOrder(null);
+				p.loggOrderDelivery(c, o.getAmount());
 			}else if(o.equals(p.getYesterdayOrder())){
 				p.setYesterdayOrder(null);
+				p.loggOrderDelivery(c, o.getAmount());
+			}else if(o.equals(p.getCustomOrder())){
+				p.setCustomOrder(null);
+				p.loggOrderDelivery(c, o.getAmount());
+				this.c.gui.stopAndPlay = true;
+				JOptionPane.showMessageDialog(null, finished + ": doruèená objednávka\n" + o + "\nDoruèena autem " + c, "Doruèení", JOptionPane.INFORMATION_MESSAGE);
 			}
 			
 			if(p.isTank()){

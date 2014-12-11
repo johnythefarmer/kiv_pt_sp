@@ -12,13 +12,16 @@ import cz.chmelokvas.brewery.Stock;
 import cz.chmelokvas.brewery.Time;
 import cz.chmelokvas.brewery.TransportNode;
 
+/**
+ * Ridici jednotka aplikace
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public class Controller {
 	public static Controller c;
-
-	public static String fileName;
 	
 	/** Casovy krok*/
-	public static final int STEP = 15;
+	public static final int STEP = 60;
 	
 	/** Seznam vsech dopravnich uzlu */
 	public List<TransportNode> nodes;
@@ -35,17 +38,7 @@ public class Controller {
 	/** Nastroj pro osetrovani vystupu do souboru a do cli */
 	private final Logger logger = Logger.getInstance("output.txt");
 	
-	final Gui gui = Gui.getInstance();
-	
-	/**
-	 * Minimalni priorita vystupu:<br>
-	 * <li>1 = CHYBY
-	 * <li>2 = OBJEDNAVKY
-	 * <li>4 = POHYB AUT
-	 * <li>5 = ZASOBOVANI DO PREKLADIST
-	 * <li>6 = PRODUKCE, VYTVARENI AUT
-	 */
-	public int minLogPriority = 1;
+	public final Gui gui = Gui.getInstance();
 	
 	/**
 	 * Pocet dorucenych sudu celkem
@@ -80,6 +73,7 @@ public class Controller {
 		nodes.add(brewery);
 		nodes.addAll(dock);
 		nodes.addAll(pub);
+		logger.setLoggableObject(brewery);
 		
 		for(TransportNode n:nodes){
 			n.setC(this);
@@ -107,37 +101,33 @@ public class Controller {
 		}
 	}
 	
-
+	
 	/**
 	 * Metoda ktera bude obstaravat celou simulaci
 	 */
 	public void simulate(){
-		System.out.println("Pocitam vzdalenosti mezi dopravnimi uzly...");
+		
+		gui.getAreaStatistika().setText("Pocitam vzdalenosti mezi dopravnimi uzly...");
+
 		for(Dock d:dock){
 			d.floydWarshal(d.getD(), d.getP(), d.getD().length);
 		}
 		brewery.calculateShortestPathsDijkstra();
 		
-		System.out.println("Vzdalenosti vypocitany.");
-//		System.out.println("Pro spusteni simulace zmacknete enter.");
-//		Main.sc.nextLine();
-//		Main.sc.nextLine();
+		gui.getAreaStatistika().setText("Vzdalenosti vypocitany.");
 		
 		int oldDay = -1;
 		while(mainTime.value() < endTime.value()){
+			logger.printStatistics();
 			
+			if(!waitForButton()){
+				break;
+			}
 			
+			long t = System.currentTimeMillis();
 			
-			System.out.println("---" + mainTime + "---");
 			//generovani objednavek na zacatku dne
 			if(oldDay != mainTime.getDay()){
-				for(Pub p:pub){
-					
-					if(p.getYesterdayOrder() != null && mainTime.value() > p.getYesterdayOrder().getTime().getTimeAfterMinutes(60*24).value()){
-						System.err.println("Nestihlo se");
-						System.err.println(p.getYesterdayOrder() + "" + p.getProvider());
-					}
-				}
 				logger.log(mainTime, 6, "Novy den, cas na generovani objednavek.");
 				generateOrders();
 			}
@@ -154,27 +144,17 @@ public class Controller {
 			oldDay = mainTime.getDay();
 			mainTime.addMinutes(STEP);
 			
-			logger.printStatistics();
-			System.out.println("\n\n");
-			try {
-				Thread.sleep(gui.jSlider1.getValue());
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			long time = System.currentTimeMillis() - t;
+			
+			waitForEndOfStep(time);
+			
+			if(gui.end){
+				break;
 			}
 			
-			while(gui.stopAndPlay){
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 		
-		
-		
+		logger.printFinalStatistics();
 		logger.close();
 	}
 	
@@ -195,6 +175,40 @@ public class Controller {
 			d.checkTimeEvents();
 		}
 		brewery.checkTimeEvents();
+	}
+	
+	/**
+	 * Ceka do konce casoveho kroku.<br>
+	 * @param time cas ktery jiz z tohoto kroku uplynul
+	 */
+	private void waitForEndOfStep(long time){
+		try {
+			if(time < gui.jSlider1.getValue()){
+				//Vyvazeni delky behu daneho kroku
+				Thread.sleep(gui.jSlider1.getValue() - time);
+			}
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Ceka ve while cyklu, doku neni zmacknuto tlacitko, nebo nenastal konec.
+	 * @return priznak, zda se ma simulace ukoncit
+	 */
+	private boolean waitForButton(){
+		while(gui.stopAndPlay){
+			if(gui.end){
+				return false;
+			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 	
 	/**

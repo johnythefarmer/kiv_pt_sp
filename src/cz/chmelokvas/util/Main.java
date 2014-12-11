@@ -1,40 +1,38 @@
 package cz.chmelokvas.util;
 
-import java.util.Scanner;
-
+/**
+ * Hlavni trida aplikace
+ * @author Lukas Cerny A13B0286P
+ *
+ */
 public class Main {
-	public static Scanner sc = new Scanner(System.in);
 
+	/**
+	 * Hlavni metoda aplikace
+	 * @param args argumenty z prikazove radky
+	 */
 	public static void main(String[] args) {
-		
-		
-		ParseData pd = new ParseData("export.txt");
-		Controller.c = pd.getC();
-		Controller.c.gui.setName(Controller.c.brewery.getName());
-		
-		int minLog = 1;
-//		if(args.length == 1){
-//			
-//			minLog = Integer.parseInt(args[0]);
-//		}else{
-//			System.out.println("Zvolte prioritu: ");
-//			System.out.println("1 = CHYBY");
-//			System.out.println("2 = VYRIZENI OBJEDNAVKY");
-//			System.out.println("3 = PODANI OBJEDNAVKY");
-//			System.out.println("4 = POHYB AUT");
-//			System.out.println("5 = ZASOBOVANI DO PREKLADIST");
-//			System.out.println("6 = PRODUKCE, VYTVARENI AUT");
-//			
-//			minLog = sc.nextInt();
-//			
-//		}
-		
-		
-//		Kresli kd = new Kresli(Controller.c);\
-		
-		Controller.c.minLogPriority = minLog;
-		Controller.c.simulate();
-		sc.close();
+		Gui gui = Gui.getInstance();
+		gui.setName("----------");		
 	}
 
+	/**
+	 * Nacte data ze souboru a zinicializuje ridici jednotku
+	 * @param nameFile soubor ze ktereho cteme
+	 */
+	public static void initController(String nameFile){
+		ParseData pd = new ParseData(nameFile);
+		Controller.c = pd.getC();
+		Controller.c.gui.setName(Controller.c.brewery.getName());
+		Runnable r = new Runnable() {
+			public void run() {
+				Controller.c.simulate();
+			}
+		};
+		
+		Thread t = new Thread(r);
+		t.start();
+		
+		
+	}
 }

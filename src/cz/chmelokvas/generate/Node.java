@@ -4,13 +4,18 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Uzel v grafu
+ * @author Lukas Cerny A13B0286P
+ *
+ */
 public class Node {
 	
 	/**	ID bodu
-	 * 		0 -> pivovar
-	 * 		1 - 8 -> prekladiste
-	 * 		9 - 200 -> hospody z tanku
-	 * 		201 - 4000 -> hospody ze sudu
+	 * 		0 : pivovar
+	 * 		1 - 8 : prekladiste
+	 * 		9 - 200 : hospody z tanku
+	 * 		201 - 4000 : hospody ze sudu
 	*/
 	private final int id;
 	
@@ -31,7 +36,13 @@ public class Node {
 	/** List nejblizsich sousedu */
 	private final List<Route> neighbours;
 	
-	/** Konstruktor souradnice X a Y, ID */
+
+	/**
+	 * vytvori bod na danych souradnicich s danym id
+	 * @param x x-ova souradnice
+	 * @param y y-ova souradnice
+	 * @param id id
+	 */
 	public Node(float x, float y, int id){
 		this.x = x;
 		this.y = y;

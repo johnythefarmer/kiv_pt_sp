@@ -1,5 +1,10 @@
 package cz.chmelokvas.brewery;
 
+/**
+ * Trida reprezentujici objednavku
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public class Order implements Comparable<Order>{
 
 	/** Cas objednani */

@@ -1,5 +1,10 @@
 package cz.chmelokvas.generate;
 
+/**
+ * Hrana v grafu
+ * @author Lukas Cerny A13B0286P
+ *
+ */
 public class Route {
 	
 	/** Atribut uzlu */

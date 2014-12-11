@@ -1,5 +1,10 @@
 package cz.chmelokvas.brewery;
 
+/**
+ * Enum typ auta
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public enum CarType {
 	CAMION(100,90f/60f,5,"Kamion"),CISTERN(50,1,2,"Cisterna"),TRUCK(30,70f/60f,5, "Nakladni auto");
 	

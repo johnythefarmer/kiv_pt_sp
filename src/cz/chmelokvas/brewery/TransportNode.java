@@ -6,6 +6,12 @@ import java.util.List;
 import cz.chmelokvas.util.Controller;
 import cz.chmelokvas.util.Route;
 
+/**
+ * Trida ktera reprezentuje jakykoliv dopravni uzel<br>
+ * Od teto tridy dedi pivovar, prekladista a hospoda
+ * @author Jan Dvorak A13B0293P
+ *
+ */
 public class TransportNode {
 	protected Controller c;
 	
@@ -26,7 +32,9 @@ public class TransportNode {
 	/** =Y souradnice */
 	protected float y;
 	
-	/** Vrati sousedy daneho dopravniho uzlu */
+	/** Vrati sousedy daneho dopravniho uzlu
+	 * @return sousedi 
+	 */
 	public List<Route> getRoutes(){
 		return routes;
 	}

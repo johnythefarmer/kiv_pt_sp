@@ -3,9 +3,15 @@ package cz.chmelokvas.brewery;
 import java.util.Random;
 
 import cz.chmelokvas.util.Controller;
+import cz.chmelokvas.util.Loggable;
 
-public class Pub extends TransportNode {	
-	private static Random r = new Random(10);
+/**
+ * Trida reprezentujici hospodu
+ * @author Jan Dvorak A13B0293P
+ *
+ */
+public class Pub extends TransportNode implements Loggable{	
+	private static Random r = new Random();
 	
 	/** Dnesni objednavka */
 	private Order todayOrder;
@@ -13,14 +19,20 @@ public class Pub extends TransportNode {
 	/** Vcerejsi objednavka */
 	private Order yesterdayOrder;
 	
+	private Order customOrder;
+	
 	/** Znaci, zda je hospoda tankova */
 	private boolean isTank;
 	
-	public Pub(int idProv, int idCont, boolean isTank){
-		this.idProv = idProv;
-		this.idCont = idCont;
-		this.isTank = isTank;
-	}
+	/**
+	 * Data pro vypis na konci programu
+	 */
+	private final StringBuilder sb = new StringBuilder("Hospoda ");
+	
+	/**
+	 * Dovezene mnozstvi za tri dny
+	 */
+	private int sumThreeDays;
 	
 	public Pub(Stock provider, int idProv, int idCont, float x, float y, boolean isTank){
 		this.idProv = idProv;
@@ -29,6 +41,7 @@ public class Pub extends TransportNode {
 		this.y = y;
 		this.isTank = isTank;
 		this.provider = provider;
+		this.sb.append(idCont).append(":\n");
 	}
 	
 	/**
@@ -36,6 +49,12 @@ public class Pub extends TransportNode {
 	 * @return	objednavka
 	 */
 	public Order makeOrder(){
+		if(c.mainTime.getDay()%3 == 0 && c.mainTime.getDay() != 0){
+			sb.append("\n\tZa tri dny doruceno ").append(sumThreeDays).append("\n\t----\n\n\n\t----\n");
+			sumThreeDays = 0;
+		}
+		sb.append("\tDen ").append(c.mainTime.getDay()).append(":\n");
+		
 		if(todayOrder != null){
 			yesterdayOrder = todayOrder;
 		}
@@ -51,12 +70,30 @@ public class Pub extends TransportNode {
 		return yesterdayOrder;
 	}
 	
+	public Order getCustomOrder(){
+		return customOrder;
+	}
+	
 	public void setTodayOrder(Order todayOrder){
 		this.todayOrder = todayOrder;
 	}
 	
 	public void setYesterdayOrder(Order yesterdayOrder){
 		this.yesterdayOrder = yesterdayOrder;
+	}
+	
+	public void setCustomOrder(Order customOrder){
+		this.customOrder = customOrder;
+	}
+	
+	/**
+	 * Poznamena si ze zde vylozilo auto
+	 * @param c auto, ktere zde vylozilo
+	 * @param amount vylozene mnozstvi
+	 */
+	public void loggOrderDelivery(Car c, int amount){
+		sb.append("\t").append(c).append(": ").append(amount).append("\n");
+		sumThreeDays += amount;
 	}
 	
 	/**
@@ -145,5 +182,41 @@ public class Pub extends TransportNode {
 			return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public String tempInfo() {
+		StringBuilder sb = new StringBuilder("Hospoda "+idCont+":\n");
+		sb.append("Dnesni objednavka: ");
+		if(todayOrder == null){
+			sb.append("zadna\n");
+		}else {
+			sb.append(todayOrder);
+			sb.append("\n");
+		}
+		
+		sb.append("Vcerejsi objednavka: ");
+		if(yesterdayOrder == null){
+			sb.append("zadna\n");
+		}else {
+			sb.append(yesterdayOrder);
+			sb.append("\n");
+		}
+		
+		sb.append("Rucne zadana objednavka: ");
+		if(customOrder == null){
+			sb.append("zadna\n");
+		}else {
+			sb.append(customOrder);
+			sb.append("\n");
+		}
+		sb.append(this.sb);
+		
+		return sb.toString();
+	}
+
+	@Override
+	public String finalInfo() {
+		return "-------------------------\n" + sb + "-------------------------\n";
 	}
 }
