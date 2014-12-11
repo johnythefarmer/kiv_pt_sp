@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
  */
 public class KeyPriorityQueue<E> {
 	
+	@SuppressWarnings("hiding")
 	private final class Item<E> implements Comparable<Item<E>>{
 		private final float key;
 		private final E value;
